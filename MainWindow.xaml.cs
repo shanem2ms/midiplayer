@@ -36,7 +36,7 @@ namespace midiplayer
             waveOut.Play();
 
             // Load the MIDI file.
-            var midiFile = new MeltySynth.MidiFile(@"C:\Users\shane\Downloads\Never-Gonna-Give-You-Up-3.mid");
+            var midiFile = new MeltySynth.MidiFile(@"C:\Users\shane\Downloads\MurderSheWrote.mid");
 
             // Play the MIDI file.
             player.Play(midiFile, true);            
