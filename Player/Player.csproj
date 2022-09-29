@@ -5,12 +5,16 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <PackageId>midiplayer</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="managed-midi" Version="1.9.14" />
-    <PackageReference Include="MeltySynth" Version="2.3.0" />
     <PackageReference Include="NAudio" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\meltysynth\MeltySynth\MeltySynth.csproj" />
   </ItemGroup>
 
   <ItemGroup>

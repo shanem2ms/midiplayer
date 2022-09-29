@@ -29,7 +29,7 @@ namespace midiplayer
         {
             InitializeComponent();
 
-            var player = new MidiSampleProvider("TimGM6mb.sf2");
+            var player = new MidiSampleProvider(@"C:\homep4\midiplayer\TimGM6mb.sf2");
 
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(player);
