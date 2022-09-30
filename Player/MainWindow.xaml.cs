@@ -36,7 +36,7 @@ namespace midiplayer
             waveOut.Play();
 
             // Load the MIDI file.
-            var midiFile = new MeltySynth.MidiFile(@"C:\Users\shane\Downloads\MurderSheWrote.mid");
+            var midiFile = new MeltySynth.MidiFile(@"C:\Users\shane\Downloads\Movie_Themes_-_Ghostbusters.mid");
 
             // Play the MIDI file.
             player.Play(midiFile, true);            
