@@ -160,6 +160,7 @@ namespace MeltySynth
             }
         }
 
+        public int Volume { get; set; } = 100;
         /// <summary>
         /// Processes a MIDI message.
         /// </summary>
@@ -183,7 +184,7 @@ namespace MeltySynth
                     break;
 
                 case 0x90: // Note On
-                    NoteOn(channel, data1, data2);
+                    NoteOn(channel, data1, (data2 * Volume) / 100);
                     break;
 
                 case 0xB0: // Controller

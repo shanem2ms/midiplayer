@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,9 +13,9 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Commons.Music.Midi;
 using CoreMidi;
 using MeltySynth;
@@ -22,24 +26,59 @@ namespace midiplayer
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         WaveOut waveOut;
+        MidiSampleProvider player;
+        HttpClient httpClient = new HttpClient();
+        List<string> midiFiles = new List<string>();
+
+        public IEnumerable<string> MidiFiles => midiFiles;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        async Task<MeltySynth.MidiFile> PlayFile()
+        {
+            Uri uri = new Uri(@"https://bushgrafts.com/jazz/AintMisbehavin.MID");
+
+            var response = await httpClient.GetAsync(uri);
+            Stream stream = response.Content.ReadAsStream();
+            return new MeltySynth.MidiFile(stream);
+        }
         public MainWindow()
         {
+            this.DataContext = this;
             InitializeComponent();
+            string homedir = @"C:\homep4\midiplayer";
 
-            var player = new MidiSampleProvider(@"C:\homep4\midiplayer\TimGM6mb.sf2");
+            player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
 
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(player);
             waveOut.Play();
 
-            // Load the MIDI file.
-            var midiFile = new MeltySynth.MidiFile(@"C:\Users\shane\Downloads\Movie_Themes_-_Ghostbusters.mid");
 
-            // Play the MIDI file.
-            player.Play(midiFile, true);            
+            DirectoryInfo di = new DirectoryInfo(Path.Combine(homedir, "Playlist"));
+            foreach (FileInfo fi in di.GetFiles("*.mid"))
+            {
+                midiFiles.Add(fi.Name);
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            // Load the MIDI file.
+            //var midiFile = new MeltySynth.MidiFile(@"C:\homep4\midiplayer\Beal. Jeff - Monk Main Theme.mid");
+            PlayFile().ContinueWith((Task<MidiFile> task) =>
+            {
+                // Play the MIDI file.
+                player.Play(task.Result, true);
+            });
+
+        }
+
+        private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (player != null)
+                player.SetVolume((int)e.NewValue);
         }
     }
 }

@@ -12,6 +12,11 @@ namespace midiplayer
 
         private object mutex;
 
+        public void SetVolume(int volume)
+        {
+            synthesizer.Volume = volume;
+        }
+
         public MidiSampleProvider(string soundFontPath)
         {
             synthesizer = new Synthesizer(soundFontPath, format.SampleRate);
