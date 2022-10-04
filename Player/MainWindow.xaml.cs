@@ -58,20 +58,27 @@ namespace midiplayer
             waveOut.Play();
 
 
-            DirectoryInfo di = new DirectoryInfo(Path.Combine(homedir, "Playlist"));
+            string playlistDir = Path.Combine(homedir, "Playlist");
+            DirectoryInfo di = new DirectoryInfo(playlistDir);
             foreach (FileInfo fi in di.GetFiles("*.mid"))
             {
                 midiFiles.Add(fi.Name);
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+
+            Random r = new Random();
+            int rVal = r.Next(midiFiles.Count());
+            string path = Path.Combine(playlistDir, midiFiles[rVal]);
             // Load the MIDI file.
-            //var midiFile = new MeltySynth.MidiFile(@"C:\homep4\midiplayer\Beal. Jeff - Monk Main Theme.mid");
+            var midiFile = new MeltySynth.MidiFile(path);
+            player.Play(midiFile, true);
+            /*
             PlayFile().ContinueWith((Task<MidiFile> task) =>
             {
                 // Play the MIDI file.
                 player.Play(task.Result, true);
-            });
+            });*/
 
         }
 
