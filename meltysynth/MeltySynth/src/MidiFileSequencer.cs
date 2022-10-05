@@ -24,6 +24,8 @@ namespace MeltySynth
         private TimeSpan currentTime;
         private int msgIndex;
         private int loopIndex;
+        public event EventHandler<TimeSpan> OnPlaybackTime;
+        public event EventHandler<bool> OnPlaybackComplete;
 
         /// <summary>
         /// Initializes a new instance of the sequencer.
@@ -103,7 +105,6 @@ namespace MeltySynth
                 wrote += rem;
             }
         }
-
         private void ProcessEvents()
         {
             if (midiFile == null)
@@ -142,12 +143,21 @@ namespace MeltySynth
                 }
             }
 
-            if (msgIndex == midiFile.Messages.Length && loop)
+            if (msgIndex == midiFile.Messages.Length)
             {
-                currentTime = midiFile.Times[loopIndex];
-                msgIndex = loopIndex;
                 synthesizer.NoteOffAll(false);
+                if (loop)
+                {
+                    currentTime = midiFile.Times[loopIndex];
+                    msgIndex = loopIndex;
+                }
+                else
+                {
+                    OnPlaybackComplete?.Invoke(this, loop);
+                }
             }
+
+            OnPlaybackTime?.Invoke(this, currentTime);
         }
 
         /// <summary>

@@ -9,6 +9,8 @@ namespace midiplayer
 
         private Synthesizer synthesizer;
         private MidiFileSequencer sequencer;
+        public MidiFileSequencer Sequencer => sequencer;
+
 
         private object mutex;
 
@@ -20,15 +22,16 @@ namespace midiplayer
         public MidiSampleProvider(string soundFontPath)
         {
             synthesizer = new Synthesizer(soundFontPath, format.SampleRate);
-            sequencer = new MidiFileSequencer(synthesizer);            
+            synthesizer.MasterVolume = 1.0f;
+            sequencer = new MidiFileSequencer(synthesizer);
             mutex = new object();
         }
 
-        public void Play(MeltySynth.MidiFile midiFile, bool loop)
+        public void Play(MeltySynth.MidiFile midiFile)
         {
             lock (mutex)
             {
-                sequencer.Play(midiFile, loop);
+                sequencer.Play(midiFile, false);
             }
         }
 
