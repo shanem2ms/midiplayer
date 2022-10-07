@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Player\Player.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeltySynth", "meltysynth\MeltySynth\MeltySynth.csproj", "{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerMaui", "PlayerMaui\PlayerMaui.csproj", "{B6917F02-D47A-4283-B6C7-D48432255783}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6917F02-D47A-4283-B6C7-D48432255783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6917F02-D47A-4283-B6C7-D48432255783}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6917F02-D47A-4283-B6C7-D48432255783}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6917F02-D47A-4283-B6C7-D48432255783}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

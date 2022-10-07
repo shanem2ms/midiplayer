@@ -14,7 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\meltysynth\MeltySynth\MeltySynth.csproj" />
+    <ProjectReference Include="..\meltysynth\MeltySynth\MeltySynth.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
