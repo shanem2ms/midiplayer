@@ -20,8 +20,9 @@ using System.Windows.Navigation;
 using Commons.Music.Midi;
 using CoreMidi;
 using MeltySynth;
-using NAudio.Midi;
 using NAudio.Wave;
+using NAudio.Midi;
+using System.Threading.Channels;
 
 namespace midiplayer
 {
@@ -39,7 +40,7 @@ namespace midiplayer
         public IEnumerable<string> MidiFiles => midiFiles;
         public string CurrentSong { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
-
+        MidiOut midiOut;
 
         async Task<MeltySynth.MidiFile> PlayFile()
         {
@@ -55,19 +56,21 @@ namespace midiplayer
         {
             this.DataContext = this;
             InitializeComponent();
-            for (int device = 0; device < MidiOut.NumberOfDevices; device++)
-            {
-                var midiOut = MidiOut.DeviceInfo(device);
-            }
-
+           
             player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
             player.Sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             player.Sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
+            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
 
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(player);
             waveOut.Play();
 
+            for (int device = 0; device < MidiOut.NumberOfDevices; device++)
+            {
+                var devinfo = MidiOut.DeviceInfo(device).ProductName;
+            }
+            midiOut = new MidiOut(1);
 
             DirectoryInfo di = new DirectoryInfo(PlaylistDir);
             foreach (FileInfo fi in di.GetFiles("*.mid"))
@@ -77,6 +80,29 @@ namespace midiplayer
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             NextSong();
+        }
+
+        void OnProcessMidiMessage(int channel, int command, int data1, int data2)
+        {
+            //var channelInfo = channels[channel];
+
+            switch (command)
+            {
+                case 0x80: // Note Off
+                    {
+                        NoteOnEvent noteOnEvent = new NoteOnEvent(0, channel+1, data1, 0, 110);
+                        midiOut.Send(noteOnEvent.GetAsShortMessage());
+                    }
+                    break;
+
+                case 0x90: // Note On
+                    {
+                        NoteOnEvent noteOnEvent = new NoteOnEvent(0, channel+1, data1, data2, 1000);
+                        midiOut.Send(noteOnEvent.GetAsShortMessage());
+                    }
+                    break;                    
+                    
+            }
         }
         private void Sequencer_OnPlaybackComplete(object? sender, bool e)
         {

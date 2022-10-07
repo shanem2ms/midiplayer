@@ -26,6 +26,8 @@ namespace MeltySynth
         private int loopIndex;
         public event EventHandler<TimeSpan> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
+        public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
+        public OnProcessMidiMessageDel OnProcessMidiMessage;
 
         /// <summary>
         /// Initializes a new instance of the sequencer.
@@ -120,6 +122,8 @@ namespace MeltySynth
                 {
                     if (msg.Type == MidiFile.MessageType.Normal)
                     {
+                        if (OnProcessMidiMessage != null)
+                            OnProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                         synthesizer.ProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                     }
                     else if (loop)
@@ -133,7 +137,7 @@ namespace MeltySynth
                             currentTime = midiFile.Times[loopIndex];
                             msgIndex = loopIndex;
                             synthesizer.NoteOffAll(false);
-                        }
+                        }                        
                     }
                     msgIndex++;
                 }
