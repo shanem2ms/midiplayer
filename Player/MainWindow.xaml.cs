@@ -23,6 +23,7 @@ using MeltySynth;
 using NAudio.Wave;
 using NAudio.Midi;
 using System.Threading.Channels;
+using System.Diagnostics;
 
 namespace midiplayer
 {
@@ -36,6 +37,7 @@ namespace midiplayer
         MeltySynth.MidiFile currentMidiFile;
         HttpClient httpClient = new HttpClient();
         List<string> midiFiles = new List<string>();
+        int volume = 100;
 
         public IEnumerable<string> MidiFiles => midiFiles;
         public string CurrentSong { get; set; }
@@ -90,15 +92,22 @@ namespace midiplayer
             {
                 case 0x80: // Note Off
                     {
-                        NoteOnEvent noteOnEvent = new NoteOnEvent(0, channel+1, data1, 0, 110);
-                        midiOut.Send(noteOnEvent.GetAsShortMessage());
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        midiOut.Send(cmd);
                     }
                     break;
 
                 case 0x90: // Note On
                     {
-                        NoteOnEvent noteOnEvent = new NoteOnEvent(0, channel+1, data1, data2, 1000);
-                        midiOut.Send(noteOnEvent.GetAsShortMessage());
+                        int vol = (data2 * volume) / 100;
+                        int cmd = channel | command | (data1 << 8) | (vol << 16);
+                        midiOut.Send(cmd);
+                        break;
+                    }
+                default:
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        midiOut.Send(cmd);
                     }
                     break;                    
                     
@@ -124,6 +133,7 @@ namespace midiplayer
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            volume = (int)e.NewValue;
             if (player != null)
                 player.SetVolume((int)e.NewValue);
         }
