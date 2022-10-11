@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-macos</TargetFramework>
     <Nullable>enable</Nullable>
     <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
     <TrimMode>copyused</TrimMode>
@@ -9,48 +8,41 @@
     <Platforms>AnyCPU;ARM64;x64</Platforms>
     <ApplicationId>shane.midiplayer</ApplicationId>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
-    <LinkMode>None</LinkMode>
-    <AOTMode>None</AOTMode>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
     <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
+	  <TargetFramework>net6.0-macos</TargetFramework>
+	  <UseSGen>false</UseSGen>
     <LinkMode>None</LinkMode>
     <AOTMode>None</AOTMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
-    <LinkMode>None</LinkMode>
-    <AOTMode>None</AOTMode>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <UseSGen>false</UseSGen>
     <LinkMode>None</LinkMode>
     <AOTMode>None</AOTMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM64' ">
     <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
+	  <TargetFramework>net6.0-macos</TargetFramework>
+	  <UseSGen>false</UseSGen>
     <LinkMode>None</LinkMode>
     <AOTMode>None</AOTMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <EnableCodeSigning>false</EnableCodeSigning>
-    <UseSGen>false</UseSGen>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <UseSGen>false</UseSGen>
     <LinkMode>None</LinkMode>
     <AOTMode>None</AOTMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <ItemGroup Condition=" '$(Platform)' == 'x64' ">
+    <Compile Remove="AVAudioEngineOut.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove=".gitignore" />
   </ItemGroup>
