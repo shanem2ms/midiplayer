@@ -12,14 +12,14 @@ using System;
 using Tmds.DBus;
 using NAudio.Wave;
 using NAudio.Midi;
-using NAudio.Gui;
 using Avalonia;
 
 namespace PlayerAv
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        WaveOut waveOut;
+        //WaveOut waveOut;
+        NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
         MidiSampleProvider player;
         MeltySynth.MidiFile currentMidiFile;
         HttpClient httpClient = new HttpClient();
@@ -39,7 +39,7 @@ namespace PlayerAv
             Stream stream = response.Content.ReadAsStream();
             return new MeltySynth.MidiFile(stream);
         }
-        string homedir = @"C:\homep4\midiplayer";
+        string homedir = @"/Users/shanemorrison/Perforce/shanemac/midiplayer";
         string PlaylistDir => Path.Combine(homedir, "Playlist");
         public MainWindow()
         {
@@ -52,16 +52,23 @@ namespace PlayerAv
             player.Sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
 
+
+#if WIN
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(player);
             waveOut.Play();
-
+            
             for (int device = 0; device < MidiOut.NumberOfDevices; device++)
             {
                 var devinfo = MidiOut.DeviceInfo(device).ProductName;
             }
             midiOut = new MidiOut(1);
-
+#else
+            aVAudioEngineOut = new AVAudioEngineOut();
+            aVAudioEngineOut.Init(player);              
+            aVAudioEngineOut.Play();
+               
+#endif
             DirectoryInfo di = new DirectoryInfo(PlaylistDir);
             foreach (FileInfo fi in di.GetFiles("*.mid"))
             {
@@ -85,7 +92,7 @@ namespace PlayerAv
         void OnProcessMidiMessage(int channel, int command, int data1, int data2)
         {
             //var channelInfo = channels[channel];
-
+            if (midiOut == null) return;
             switch (command)
             {
                 case 0x80: // Note Off
