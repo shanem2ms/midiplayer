@@ -1,36 +1,22 @@
-﻿using System;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using midiplayer;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using Commons.Music.Midi;
-using CoreMidi;
-using MeltySynth;
+using System;
+using Tmds.DBus;
 using NAudio.Wave;
 using NAudio.Midi;
-using System.Threading.Channels;
-using System.Diagnostics;
 using NAudio.Gui;
+using Avalonia;
 
-namespace midiplayer
+namespace PlayerAv
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         WaveOut waveOut;
@@ -39,10 +25,10 @@ namespace midiplayer
         HttpClient httpClient = new HttpClient();
         List<string> midiFiles = new List<string>();
         int volume = 100;
-
+        
+        public new event PropertyChangedEventHandler? PropertyChanged;
         public IEnumerable<string> MidiFiles => midiFiles;
         public string CurrentSong { get; set; }
-        public event PropertyChangedEventHandler? PropertyChanged;
         MidiOut midiOut;
 
         async Task<MeltySynth.MidiFile> PlayFile()
@@ -59,7 +45,8 @@ namespace midiplayer
         {
             this.DataContext = this;
             InitializeComponent();
-            
+
+            VolumeSlider.PropertyChanged += VolumeSlider_PropertyChanged;
             player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
             player.Sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             player.Sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
@@ -82,7 +69,17 @@ namespace midiplayer
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
-            NextSong();
+            //NextSong();
+        }
+
+        private void VolumeSlider_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == Slider.ValueProperty)
+            {
+                volume = (int)(double)e.NewValue;
+                if (player != null)
+                    player.SetVolume(volume);
+            }
         }
 
         void OnProcessMidiMessage(int channel, int command, int data1, int data2)
@@ -110,13 +107,13 @@ namespace midiplayer
                         int cmd = channel | command | (data1 << 8) | (data2 << 16);
                         midiOut.Send(cmd);
                     }
-                    break;                    
-                    
+                    break;
+
             }
         }
         private void Sequencer_OnPlaybackComplete(object? sender, bool e)
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.UIThread.Post(() =>
             {
                 NextSong();
             });
@@ -125,18 +122,11 @@ namespace midiplayer
         private void Sequencer_OnPlaybackTime(object? sender, TimeSpan e)
         {
             double percentDone = e.TotalMilliseconds / currentMidiFile.Length.TotalMilliseconds;
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.UIThread.Post(() =>
             {
                 CurrentPosSlider.Value = CurrentPosSlider.Minimum +
                     percentDone * (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum);
             });
-        }
-
-        private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            volume = (int)e.NewValue;
-            if (player != null)
-                player.SetVolume((int)e.NewValue);
         }
 
         private void Prev_Click(object sender, RoutedEventArgs e)
@@ -146,7 +136,7 @@ namespace midiplayer
         void NextSong()
         {
             Random r = new Random();
-            int rVal = r.Next(midiFiles.Count());
+            int rVal = r.Next(midiFiles.Count);
             PlaySong(rVal);
         }
         void PlaySong(int idx)
@@ -164,5 +154,6 @@ namespace midiplayer
         {
             NextSong();
         }
+
     }
 }

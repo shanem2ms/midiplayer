@@ -7,26 +7,54 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Player\Player.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeltySynth", "meltysynth\MeltySynth\MeltySynth.csproj", "{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerMaui", "PlayerMaui\PlayerMaui.csproj", "{B6917F02-D47A-4283-B6C7-D48432255783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerAv", "PlayerAv\PlayerAv.csproj", "{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|ARM64.Build.0 = Debug|ARM64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|x64.ActiveCfg = Debug|x64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Debug|x64.Build.0 = Debug|x64
 		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|ARM64.ActiveCfg = Release|ARM64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|ARM64.Build.0 = Release|ARM64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|x64.ActiveCfg = Release|x64
+		{651F72A5-7615-47B7-BB1C-412A8E467BA3}.Release|x64.Build.0 = Release|x64
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|x64.ActiveCfg = Debug|x64
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Debug|x64.Build.0 = Debug|x64
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B6917F02-D47A-4283-B6C7-D48432255783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B6917F02-D47A-4283-B6C7-D48432255783}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B6917F02-D47A-4283-B6C7-D48432255783}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B6917F02-D47A-4283-B6C7-D48432255783}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|ARM64.Build.0 = Release|Any CPU
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|x64.ActiveCfg = Release|x64
+		{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}.Release|x64.Build.0 = Release|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|Any CPU.Build.0 = Debug|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|ARM64.Build.0 = Debug|ARM64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|x64.ActiveCfg = Debug|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Debug|x64.Build.0 = Debug|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|ARM64.ActiveCfg = Release|ARM64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|ARM64.Build.0 = Release|ARM64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|x64.ActiveCfg = Release|x64
+		{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
