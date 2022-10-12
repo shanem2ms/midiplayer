@@ -39,10 +39,20 @@ namespace PlayerAv
             Stream stream = response.Content.ReadAsStream();
             return new MeltySynth.MidiFile(stream);
         }
-        string homedir = @"/Users/shanemorrison/Perforce/shanemac/midiplayer";
+        string GetHomeDir()
+        {
+            DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (di.Name.ToLower() != "midiplayer")
+            {
+                di = di.Parent;
+            }
+            return di.FullName;
+        }
+        string homedir;
         string PlaylistDir => Path.Combine(homedir, "Playlist");
         public MainWindow()
         {
+            this.homedir = GetHomeDir();
             this.DataContext = this;
             InitializeComponent();
 

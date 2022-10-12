@@ -8,7 +8,7 @@ namespace PlayerAv
     {
         public override void Initialize()
         {
-            AvaloniaXamlLoader.Load(this);
+            AvaloniaXamlLoader.Load(this);            
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -19,6 +19,11 @@ namespace PlayerAv
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void Desktop_Startup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
+        {
+            //e.Args;
         }
     }
 }
