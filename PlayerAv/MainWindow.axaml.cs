@@ -18,7 +18,7 @@ namespace PlayerAv
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        WaveOut aVAudioEngineOut;
+        AVAudioEngineOut aVAudioEngineOut;
         //NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
         MidiSampleProvider player;
         MeltySynth.MidiFile currentMidiFile;
@@ -74,7 +74,7 @@ namespace PlayerAv
             }
             midiOut = new MidiOut(1);
 #else
-            aVAudioEngineOut = new WaveOut();
+            aVAudioEngineOut = new AVAudioEngineOut();
             aVAudioEngineOut.Init(player);              
             aVAudioEngineOut.Play();
                

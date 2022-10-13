@@ -5,9 +5,9 @@
 		<!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
 		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<Platforms>AnyCPU;ARM64;x64</Platforms>
+		<Platforms>ARM64;x64;AnyCPU</Platforms>
 		<ApplicationId>shane.midiplayer</ApplicationId>
-		<Configurations>Debug;Release;MacOS_Debug</Configurations>
+		<Configurations>Debug;MacOS_Debug;Release</Configurations>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -24,6 +24,8 @@
 		<LinkMode>None</LinkMode>
 		<AOTMode>None</AOTMode>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugSymbols>true</DebugSymbols>
+		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -49,9 +51,22 @@
 		<AOTMode>None</AOTMode>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<ItemGroup Condition=" '$(Configuration)' != 'MacOS_Debug' ">
-		<Compile Remove="AVAudioEngineOut.cs" />
-	</ItemGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <NoStdLib>true</NoStdLib>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MacOS_Debug|ARM64' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <NoStdLib>true</NoStdLib>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MacOS_Debug|AnyCPU' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <NoStdLib>true</NoStdLib>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <NoStdLib>true</NoStdLib>
+	</PropertyGroup>
 	<ItemGroup>
 		<None Remove=".gitignore" />
 	</ItemGroup>
