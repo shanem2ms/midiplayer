@@ -7,7 +7,7 @@
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<Platforms>ARM64;x64;AnyCPU</Platforms>
 		<ApplicationId>shane.midiplayer</ApplicationId>
-		<Configurations>Debug;MacOS_Debug;Release</Configurations>
+		<Configurations>Debug;Release;Windows_Debug</Configurations>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -17,7 +17,15 @@
 		<AOTMode>None</AOTMode>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MacOS_Debug|x64' ">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|ARM64'">
+	  <EnableCodeSigning>false</EnableCodeSigning>
+	  <TargetFramework>net6.0-macos</TargetFramework>
+	  <UseSGen>false</UseSGen>
+	  <LinkMode>None</LinkMode>
+	  <AOTMode>None</AOTMode>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
 		<TargetFramework>net6.0-macos</TargetFramework>
 		<UseSGen>false</UseSGen>
@@ -27,13 +35,13 @@
 		<DebugSymbols>true</DebugSymbols>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-		<EnableCodeSigning>false</EnableCodeSigning>
-		<TargetFramework>net6.0-windows</TargetFramework>
-		<UseSGen>false</UseSGen>
-		<LinkMode>None</LinkMode>
-		<AOTMode>None</AOTMode>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|x64'">
+	  <EnableCodeSigning>false</EnableCodeSigning>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <UseSGen>false</UseSGen>
+	  <LinkMode>None</LinkMode>
+	  <AOTMode>None</AOTMode>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -55,11 +63,7 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <NoStdLib>true</NoStdLib>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MacOS_Debug|ARM64' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <NoStdLib>true</NoStdLib>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MacOS_Debug|AnyCPU' ">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|AnyCPU'">
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <NoStdLib>true</NoStdLib>
 	</PropertyGroup>
@@ -67,6 +71,9 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <NoStdLib>true</NoStdLib>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Condition=" '$(Configuration)' == 'Windows_Debug' " Remove="AVAudioEngineOut.cs" />
+	</ItemGroup>
 	<ItemGroup>
 		<None Remove=".gitignore" />
 	</ItemGroup>
@@ -82,6 +89,9 @@
 		<PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
 		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.18" />
+		<PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)'=='Windows_Debug'">
+		  <Version>0.10.18</Version>
+		</PackageReference>
 		<PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
 	</ItemGroup>
 	<ItemGroup>
