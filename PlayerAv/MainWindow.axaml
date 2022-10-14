@@ -5,6 +5,11 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PlayerAv.MainWindow"
         Title="PlayerAv">
+	<Window.Styles>
+		<Style Selector="Slider.Vol">
+
+		</Style>
+	</Window.Styles>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="50" />
@@ -12,6 +17,7 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="50" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="50"/>
@@ -21,7 +27,9 @@
 		</Grid.ColumnDefinitions>
 		<Label Grid.Column="2" Content="{Binding Path=CurrentSong}" />
 		<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Value, ElementName=VolumeSlider, StringFormat=N0}" />
-		<Slider x:Name="VolumeSlider" Grid.Row="2" Grid.Column="1" Orientation="Vertical" Value="100" Minimum="0" Maximum="100" />
+		<Slider x:Name="VolumeSlider" Grid.Row="2" Grid.Column="1"
+				Orientation="Vertical" Value="100" Minimum="0" Maximum="100">
+		</Slider>
 		<ListBox Grid.Row="2" Grid.Column="2" Items="{Binding Path=MidiFiles}" />
 		<Label Grid.Row="3" Grid.Column="1" Content="Volume"/>
 		<Slider x:Name="CurrentPosSlider" Grid.Row="3" Grid.Column="2" />
@@ -29,5 +37,17 @@
 			<Button Content="&lt;" Width="30" Height="30" Margin="5" Click="Prev_Click" />
 			<Button Content="&gt;" Width="30" Height="30" Margin="5" Click="Next_Click" />
 		</StackPanel>
+		<Grid Grid.Row="5" Grid.Column="2"  >
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+		</Grid>
 	</Grid>
 </Window>

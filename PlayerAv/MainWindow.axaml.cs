@@ -73,8 +73,8 @@ namespace PlayerAv
             {
                 var devinfo = MidiOut.DeviceInfo(device).ProductName;
             }
-            midiOut = new MidiOut(1);
 #else
+            midiOut = new MidiOut(1);
             aVAudioEngineOut = new AVAudioEngineOut();
             aVAudioEngineOut.Init(player);              
             aVAudioEngineOut.Play();
