@@ -1,13 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
+		<OutputType>WinExe</OutputType>
 		<Nullable>enable</Nullable>
 		<!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
 		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<Platforms>ARM64;x64;AnyCPU</Platforms>
 		<ApplicationId>shane.midiplayer</ApplicationId>
-		<Configurations>Debug;Release;Windows_Debug</Configurations>
+		<Configurations>Debug;Windows_Debug;Release</Configurations>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+		<IsAvaloniaProject>True</IsAvaloniaProject>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -18,30 +22,27 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|ARM64'">
-	  <EnableCodeSigning>false</EnableCodeSigning>
-	  <TargetFramework>net6.0-macos</TargetFramework>
-	  <UseSGen>false</UseSGen>
-	  <LinkMode>None</LinkMode>
-	  <AOTMode>None</AOTMode>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
 		<TargetFramework>net6.0-macos</TargetFramework>
 		<UseSGen>false</UseSGen>
 		<LinkMode>None</LinkMode>
 		<AOTMode>None</AOTMode>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+		<EnableCodeSigning>false</EnableCodeSigning>
+		<TargetFramework>net6.0-macos</TargetFramework>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DebugSymbols>true</DebugSymbols>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|x64'">
-	  <EnableCodeSigning>false</EnableCodeSigning>
-	  <TargetFramework>net6.0-windows</TargetFramework>
-	  <UseSGen>false</UseSGen>
-	  <LinkMode>None</LinkMode>
-	  <AOTMode>None</AOTMode>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<EnableCodeSigning>false</EnableCodeSigning>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseSGen>false</UseSGen>
+		<LinkMode>None</LinkMode>
+		<AOTMode>None</AOTMode>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM64' ">
 		<EnableCodeSigning>false</EnableCodeSigning>
@@ -60,19 +61,19 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <NoStdLib>true</NoStdLib>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<NoStdLib>true</NoStdLib>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows_Debug|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <NoStdLib>true</NoStdLib>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<NoStdLib>true</NoStdLib>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <NoStdLib>true</NoStdLib>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<NoStdLib>true</NoStdLib>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Condition=" '$(Configuration)' == 'Windows_Debug' " Remove="AVAudioEngineOut.cs" />
+		<Compile Condition=" '$(Configuration)' == 'Windows_Debug' " Remove="AVAudioEngineOut.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove=".gitignore" />
@@ -89,8 +90,7 @@
 		<PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
 		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.18" />
-		<PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)'=='Windows_Debug'">
-		  <Version>0.10.18</Version>
+		<PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)'=='Windows_Debug'" Version="0.10.18">
 		</PackageReference>
 		<PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
 	</ItemGroup>

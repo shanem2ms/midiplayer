@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeltySynth", "meltysynth\MeltySynth\MeltySynth.csproj", "{9D948C8C-1DDF-40B3-AFFD-BC5CC4AC91EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerAv", "PlayerAv\PlayerAv.csproj", "{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerAv", "PlayerAv\PlayerAv.csproj", "{A600C91F-A1BE-4D3E-B602-DF3A1C076CA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
