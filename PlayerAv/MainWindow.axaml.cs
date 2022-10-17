@@ -16,7 +16,7 @@ using Avalonia;
 
 namespace PlayerAv
 {
-    //using AVAudioEngineOut = NAudio.Wave.WaveOut;
+    using AVAudioEngineOut = NAudio.Wave.WaveOut;
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         AVAudioEngineOut aVAudioEngineOut;
