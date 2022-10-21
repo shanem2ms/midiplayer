@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="clr-namespace:PlayerAv"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PlayerAv.ChannelOutput">
+	<UserControl.Resources>
+		<local:IntToBrushConverter x:Key="IntToBrush" />
+	</UserControl.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="10" />
+		</Grid.ColumnDefinitions>
+		<TextBlock Grid.Column="1" Text="{Binding Path=ChannelId}" />
+		<Rectangle Grid.Column="1" x:Name="DataRect" Grid.Row="1" Fill="{Binding Path=DataValue, Converter={StaticResource IntToBrush}}" Width="16" Height="16"/>
+	</Grid>
+	</UserControl>
