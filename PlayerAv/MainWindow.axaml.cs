@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using midiplayer;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -10,143 +9,83 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System;
 using Tmds.DBus;
-using NAudio.Wave;
-using NAudio.Midi;
 using Avalonia;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
+using System.Linq;
+using System.Collections.ObjectModel;
+using MeltySynth;
+using System.Threading.Channels;
+using midiplayer;
 
 namespace PlayerAv
 {
-    using AVAudioEngineOut = NAudio.Wave.WaveOut;
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        AVAudioEngineOut aVAudioEngineOut;
-        //NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
-        MidiSampleProvider player;
-        MeltySynth.MidiFile currentMidiFile;
-        HttpClient httpClient = new HttpClient();
-        List<string> midiFiles = new List<string>();
-        int volume = 100;
+        ObservableCollection<midiplayer.MidiFI> jazzMidiFiles = new ObservableCollection<midiplayer.MidiFI>();
+        ObservableCollection<midiplayer.MidiFI> bitMidiFiles = new ObservableCollection<midiplayer.MidiFI>();
         
         public new event PropertyChangedEventHandler? PropertyChanged;
-        public IEnumerable<string> MidiFiles => midiFiles;
+        public ObservableCollection<midiplayer.MidiFI> JazzMidiFiles => jazzMidiFiles;
+        public ObservableCollection<midiplayer.MidiFI> BitmidiFiles => bitMidiFiles;
         public string CurrentSong { get; set; }
-        MidiOut midiOut;
+        ChannelOutput[] channelOutputs;
+        midiplayer.MidiPlayer player;
 
-        async Task<MeltySynth.MidiFile> PlayFile()
-        {
-            Uri uri = new Uri(@"https://bushgrafts.com/jazz/AintMisbehavin.MID");
-
-            var response = await httpClient.GetAsync(uri);
-            Stream stream = response.Content.ReadAsStream();
-            return new MeltySynth.MidiFile(stream);
-        }
-        string GetHomeDir()
-        {
-            DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (di.Name.ToLower() != "midiplayer")
-            {
-                di = di.Parent;
-            }
-            return di.FullName;
-        }
-        string homedir;
-        string PlaylistDir => Path.Combine(homedir, "Playlist");
         public MainWindow()
         {
-            this.homedir = GetHomeDir();
+            player = new midiplayer.MidiPlayer();
             this.DataContext = this;
             InitializeComponent();
 
+            channelOutputs = new ChannelOutput[] {
+                Ch0, Ch1, Ch2, Ch3, Ch4, Ch5, Ch6, Ch7,
+            Ch8, Ch9, Ch10, Ch11, Ch12, Ch13, Ch14, Ch15 };
             VolumeSlider.PropertyChanged += VolumeSlider_PropertyChanged;
-            player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
-            player.Sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
-            player.Sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
-            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
 
-
-#if WIN
-            waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
-            waveOut.Init(player);
-            waveOut.Play();
-            
-            for (int device = 0; device < MidiOut.NumberOfDevices; device++)
-            {
-                var devinfo = MidiOut.DeviceInfo(device).ProductName;
-            }
-#else
-            //midiOut = new MidiOut(0);
-            aVAudioEngineOut = new AVAudioEngineOut();
-            aVAudioEngineOut.Init(player);              
-            aVAudioEngineOut.Play();
-               
-#endif
-            DirectoryInfo di = new DirectoryInfo(PlaylistDir);
-            foreach (FileInfo fi in di.GetFiles("*.mid"))
-            {
-                midiFiles.Add(fi.Name);
-            }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            player.OnChannelEvent += Player_OnChannelEvent;
+            foreach (var midi in player.jazzMidiFiles)
+            {
+                jazzMidiFiles.Add(midi);
+            }
+            foreach (var midi in player.bitMidiFiles)
+            {
+                bitMidiFiles.Add(midi);
+            }
             //NextSong();
+        }
+
+        private void Player_OnChannelEvent(object? sender, midiplayer.MidiPlayer.ChannelEvent e)
+        {
+            if (e.channel < channelOutputs.Length)
+            {
+                channelOutputs[e.channel].SetMidiData(e.data);
+            }
         }
 
         private void VolumeSlider_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Property == Slider.ValueProperty)
             {
-                volume = (int)(double)e.NewValue;
                 if (player != null)
-                    player.SetVolume(volume);
+                    player.SetVolume((int)(double)e.NewValue);
             }
         }
 
-        void OnProcessMidiMessage(int channel, int command, int data1, int data2)
+        private void JazzMidi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
         {
-            //var channelInfo = channels[channel];
-            if (midiOut == null) return;
-            switch (command)
+            if (e.AddedItems.Count > 0)
             {
-                case 0x80: // Note Off
-                    {
-                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
-                        midiOut.Send(cmd);
-                    }
-                    break;
-
-                case 0x90: // Note On
-                    {
-                        int vol = (data2 * volume) / 100;
-                        int cmd = channel | command | (data1 << 8) | (vol << 16);
-                        midiOut.Send(cmd);
-                        break;
-                    }
-                default:
-                    {
-                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
-                        midiOut.Send(cmd);
-                    }
-                    break;
-
+                PlaySong(e.AddedItems[0] as MidiFI);
             }
         }
-        private void Sequencer_OnPlaybackComplete(object? sender, bool e)
+        private void BitMidi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                NextSong();
-            });
-        }
 
-        private void Sequencer_OnPlaybackTime(object? sender, TimeSpan e)
-        {
-            double percentDone = e.TotalMilliseconds / currentMidiFile.Length.TotalMilliseconds;
-            Dispatcher.UIThread.Post(() =>
-            {
-                CurrentPosSlider.Value = CurrentPosSlider.Minimum +
-                    percentDone * (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum);
-            });
         }
-
         private void Prev_Click(object sender, RoutedEventArgs e)
         {
 
@@ -154,17 +93,13 @@ namespace PlayerAv
         void NextSong()
         {
             Random r = new Random();
-            int rVal = r.Next(midiFiles.Count);
-            PlaySong(rVal);
+            int rVal = r.Next(player.jazzMidiFiles.Count);
+            PlaySong(player.jazzMidiFiles[rVal]);
         }
-        void PlaySong(int idx)
+        void PlaySong(MidiFI midiFI)
         {
-            string path = Path.Combine(PlaylistDir, midiFiles[idx]);
-            // Load the MIDI file.
-            var midiFile = new MeltySynth.MidiFile(path);
-            player.Play(midiFile);
-            currentMidiFile = midiFile;
-            CurrentSong = midiFiles[idx];
+            player.PlaySong(midiFI);
+            CurrentSong = midiFI.Name;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSong"));
 
         }
