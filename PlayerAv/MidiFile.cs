@@ -13,6 +13,7 @@ namespace midiplayer
     using PlayerAv;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
     using System.Net.Http;
@@ -23,7 +24,8 @@ namespace midiplayer
     public class MidiFI
     {
         public string Name { get; }
-        // https://bitmidi.com/
+        
+        public string Url { get; }
         public MidiFI(string name) :
             this(name, null)
         {
@@ -32,6 +34,7 @@ namespace midiplayer
         public MidiFI(string name, string url)
         {
             Name = name;
+            Url = url;
         }
     }
 
@@ -54,10 +57,19 @@ namespace midiplayer
 
         MidiOut midiOut;
         string homedir;
-        public List<MidiFI> bitMidiFiles = new List<MidiFI>();
+        public ObservableCollection<MidiFI> jazzMidiFiles = new ObservableCollection<MidiFI>();
+        public ObservableCollection<MidiFI> bitMidiFiles = new ObservableCollection<MidiFI>();
         int volume = 100;
-        public List<MidiFI> jazzMidiFiles = new List<MidiFI>();
         HttpClient httpClient = new HttpClient();
+        public string searchStr;
+        public string SearchStr
+        {
+            get => searchStr;
+            set
+            {
+                searchStr = value;                
+            }
+        }
 
         public class ChannelEvent
         {
@@ -77,9 +89,11 @@ namespace midiplayer
 
             var filestream = File.OpenRead(Path.Combine(homedir, "mappings.json"));
             var result = JsonSerializer.Deserialize<Dictionary<string, string>>(filestream);
-            foreach (var item in result!.Keys)
+            foreach (var kv in result)
             {
-                bitMidiFiles.Add(new MidiFI(item, "https://bitmidi.com/"));
+                string name = kv.Key.Substring(1);
+                string url = "https://bitmidi.com" + kv.Value;
+                bitMidiFiles.Add(new MidiFI(name, url));
             }
 
 #if WIN
@@ -122,15 +136,26 @@ namespace midiplayer
         }
         public void PlaySong(MidiFI mfi)
         {
-            string path = Path.Combine(PlaylistDir, mfi.Name);
-            // Load the MIDI file.
-            var midiFile = new MeltySynth.MidiFile(path);
-            player.Play(midiFile);
+            if (mfi.Url != null)
+            {
+                PlayFile(mfi.Url).ContinueWith((action) =>
+                    {
+                        var midifile = action.Result;
+                        player.Play(midifile);
+                    });
+            }
+            else
+            {
+                string path = Path.Combine(PlaylistDir, mfi.Name);
+                // Load the MIDI file.
+                var midiFile = new MeltySynth.MidiFile(path);
+                player.Play(midiFile);
+            }
         }
 
-        async Task<MeltySynth.MidiFile> PlayFile()
+        async Task<MeltySynth.MidiFile> PlayFile(string url)
         {
-            Uri uri = new Uri(@"https://bushgrafts.com/jazz/AintMisbehavin.MID");
+            Uri uri = new Uri(url);
 
             var response = await httpClient.GetAsync(uri);
             Stream stream = response.Content.ReadAsStream();

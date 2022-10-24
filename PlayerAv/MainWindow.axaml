@@ -32,6 +32,7 @@
 				Orientation="Vertical" Value="100" Minimum="0" Maximum="100">
 		</Slider>
 
+		<TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=SearchStr, Mode=TwoWay}" />
 		<TabControl Grid.Row="2" Grid.Column="2" >
 			<TabItem Header="Jazz">
 				<ListBox Items="{Binding Path=JazzMidiFiles}"
@@ -46,7 +47,13 @@
 			</TabItem>
 			<TabItem Header="Bitmidi">
 				<ListBox Items="{Binding Path=BitmidiFiles}"
-						 SelectionChanged="BitMidi_SelectedItemsChanged" />
+						 SelectionChanged="BitMidi_SelectedItemsChanged" >
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 			</TabItem>
 		</TabControl>
 		<Label Grid.Row="3" Grid.Column="1" Content="Volume"/>

@@ -16,9 +16,14 @@
     <Version>2.3.0</Version>
     <Nullable>enable</Nullable>
     <Configurations>Release;Debug</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\MeltySynth.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DocumentationFile>bin\Release\MeltySynth.xml</DocumentationFile>
   </PropertyGroup>
 

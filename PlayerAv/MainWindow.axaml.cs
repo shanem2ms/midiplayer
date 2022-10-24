@@ -23,15 +23,18 @@ namespace PlayerAv
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        ObservableCollection<midiplayer.MidiFI> jazzMidiFiles = new ObservableCollection<midiplayer.MidiFI>();
-        ObservableCollection<midiplayer.MidiFI> bitMidiFiles = new ObservableCollection<midiplayer.MidiFI>();
-        
         public new event PropertyChangedEventHandler? PropertyChanged;
-        public ObservableCollection<midiplayer.MidiFI> JazzMidiFiles => jazzMidiFiles;
-        public ObservableCollection<midiplayer.MidiFI> BitmidiFiles => bitMidiFiles;
+        public ObservableCollection<midiplayer.MidiFI> JazzMidiFiles => player.jazzMidiFiles;
+        public ObservableCollection<midiplayer.MidiFI> BitmidiFiles => player.bitMidiFiles;
         public string CurrentSong { get; set; }
         ChannelOutput[] channelOutputs;
         midiplayer.MidiPlayer player;
+
+        public string SearchStr
+        {
+            get => player.SearchStr;
+            set => player.SearchStr = value;
+        }
 
         public MainWindow()
         {
@@ -47,14 +50,6 @@ namespace PlayerAv
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             player.OnChannelEvent += Player_OnChannelEvent;
-            foreach (var midi in player.jazzMidiFiles)
-            {
-                jazzMidiFiles.Add(midi);
-            }
-            foreach (var midi in player.bitMidiFiles)
-            {
-                bitMidiFiles.Add(midi);
-            }
             //NextSong();
         }
 
@@ -84,7 +79,10 @@ namespace PlayerAv
         }
         private void BitMidi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
         {
-
+            if (e.AddedItems.Count > 0)
+            {
+                PlaySong(e.AddedItems[0] as MidiFI);
+            }
         }
         private void Prev_Click(object sender, RoutedEventArgs e)
         {
