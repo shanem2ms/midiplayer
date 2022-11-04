@@ -24,16 +24,19 @@ namespace midiplayer
     public class MidiFI
     {
         public string Name { get; }
-        
-        public string Url { get; }
+
+        string nameLower;
+        public string NmLwr => nameLower;
+        public Uri Url { get; }
         public MidiFI(string name) :
             this(name, null)
         {
         }
 
-        public MidiFI(string name, string url)
+        public MidiFI(string name, Uri url)
         {
             Name = name;
+            nameLower = name.ToLower();
             Url = url;
         }
     }
@@ -57,8 +60,24 @@ namespace midiplayer
 
         MidiOut midiOut;
         string homedir;
-        public ObservableCollection<MidiFI> jazzMidiFiles = new ObservableCollection<MidiFI>();
-        public ObservableCollection<MidiFI> bitMidiFiles = new ObservableCollection<MidiFI>();
+        MidiFI[] midiFiles;
+
+        public IEnumerable<MidiFI> FilteredMidiFiles
+        {
+            get
+            {
+                if (searchStr != null &
+                    searchStr?.Trim().Length > 2)
+                {
+                    string ssLower = searchStr.ToLower();
+                    return midiFiles.Where(fi => fi.NmLwr.Contains(ssLower));
+                }
+                else
+                    return midiFiles;
+            }
+
+        }
+
         int volume = 100;
         HttpClient httpClient = new HttpClient();
         public string searchStr;
@@ -67,7 +86,7 @@ namespace midiplayer
             get => searchStr;
             set
             {
-                searchStr = value;                
+                searchStr = value;
             }
         }
 
@@ -77,23 +96,45 @@ namespace midiplayer
             public int data;
         }
         public event EventHandler<ChannelEvent> OnChannelEvent;
-        public event EventHandler<TimeSpan> OnPlaybackTime;
-        public event EventHandler<bool> OnPlaybackComplete;
+        public event EventHandler<TimeSpan> OnPlaybackTime
+        {
+            add { player.Sequencer.OnPlaybackTime += value; }
+            remove { player.Sequencer.OnPlaybackTime -= value; }
+        }
+
+        public event EventHandler<bool> OnPlaybackComplete
+        {
+            add { player.Sequencer.OnPlaybackComplete += value; }
+            remove { player.Sequencer.OnPlaybackComplete -= value; }
+        }
+        public event EventHandler<TimeSpan> OnPlaybackStart
+        {
+            add { player.Sequencer.OnPlaybackStart += value; }
+            remove { player.Sequencer.OnPlaybackStart -= value; }
+        }
+
+        public MidiFI GetNextSong()
+        {
+            Random r = new Random();
+            int rVal = r.Next(this.midiFiles.Length);
+            return this.midiFiles[rVal];
+        }
         public MidiPlayer()
         {
             homedir = GetHomeDir();
             player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
-            player.Sequencer.OnPlaybackTime += OnPlaybackTime;
-            player.Sequencer.OnPlaybackComplete += OnPlaybackComplete;
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
 
             var filestream = File.OpenRead(Path.Combine(homedir, "mappings.json"));
             var result = JsonSerializer.Deserialize<Dictionary<string, string>>(filestream);
+            string bitmididir = Path.Combine(PlaylistDir, "bitmidi");
+            List<MidiFI> midFileLsit = new List<MidiFI>();
             foreach (var kv in result)
             {
                 string name = kv.Key.Substring(1);
                 string url = "https://bitmidi.com" + kv.Value;
-                bitMidiFiles.Add(new MidiFI(name, url));
+                string filename = Path.GetFileName(kv.Value);
+                midFileLsit.Add(new MidiFI(name, new Uri(Path.Combine(bitmididir, filename))));
             }
 
 #if WIN
@@ -113,23 +154,14 @@ namespace midiplayer
 
 #endif
             DirectoryInfo di = new DirectoryInfo(PlaylistDir);
-            foreach (FileInfo fi in di.GetFiles("*.mid"))
+            var filelist = di.GetFiles("*.mid");
+            foreach (FileInfo fi in filelist)
             {
-                jazzMidiFiles.Add(new MidiFI(fi.Name));
+                midFileLsit.Add(new MidiFI(fi.Name));
             }
 
+            this.midiFiles = midFileLsit.ToArray();
         }
-
-        private void Sequencer_OnPlaybackTime(object? sender, TimeSpan e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Sequencer_OnPlaybackComplete(object? sender, bool e)
-        {
-            throw new NotImplementedException();
-        }
-
         public void SetVolume(int volume)
         {
             player.SetVolume(volume);
@@ -138,11 +170,19 @@ namespace midiplayer
         {
             if (mfi.Url != null)
             {
-                PlayFile(mfi.Url).ContinueWith((action) =>
-                    {
-                        var midifile = action.Result;
-                        player.Play(midifile);
-                    });
+                if (mfi.Url.IsFile)
+                {
+                    var midiFile = new MeltySynth.MidiFile(mfi.Url.LocalPath);
+                    player.Play(midiFile);
+                }
+                else
+                {
+                    PlayFile(mfi.Url).ContinueWith((action) =>
+                        {
+                            var midifile = action.Result;
+                            player.Play(midifile);
+                        });
+                }
             }
             else
             {
@@ -153,12 +193,11 @@ namespace midiplayer
             }
         }
 
-        async Task<MeltySynth.MidiFile> PlayFile(string url)
+        async Task<MeltySynth.MidiFile> PlayFile(Uri url)
         {
-            Uri uri = new Uri(url);
-
-            var response = await httpClient.GetAsync(uri);
-            Stream stream = response.Content.ReadAsStream();
+            var response = await httpClient.GetAsync(url);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            MemoryStream stream = new MemoryStream(bytes);
             return new MeltySynth.MidiFile(stream);
         }
 

@@ -23,17 +23,22 @@ namespace PlayerAv
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public new event PropertyChangedEventHandler? PropertyChanged;
-        public ObservableCollection<midiplayer.MidiFI> JazzMidiFiles => player.jazzMidiFiles;
-        public ObservableCollection<midiplayer.MidiFI> BitmidiFiles => player.bitMidiFiles;
+        public new event PropertyChangedEventHandler? PropertyChanged;        
+        public ObservableCollection<midiplayer.MidiFI> MidiFiles => new
+            ObservableCollection<midiplayer.MidiFI>(player.FilteredMidiFiles);
         public string CurrentSong { get; set; }
         ChannelOutput[] channelOutputs;
         midiplayer.MidiPlayer player;
+        TimeSpan currentSongTime;
 
         public string SearchStr
         {
             get => player.SearchStr;
-            set => player.SearchStr = value;
+            set
+            {
+                player.SearchStr = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            }
         }
 
         public MainWindow()
@@ -50,7 +55,31 @@ namespace PlayerAv
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             player.OnChannelEvent += Player_OnChannelEvent;
+            player.OnPlaybackTime += Player_OnPlaybackTime;
+            player.OnPlaybackStart += Player_OnPlaybackStart;
+            player.OnPlaybackComplete += Player_OnPlaybackComplete;
             //NextSong();
+        }
+
+        private void Player_OnPlaybackComplete(object? sender, bool e)
+        {
+            NextSong();
+        }
+
+        private void Player_OnPlaybackStart(object? sender, TimeSpan e)
+        {
+            currentSongTime = e;
+        }
+
+        private void Player_OnPlaybackTime(object? sender, TimeSpan e)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                double lerp = e.TotalMilliseconds / currentSongTime.TotalMilliseconds;
+                CurrentPosSlider.Value =
+                    (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum) * lerp +
+                        CurrentPosSlider.Minimum;
+            });
         }
 
         private void Player_OnChannelEvent(object? sender, midiplayer.MidiPlayer.ChannelEvent e)
@@ -70,14 +99,7 @@ namespace PlayerAv
             }
         }
 
-        private void JazzMidi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                PlaySong(e.AddedItems[0] as MidiFI);
-            }
-        }
-        private void BitMidi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
+        private void Midi_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
@@ -90,9 +112,7 @@ namespace PlayerAv
         }
         void NextSong()
         {
-            Random r = new Random();
-            int rVal = r.Next(player.jazzMidiFiles.Count);
-            PlaySong(player.jazzMidiFiles[rVal]);
+            PlaySong(player.GetNextSong());
         }
         void PlaySong(MidiFI midiFI)
         {

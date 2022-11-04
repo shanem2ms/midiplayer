@@ -26,6 +26,7 @@ namespace MeltySynth
         private int loopIndex;
         public event EventHandler<TimeSpan> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
+        public event EventHandler<TimeSpan> OnPlaybackStart;
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
         public OnProcessMidiMessageDel OnProcessMidiMessage;
 
@@ -66,6 +67,7 @@ namespace MeltySynth
             msgIndex = 0;
             loopIndex = 0;
 
+            OnPlaybackStart?.Invoke(this, this.midiFile.Length);
             synthesizer.Reset();
         }
 

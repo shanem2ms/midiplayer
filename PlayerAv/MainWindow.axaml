@@ -33,29 +33,16 @@
 		</Slider>
 
 		<TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=SearchStr, Mode=TwoWay}" />
-		<TabControl Grid.Row="2" Grid.Column="2" >
-			<TabItem Header="Jazz">
-				<ListBox Items="{Binding Path=JazzMidiFiles}"
-						 SelectionChanged="JazzMidi_SelectedItemsChanged"
-						 SelectionMode="Single">
-					<ListBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Name}" />
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</TabItem>
-			<TabItem Header="Bitmidi">
-				<ListBox Items="{Binding Path=BitmidiFiles}"
-						 SelectionChanged="BitMidi_SelectedItemsChanged" >
-					<ListBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Name}" />
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</TabItem>
-		</TabControl>
+		<ListBox Grid.Row="2" Grid.Column="2" Items="{Binding Path=MidiFiles}"
+				 SelectionChanged="Midi_SelectedItemsChanged"
+				 SelectionMode="Single">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Name}" />
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
 		<Label Grid.Row="3" Grid.Column="1" Content="Volume"/>
 		<Slider x:Name="CurrentPosSlider" Grid.Row="3" Grid.Column="2" />
 		<StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" >
