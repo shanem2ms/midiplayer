@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-//using AVAudioEngineOut = NAudio.Wave.WaveOut;
-using NAudio.Wave;
 using NAudio.Midi;
-using midiplayer;
 using Newtonsoft.Json;
 
 namespace midiplayer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Net.Http;
-    using System.Text;
 
     public class MidiFI
     {
@@ -50,7 +41,7 @@ namespace midiplayer
             }
             return di.FullName;
         }
-        string PlaylistDir => Path.Combine(homedir, "Playlist");
+        string CacheDir => Path.Combine(homedir, "cache");
 
         MidiSampleProvider player;
         //AVAudioEngineOut aVAudioEngineOut;
@@ -76,10 +67,10 @@ namespace midiplayer
         }
 
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
-        public OnAudioEngineCreateDel OnAudioEngineCreate = null;
         int volume = 100;
         HttpClient httpClient = new HttpClient();
         public string searchStr;
+        const string awsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
         public string SearchStr
         {
             get => searchStr;
@@ -118,49 +109,30 @@ namespace midiplayer
             int rVal = r.Next(this.midiFiles.Length);
             return this.midiFiles[rVal];
         }
-        public MidiPlayer()
+        public MidiPlayer(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
             homedir = GetHomeDir();
             player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
+            OnAudioEngineCreate(player);
+        }
 
-            var filestream = File.ReadAllText(Path.Combine(homedir, "mappings.json"));
-            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(filestream);
-            string bitmididir = Path.Combine(PlaylistDir, "bitmidi");
+        public async Task<bool> Initialize()
+        {
+            var response = await httpClient.GetAsync(awsBucketUrl + "mappings.json");
+            string jsonstr = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonstr);
             List<MidiFI> midFileLsit = new List<MidiFI>();
             foreach (var kv in result)
             {
-                string name = kv.Key.Substring(1);
-                string url = "https://bitmidi.com" + kv.Value;
+                string name = kv.Key;
+                string url = awsBucketUrl + kv.Value;
                 string filename = Path.GetFileName(kv.Value);
-                midFileLsit.Add(new MidiFI(name, new Uri(Path.Combine(bitmididir, filename))));
+                midFileLsit.Add(new MidiFI(name, new Uri(url)));
             }
-
-#if WIN
-            waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
-            waveOut.Init(player);
-            waveOut.Play();
-            
-            for (int device = 0; device < MidiOut.NumberOfDevices; device++)
-            {
-                var devinfo = MidiOut.DeviceInfo(device).ProductName;
-            }
-#else
-            //midiOut = new MidiOut(0);
-            OnAudioEngineCreate(player);
-            //aVAudioEngineOut = new AVAudioEngineOut();
-            //aVAudioEngineOut.Init(player);
-            //aVAudioEngineOut.Play();
-
-#endif
-            DirectoryInfo di = new DirectoryInfo(PlaylistDir);
-            var filelist = di.GetFiles("*.mid");
-            foreach (FileInfo fi in filelist)
-            {
-                midFileLsit.Add(new MidiFI(fi.Name));
-            }
-
+           
             this.midiFiles = midFileLsit.ToArray();
+            return true;
         }
         public void SetVolume(int volume)
         {
@@ -186,7 +158,7 @@ namespace midiplayer
             }
             else
             {
-                string path = Path.Combine(PlaylistDir, mfi.Name);
+                string path = Path.Combine(CacheDir, mfi.Name);
                 // Load the MIDI file.
                 var midiFile = new MeltySynth.MidiFile(path);
                 player.Play(midiFile);

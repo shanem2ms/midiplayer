@@ -100,5 +100,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\meltysynth\MeltySynth\MeltySynth.csproj" />
+		<ProjectReference Include="..\midilib\midilib.csproj" />
 	</ItemGroup>
 </Project>

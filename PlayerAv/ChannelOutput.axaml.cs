@@ -44,6 +44,7 @@ namespace PlayerAv
         public void SetMidiData(int data)
         {
             DataValue = 255;
+            
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DataValue"));
         }
     }

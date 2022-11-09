@@ -1,34 +1,24 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Net.Http;
-using System.Numerics;
-using System.Threading.Tasks;
 using System;
-using Tmds.DBus;
 using Avalonia;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Nodes;
-using System.Linq;
 using System.Collections.ObjectModel;
-using MeltySynth;
-using System.Threading.Channels;
 using midiplayer;
+using NAudio.Wave;
 
 namespace PlayerAv
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public new event PropertyChangedEventHandler? PropertyChanged;        
-        public ObservableCollection<midiplayer.MidiFI> MidiFiles => new
-            ObservableCollection<midiplayer.MidiFI>(player.FilteredMidiFiles);
+        public new event PropertyChangedEventHandler? PropertyChanged;
+        public ObservableCollection<midiplayer.MidiFI> MidiFiles => player.FilteredMidiFiles != null ? new
+            ObservableCollection<midiplayer.MidiFI>(player.FilteredMidiFiles) : null;
         public string CurrentSong { get; set; }
         ChannelOutput[] channelOutputs;
-        midiplayer.MidiPlayer player;
+        MidiPlayer player;
+        WaveOut waveOut;
         TimeSpan currentSongTime;
 
         public string SearchStr
@@ -43,7 +33,7 @@ namespace PlayerAv
 
         public MainWindow()
         {
-            player = new midiplayer.MidiPlayer();
+            player = new midiplayer.MidiPlayer(OnEngineCreate);
             this.DataContext = this;
             InitializeComponent();
 
@@ -59,8 +49,19 @@ namespace PlayerAv
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackComplete += Player_OnPlaybackComplete;
             //NextSong();
+            player.Initialize().ContinueWith((action) =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            });
         }
 
+
+        void OnEngineCreate(MidiSampleProvider midiSampleProvider)
+        {
+            waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
+            waveOut.Init(midiSampleProvider);
+            waveOut.Play();
+        }
         private void Player_OnPlaybackComplete(object? sender, bool e)
         {
             NextSong();
@@ -86,7 +87,8 @@ namespace PlayerAv
         {
             if (e.channel < channelOutputs.Length)
             {
-                channelOutputs[e.channel].SetMidiData(e.data);
+                Dispatcher.UIThread.Post(() =>
+                    channelOutputs[e.channel].SetMidiData(e.data));
             }
         }
 
