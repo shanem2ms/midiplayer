@@ -1,9 +1,11 @@
 using ObjCRuntime;
+using NAudio.Wave;
 
 namespace testios
 {
     public partial class SecondViewController : UIViewController
     {
+        AVAudioEngineOut aVAudioEngineOut;
         protected SecondViewController(NativeHandle handle) : base(handle)
         {
         }

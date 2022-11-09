@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerAv", "PlayerAv\Player
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testios", "testios\testios.csproj", "{504BB939-54EA-4A09-929A-6ED75430A0C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "midilib", "midilib\midilib.csproj", "{80EC0E18-2A72-45B9-9BDF-E33782B7927E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,24 @@ Global
 		{504BB939-54EA-4A09-929A-6ED75430A0C4}.Windows_Debug|x64.ActiveCfg = Debug|Any CPU
 		{504BB939-54EA-4A09-929A-6ED75430A0C4}.Windows_Debug|x64.Build.0 = Debug|Any CPU
 		{504BB939-54EA-4A09-929A-6ED75430A0C4}.Windows_Debug|x64.Deploy.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Debug|x64.Build.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|ARM64.Build.0 = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|x64.ActiveCfg = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Release|x64.Build.0 = Release|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|ARM64.Build.0 = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|x64.ActiveCfg = Debug|Any CPU
+		{80EC0E18-2A72-45B9-9BDF-E33782B7927E}.Windows_Debug|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

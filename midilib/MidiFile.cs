@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudio.Midi;
 using midiplayer;
+using Newtonsoft.Json;
 
 namespace midiplayer
 {
-    using PlayerAv;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -18,8 +18,6 @@ namespace midiplayer
     using System.IO;
     using System.Net.Http;
     using System.Text;
-    using System.Text.Json;
-    using Tmds.DBus;
 
     public class MidiFI
     {
@@ -54,9 +52,8 @@ namespace midiplayer
         }
         string PlaylistDir => Path.Combine(homedir, "Playlist");
 
-        //NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
         MidiSampleProvider player;
-        AVAudioEngineOut aVAudioEngineOut;
+        //AVAudioEngineOut aVAudioEngineOut;
 
         MidiOut midiOut;
         string homedir;
@@ -78,6 +75,8 @@ namespace midiplayer
 
         }
 
+        public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
+        public OnAudioEngineCreateDel OnAudioEngineCreate = null;
         int volume = 100;
         HttpClient httpClient = new HttpClient();
         public string searchStr;
@@ -125,8 +124,8 @@ namespace midiplayer
             player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
 
-            var filestream = File.OpenRead(Path.Combine(homedir, "mappings.json"));
-            var result = JsonSerializer.Deserialize<Dictionary<string, string>>(filestream);
+            var filestream = File.ReadAllText(Path.Combine(homedir, "mappings.json"));
+            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(filestream);
             string bitmididir = Path.Combine(PlaylistDir, "bitmidi");
             List<MidiFI> midFileLsit = new List<MidiFI>();
             foreach (var kv in result)
@@ -148,9 +147,10 @@ namespace midiplayer
             }
 #else
             //midiOut = new MidiOut(0);
-            aVAudioEngineOut = new AVAudioEngineOut();
-            aVAudioEngineOut.Init(player);
-            aVAudioEngineOut.Play();
+            OnAudioEngineCreate(player);
+            //aVAudioEngineOut = new AVAudioEngineOut();
+            //aVAudioEngineOut.Init(player);
+            //aVAudioEngineOut.Play();
 
 #endif
             DirectoryInfo di = new DirectoryInfo(PlaylistDir);
