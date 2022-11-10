@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDisplayName</key>
-    <string>testios</string>
+    <string>PlayerIOS</string>
     <key>CFBundleIdentifier</key>
-    <string>com.sam.iOSTabbedApp</string>
+    <string>com.sam.PlayerIOS</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
     <key>CFBundleVersion</key>
@@ -31,6 +31,8 @@
             </array>
         </dict>
     </dict>
+    <key>MinimumOSVersion</key>
+        <string>16.0</string>
     <key>UIDeviceFamily</key>
     <array>
         <integer>1</integer>

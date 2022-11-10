@@ -34,11 +34,7 @@ namespace midiplayer
     {
         string GetHomeDir()
         {
-            DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (di.Name.ToLower() != "midiplayer")
-            {
-                di = di.Parent;
-            }
+            DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());            
             return di.FullName;
         }
         string CacheDir => Path.Combine(homedir, "cache");
