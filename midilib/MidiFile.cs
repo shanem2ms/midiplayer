@@ -66,7 +66,7 @@ namespace midiplayer
         int volume = 100;
         HttpClient httpClient = new HttpClient();
         public string searchStr;
-        const string awsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
+        public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
         public string SearchStr
         {
             get => searchStr;
@@ -105,24 +105,26 @@ namespace midiplayer
             int rVal = r.Next(this.midiFiles.Length);
             return this.midiFiles[rVal];
         }
-        public MidiPlayer(OnAudioEngineCreateDel OnAudioEngineCreate)
+        public MidiPlayer()
         {
             homedir = GetHomeDir();
-            player = new MidiSampleProvider(Path.Combine(homedir, "TimGM6mb.sf2"));
-            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
-            OnAudioEngineCreate(player);
+            player = new MidiSampleProvider();
         }
 
-        public async Task<bool> Initialize()
+        public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            var response = await httpClient.GetAsync(awsBucketUrl + "mappings.json");
+            await player.Initialize("sf/TimGM6mb.sf2");
+            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
+            OnAudioEngineCreate(player);
+
+            var response = await httpClient.GetAsync(AwsBucketUrl + "mappings.json");
             string jsonstr = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonstr);
             List<MidiFI> midFileLsit = new List<MidiFI>();
             foreach (var kv in result)
             {
                 string name = kv.Key;
-                string url = awsBucketUrl + kv.Value;
+                string url = AwsBucketUrl + kv.Value;
                 string filename = Path.GetFileName(kv.Value);
                 midFileLsit.Add(new MidiFI(name, new Uri(url)));
             }

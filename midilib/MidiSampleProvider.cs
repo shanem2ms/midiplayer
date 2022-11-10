@@ -1,6 +1,12 @@
 ﻿using System;
 using NAudio.Wave;
 using MeltySynth;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+
 namespace midiplayer
 {
     public class MidiSampleProvider : ISampleProvider
@@ -19,14 +25,25 @@ namespace midiplayer
             synthesizer.Volume = volume;
         }
 
-        public MidiSampleProvider(string soundFontPath)
+        public MidiSampleProvider()
         {
-            synthesizer = new Synthesizer(soundFontPath, format.SampleRate);
-            synthesizer.MasterVolume = 1.0f;
-            sequencer = new MidiFileSequencer(synthesizer);
             mutex = new object();
         }
 
+        public async Task<bool> Initialize(string soundFontPath)
+        {
+            //SoundFont
+            HttpClient httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + soundFontPath);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            MemoryStream stream = new MemoryStream(bytes);
+            SoundFont sf = new SoundFont(stream);
+
+            synthesizer = new Synthesizer(sf, format.SampleRate);
+            synthesizer.MasterVolume = 1.0f;
+            sequencer = new MidiFileSequencer(synthesizer);
+            return true;
+        }
         public void Play(MeltySynth.MidiFile midiFile)
         {
             lock (mutex)

@@ -33,7 +33,7 @@ namespace PlayerAv
 
         public MainWindow()
         {
-            player = new midiplayer.MidiPlayer(OnEngineCreate);
+            player = new midiplayer.MidiPlayer();
             this.DataContext = this;
             InitializeComponent();
 
@@ -44,14 +44,14 @@ namespace PlayerAv
 
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
-            player.OnChannelEvent += Player_OnChannelEvent;
-            player.OnPlaybackTime += Player_OnPlaybackTime;
-            player.OnPlaybackStart += Player_OnPlaybackStart;
-            player.OnPlaybackComplete += Player_OnPlaybackComplete;
             //NextSong();
-            player.Initialize().ContinueWith((action) =>
+            player.Initialize(OnEngineCreate).ContinueWith((action) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+                player.OnChannelEvent += Player_OnChannelEvent;
+                player.OnPlaybackTime += Player_OnPlaybackTime;
+                player.OnPlaybackStart += Player_OnPlaybackStart;
+                player.OnPlaybackComplete += Player_OnPlaybackComplete;
             });
         }
 
