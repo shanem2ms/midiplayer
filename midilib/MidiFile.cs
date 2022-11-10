@@ -113,7 +113,7 @@ namespace midiplayer
 
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            await player.Initialize("sf/TimGM6mb.sf2");
+            await player.Initialize("TimGM6mb.sf2", homedir);
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
             OnAudioEngineCreate(player);
 
