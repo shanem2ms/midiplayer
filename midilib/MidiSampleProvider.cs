@@ -63,7 +63,7 @@ namespace midiplayer
         {
             lock (mutex)
             {
-                sequencer.Stop();
+                sequencer?.Stop();
             }
         }
 

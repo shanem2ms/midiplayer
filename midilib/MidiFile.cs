@@ -8,6 +8,7 @@ using NAudio.Midi;
 using Newtonsoft.Json;
 using System.Xml;
 using System.Numerics;
+using Newtonsoft.Json.Linq;
 
 namespace midiplayer
 {
@@ -97,22 +98,9 @@ namespace midiplayer
             public int data;
         }
         public event EventHandler<ChannelEvent> OnChannelEvent;
-        public event EventHandler<TimeSpan> OnPlaybackTime
-        {
-            add { player.Sequencer.OnPlaybackTime += value; }
-            remove { player.Sequencer.OnPlaybackTime -= value; }
-        }
-
-        public event EventHandler<bool> OnPlaybackComplete
-        {
-            add { player.Sequencer.OnPlaybackComplete += value; }
-            remove { player.Sequencer.OnPlaybackComplete -= value; }
-        }
-        public event EventHandler<TimeSpan> OnPlaybackStart
-        {
-            add { player.Sequencer.OnPlaybackStart += value; }
-            remove { player.Sequencer.OnPlaybackStart -= value; }
-        }
+        public event EventHandler<TimeSpan> OnPlaybackTime;
+        public event EventHandler<bool> OnPlaybackComplete;
+        public event EventHandler<TimeSpan> OnPlaybackStart;
 
         public MidiFI GetNextSong()
         {
@@ -130,7 +118,32 @@ namespace midiplayer
         {
             player.Stop();
             await player.Initialize(soundFont, homedir);
+            SetSequencer(player.Sequencer);
         }
+
+        void SetSequencer(MeltySynth.MidiFileSequencer sequencer)
+        {
+            sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
+            sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
+            sequencer.OnPlaybackStart += Sequencer_OnPlaybackStart;
+            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
+        }
+
+        private void Sequencer_OnPlaybackStart(object sender, TimeSpan e)
+        {
+            OnPlaybackStart?.Invoke(sender, e);
+        }
+
+        private void Sequencer_OnPlaybackComplete(object sender, bool e)
+        {
+            OnPlaybackComplete?.Invoke(sender, e);
+        }
+
+        private void Sequencer_OnPlaybackTime(object sender, TimeSpan e)
+        {
+            OnPlaybackTime?.Invoke(sender, e);
+        }
+
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
             {
@@ -149,8 +162,7 @@ namespace midiplayer
                 }
             }
 
-            await player.Initialize(currentSoundFont, homedir);
-            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
+            ChangeSoundFont(currentSoundFont);
             OnAudioEngineCreate(player);
 
             var response = await httpClient.GetAsync(AwsBucketUrl + "mappings.json");
