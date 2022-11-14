@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NAudio.Midi;
 using Newtonsoft.Json;
+using System.Xml;
+using System.Numerics;
 
 namespace midiplayer
 {
@@ -67,6 +69,7 @@ namespace midiplayer
         HttpClient httpClient = new HttpClient();
         public string searchStr;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
+        public List<string> AllSoundFonts { get; } = new List<string>();
         public string SearchStr
         {
             get => searchStr;
@@ -75,6 +78,18 @@ namespace midiplayer
                 searchStr = value;
             }
         }
+
+        public string CurrentSoundFont
+        {
+            get => currentSoundFont;
+            set
+            {
+                currentSoundFont = value;
+                ChangeSoundFont(currentSoundFont);
+            }
+        }
+
+        string currentSoundFont = "TimGM6mb.sf2";
 
         public class ChannelEvent
         {
@@ -111,9 +126,30 @@ namespace midiplayer
             player = new MidiSampleProvider();
         }
 
+        async void ChangeSoundFont(string soundFont)
+        {
+            player.Stop();
+            await player.Initialize(soundFont, homedir);
+        }
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            await player.Initialize("TimGM6mb.sf2", homedir);
+            {
+                var listResponse = await httpClient.GetAsync("https://midisongs.s3.us-east-2.amazonaws.com/?list-type=2&prefix=sf/");
+                string xmlstr = await listResponse.Content.ReadAsStringAsync();
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(xmlstr);
+                var root = doc.DocumentElement;
+                foreach (XmlElement node in root.ChildNodes)
+                {
+                    if (node.Name == "Contents")
+                    {
+                        AllSoundFonts.Add(
+                            node.FirstChild.InnerText.Substring(3));
+                    }
+                }
+            }
+
+            await player.Initialize(currentSoundFont, homedir);
             player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
             OnAudioEngineCreate(player);
 

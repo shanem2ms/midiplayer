@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using System.ComponentModel;
 using System;
+using System.Collections.Generic;
 using Avalonia;
 using System.Collections.ObjectModel;
 using midiplayer;
@@ -20,6 +21,16 @@ namespace PlayerAv
         MidiPlayer player;
         WaveOut waveOut;
         TimeSpan currentSongTime;
+
+        public ObservableCollection<string> SoundFonts
+        {
+            get => new ObservableCollection<string>(player.AllSoundFonts);
+        }
+        public string CurrentSoundFont
+        {
+            get => player.CurrentSoundFont;
+            set => player.CurrentSoundFont = value;
+        }
 
         public string SearchStr
         {
@@ -48,6 +59,8 @@ namespace PlayerAv
             player.Initialize(OnEngineCreate).ContinueWith((action) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));                
                 player.OnChannelEvent += Player_OnChannelEvent;
                 player.OnPlaybackTime += Player_OnPlaybackTime;
                 player.OnPlaybackStart += Player_OnPlaybackStart;

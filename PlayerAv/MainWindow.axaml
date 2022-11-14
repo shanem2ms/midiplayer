@@ -19,6 +19,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="50" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="50"/>
@@ -67,5 +68,7 @@
 			<local:ChannelOutput x:Name="Ch14" ChannelId="14" />
 			<local:ChannelOutput x:Name="Ch15" ChannelId="15" />
 		</StackPanel>
+		<ComboBox Height="30" Grid.Row="6" Grid.Column="2" Margin="0,10" Items="{Binding Path=SoundFonts}"
+				  SelectedItem="{Binding Path=CurrentSoundFont, Mode=TwoWay}" />
 	</Grid>
 </Window>
