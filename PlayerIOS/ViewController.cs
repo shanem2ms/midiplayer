@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using CoreGraphics;
 using System;
 using UIKit;
 using midiplayer;
@@ -12,7 +13,8 @@ namespace PlayerIOS
     public partial class ViewController : UIViewController
     {
         MidiPlayer player;
-        UITableView table;
+        AVAudioEngineOut aVAudioEngineOut;
+        TableSource tableSource;
         public ViewController (IntPtr handle) : base (handle)
         {
         }
@@ -28,11 +30,17 @@ namespace PlayerIOS
         async Task<bool> Init()
         {
             await player.Initialize(OnEngineCreate);
-            table = new UITableView(View.Bounds); // defaults to Plain style
-            string[] tableItems = new string[] { "Vegetables", "Fruits", "Flower Buds", "Legumes", "Bulbs", "Tubers" };           
-            table.Source = new TableSource(player);
-            Add(table);
+            player.SetVolume(100);
+            searchTextField.EditingChanged += SearchTextField_EditingChanged;
+            uiTableView.Source = tableSource = new TableSource(player);
             return true;
+        }
+
+        private void SearchTextField_EditingChanged(object sender, EventArgs e)
+        {
+            player.SearchStr = searchTextField.Text;
+            tableSource.Refresh();
+            uiTableView.ReloadData();
         }
 
         public override void DidReceiveMemoryWarning ()
@@ -42,7 +50,7 @@ namespace PlayerIOS
         }
         void OnEngineCreate(MidiSampleProvider midiSampleProvider)
         {
-            AVAudioEngineOut aVAudioEngineOut = new AVAudioEngineOut();
+            aVAudioEngineOut = new AVAudioEngineOut();
             aVAudioEngineOut.Init(midiSampleProvider);
             aVAudioEngineOut.Play();
         }
@@ -54,6 +62,11 @@ namespace PlayerIOS
         MidiFI[] items;
         MidiPlayer player;
         string CellIdentifier = "TableCell";
+
+        public void Refresh()
+        {
+            items = player.FilteredMidiFiles.ToArray();            
+        }
 
         public TableSource(MidiPlayer _player)
         {
