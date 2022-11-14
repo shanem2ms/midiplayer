@@ -37,13 +37,12 @@ namespace midiplayer
     {
         string GetHomeDir()
         {
-            DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());            
-            return di.FullName;
+            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            return documents;
         }
         string CacheDir => Path.Combine(homedir, "cache");
 
         MidiSampleProvider player;
-        //AVAudioEngineOut aVAudioEngineOut;
 
         MidiOut midiOut;
         string homedir;
@@ -165,8 +164,17 @@ namespace midiplayer
             ChangeSoundFont(currentSoundFont);
             OnAudioEngineCreate(player);
 
-            var response = await httpClient.GetAsync(AwsBucketUrl + "mappings.json");
-            string jsonstr = await response.Content.ReadAsStringAsync();
+            string mappingsFile = Path.Combine(homedir, "mappings.json");
+            if (!File.Exists(mappingsFile))
+            {
+                var response = await httpClient.GetAsync(AwsBucketUrl + "mappings.json");
+                Stream inputstream = await response.Content.ReadAsStreamAsync();
+                inputstream.Seek(0, SeekOrigin.Begin);
+                FileStream fs = File.OpenWrite(mappingsFile);
+                inputstream.CopyTo(fs);
+                fs.Close();
+            }
+            string jsonstr = await File.ReadAllTextAsync(mappingsFile);
             var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonstr);
             List<MidiFI> midFileLsit = new List<MidiFI>();
             foreach (var kv in result)
