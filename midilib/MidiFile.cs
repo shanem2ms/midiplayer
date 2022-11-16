@@ -202,9 +202,9 @@ namespace midiplayer
             string cacheFile = Path.Combine(midiCacheDir, mfi.Location);
             if (!File.Exists(cacheFile))
             {
-                Path.GetDirectoryName(cacheFile);
-                if (!Directory.Exists(cacheFile))
-                    Directory.CreateDirectory(cacheFile);
+                string dir = Path.GetDirectoryName(cacheFile);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
 
                 var response = await httpClient.GetAsync(AwsBucketUrl + mfi.Location);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
@@ -214,15 +214,8 @@ namespace midiplayer
                 fs.Close();
             }
 
-            player.Play()
-            else
-            {
-                PlayHttpFile(new Uri(AwsBucketUrl + mfi.Location)).ContinueWith((action) =>
-                    {
-                        var midifile = action.Result;
-                        player.Play(midifile);
-                    });
-            }
+            MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
+            player.Play(midiFile);
         }
 
         async Task<MeltySynth.MidiFile> PlayHttpFile(Uri url)
