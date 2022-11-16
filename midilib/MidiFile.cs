@@ -11,75 +11,26 @@ using System.Numerics;
 using Newtonsoft.Json.Linq;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace midiplayer
+namespace midilib
 {
 
-    public class MidiFI
-    {
-        public string Name { get; }
-
-        string nameLower;
-        public string NmLwr => nameLower;
-        public string Location { get; }
-        public MidiFI(string name) :
-            this(name, null)
-        {
-        }
-
-        public MidiFI(string name, string location)
-        {
-            Name = name;
-            nameLower = name.ToLower();
-            Location = location;
-        }
-    }
 
     public class MidiPlayer
     {
-        string GetHomeDir()
-        {
-            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            return documents;
-        }
         string CacheDir => Path.Combine(homedir, "cache");
 
         MidiSampleProvider player;
 
         MidiOut midiOut;
         string homedir;
-        string midiCacheDir;
-        MidiFI[] midiFiles;
+        MidiDb db;
+        public MidiDb Db => db;
 
-        public IEnumerable<MidiFI> FilteredMidiFiles
-        {
-            get
-            {
-                if (searchStr != null &
-                    searchStr?.Trim().Length > 2)
-                {
-                    string ssLower = searchStr.ToLower();
-                    return midiFiles.Where(fi => fi.NmLwr.Contains(ssLower));
-                }
-                else
-                    return midiFiles;
-            }
-
-        }
 
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
         int volume = 100;
-        HttpClient httpClient = new HttpClient();
-        public string searchStr;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
         public List<string> AllSoundFonts { get; } = new List<string>();
-        public string SearchStr
-        {
-            get => searchStr;
-            set
-            {
-                searchStr = value;
-            }
-        }
 
         public string CurrentSoundFont
         {
@@ -103,18 +54,10 @@ namespace midiplayer
         public event EventHandler<bool> OnPlaybackComplete;
         public event EventHandler<TimeSpan> OnPlaybackStart;
 
-        public MidiFI GetNextSong()
+        public MidiPlayer(MidiDb dbin)
         {
-            Random r = new Random();
-            int rVal = r.Next(this.midiFiles.Length);
-            return this.midiFiles[rVal];
-        }
-        public MidiPlayer()
-        {
-            homedir = GetHomeDir();
-            midiCacheDir = Path.Combine(homedir, "midi");
-            if (!Directory.Exists(midiCacheDir))
-                Directory.CreateDirectory(midiCacheDir);
+            db = dbin;
+            homedir = db.HomeDir;
             player = new MidiSampleProvider();
         }
 
@@ -152,6 +95,7 @@ namespace midiplayer
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
             {
+                HttpClient httpClient = new HttpClient();
                 var listResponse = await httpClient.GetAsync("https://midisongs.s3.us-east-2.amazonaws.com/?list-type=2&prefix=sf/");
                 string xmlstr = await listResponse.Content.ReadAsStringAsync();
                 XmlDocument doc = new XmlDocument();
@@ -169,63 +113,19 @@ namespace midiplayer
 
             await ChangeSoundFont(currentSoundFont);
             OnAudioEngineCreate(player);
-
-            string mappingsFile = Path.Combine(homedir, "mappings.json");
-            if (!File.Exists(mappingsFile))
-            {
-                var response = await httpClient.GetAsync(AwsBucketUrl + "mappings.json");
-                Stream inputstream = await response.Content.ReadAsStreamAsync();
-                inputstream.Seek(0, SeekOrigin.Begin);
-                FileStream fs = File.OpenWrite(mappingsFile);
-                inputstream.CopyTo(fs);
-                fs.Close();
-            }
-            string jsonstr = await File.ReadAllTextAsync(mappingsFile);
-            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonstr);
-            List<MidiFI> midFileLsit = new List<MidiFI>();
-            foreach (var kv in result)
-            {
-                string name = kv.Key;
-                string url = kv.Value;
-                midFileLsit.Add(new MidiFI(name, kv.Value));
-            }
-           
-            this.midiFiles = midFileLsit.ToArray();
-            return true;
+            return await Db.Initialize();
         }
+
         public void SetVolume(int volume)
         {
             player.SetVolume(volume);
         }
-        public async void PlaySong(MidiFI mfi)
+        public async void PlaySong(MidiDb.Fi mfi)
         {
-            string cacheFile = Path.Combine(midiCacheDir, mfi.Location);
-            if (!File.Exists(cacheFile))
-            {
-                string dir = Path.GetDirectoryName(cacheFile);
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                var response = await httpClient.GetAsync(AwsBucketUrl + mfi.Location);
-                Stream inputstream = await response.Content.ReadAsStreamAsync();
-                inputstream.Seek(0, SeekOrigin.Begin);
-                FileStream fs = File.OpenWrite(cacheFile);
-                inputstream.CopyTo(fs);
-                fs.Close();
-            }
-
+            string cacheFile = await db.GetLocalFile(mfi);
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
             player.Play(midiFile);
         }
-
-        async Task<MeltySynth.MidiFile> PlayHttpFile(Uri url)
-        {
-            var response = await httpClient.GetAsync(url);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-            MemoryStream stream = new MemoryStream(bytes);
-            return new MeltySynth.MidiFile(stream);
-        }
-
 
         void OnProcessMidiMessage(int channel, int command, int data1, int data2)
         {

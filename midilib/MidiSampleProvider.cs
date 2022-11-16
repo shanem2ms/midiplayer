@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace midiplayer
+namespace midilib
 {
     public class MidiSampleProvider : ISampleProvider
     {

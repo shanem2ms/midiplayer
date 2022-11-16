@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia;
 using System.Collections.ObjectModel;
-using midiplayer;
+using midilib;
 using NAudio.Wave;
 
 namespace PlayerAv
@@ -14,10 +14,11 @@ namespace PlayerAv
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public new event PropertyChangedEventHandler? PropertyChanged;
-        public ObservableCollection<midiplayer.MidiFI> MidiFiles => player.FilteredMidiFiles != null ? new
-            ObservableCollection<midiplayer.MidiFI>(player.FilteredMidiFiles) : null;
+        public ObservableCollection<MidiDb.Fi> MidiFiles => db.FilteredMidiFiles != null ? new
+            ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles) : null;
         public string CurrentSong { get; set; }
         ChannelOutput[] channelOutputs;
+        MidiDb db = new MidiDb();
         MidiPlayer player;
         WaveOut waveOut;
         TimeSpan currentSongTime;
@@ -34,17 +35,17 @@ namespace PlayerAv
 
         public string SearchStr
         {
-            get => player.SearchStr;
+            get => db.SearchStr;
             set
             {
-                player.SearchStr = value;
+                db.SearchStr = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             }
         }
 
         public MainWindow()
         {
-            player = new midiplayer.MidiPlayer();
+            player = new MidiPlayer(db);
             this.DataContext = this;
             InitializeComponent();
 
@@ -96,7 +97,7 @@ namespace PlayerAv
             });
         }
 
-        private void Player_OnChannelEvent(object? sender, midiplayer.MidiPlayer.ChannelEvent e)
+        private void Player_OnChannelEvent(object? sender, MidiPlayer.ChannelEvent e)
         {
             if (e.channel < channelOutputs.Length)
             {
@@ -118,7 +119,7 @@ namespace PlayerAv
         {
             if (e.AddedItems.Count > 0)
             {
-                PlaySong(e.AddedItems[0] as MidiFI);
+                PlaySong(e.AddedItems[0] as MidiDb.Fi);
             }
         }
         private void Prev_Click(object sender, RoutedEventArgs e)
@@ -127,9 +128,9 @@ namespace PlayerAv
         }
         void NextSong()
         {
-            PlaySong(player.GetNextSong());
+            //PlaySong(player.GetNextSong());
         }
-        void PlaySong(MidiFI midiFI)
+        void PlaySong(MidiDb.Fi midiFI)
         {
             player.PlaySong(midiFI);
             CurrentSong = midiFI.Name;
