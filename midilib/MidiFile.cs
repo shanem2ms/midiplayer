@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Xml;
 using System.Numerics;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace midiplayer
 {
@@ -19,17 +20,17 @@ namespace midiplayer
 
         string nameLower;
         public string NmLwr => nameLower;
-        public Uri Url { get; }
+        public string Location { get; }
         public MidiFI(string name) :
             this(name, null)
         {
         }
 
-        public MidiFI(string name, Uri url)
+        public MidiFI(string name, string location)
         {
             Name = name;
             nameLower = name.ToLower();
-            Url = url;
+            Location = location;
         }
     }
 
@@ -46,6 +47,7 @@ namespace midiplayer
 
         MidiOut midiOut;
         string homedir;
+        string midiCacheDir;
         MidiFI[] midiFiles;
 
         public IEnumerable<MidiFI> FilteredMidiFiles
@@ -110,14 +112,18 @@ namespace midiplayer
         public MidiPlayer()
         {
             homedir = GetHomeDir();
+            midiCacheDir = Path.Combine(homedir, "midi");
+            if (!Directory.Exists(midiCacheDir))
+                Directory.CreateDirectory(midiCacheDir);
             player = new MidiSampleProvider();
         }
 
-        async void ChangeSoundFont(string soundFont)
+        async Task<bool> ChangeSoundFont(string soundFont)
         {
             player.Stop();
             await player.Initialize(soundFont, homedir);
             SetSequencer(player.Sequencer);
+            return true;
         }
 
         void SetSequencer(MeltySynth.MidiFileSequencer sequencer)
@@ -161,7 +167,7 @@ namespace midiplayer
                 }
             }
 
-            ChangeSoundFont(currentSoundFont);
+            await ChangeSoundFont(currentSoundFont);
             OnAudioEngineCreate(player);
 
             string mappingsFile = Path.Combine(homedir, "mappings.json");
@@ -180,9 +186,8 @@ namespace midiplayer
             foreach (var kv in result)
             {
                 string name = kv.Key;
-                string url = AwsBucketUrl + kv.Value;
-                string filename = Path.GetFileName(kv.Value);
-                midFileLsit.Add(new MidiFI(name, new Uri(url)));
+                string url = kv.Value;
+                midFileLsit.Add(new MidiFI(name, kv.Value));
             }
            
             this.midiFiles = midFileLsit.ToArray();
@@ -192,34 +197,35 @@ namespace midiplayer
         {
             player.SetVolume(volume);
         }
-        public void PlaySong(MidiFI mfi)
+        public async void PlaySong(MidiFI mfi)
         {
-            if (mfi.Url != null)
+            string cacheFile = Path.Combine(midiCacheDir, mfi.Location);
+            if (!File.Exists(cacheFile))
             {
-                if (mfi.Url.IsFile)
-                {
-                    var midiFile = new MeltySynth.MidiFile(mfi.Url.LocalPath);
-                    player.Play(midiFile);
-                }
-                else
-                {
-                    PlayFile(mfi.Url).ContinueWith((action) =>
-                        {
-                            var midifile = action.Result;
-                            player.Play(midifile);
-                        });
-                }
+                Path.GetDirectoryName(cacheFile);
+                if (!Directory.Exists(cacheFile))
+                    Directory.CreateDirectory(cacheFile);
+
+                var response = await httpClient.GetAsync(AwsBucketUrl + mfi.Location);
+                Stream inputstream = await response.Content.ReadAsStreamAsync();
+                inputstream.Seek(0, SeekOrigin.Begin);
+                FileStream fs = File.OpenWrite(cacheFile);
+                inputstream.CopyTo(fs);
+                fs.Close();
             }
+
+            player.Play()
             else
             {
-                string path = Path.Combine(CacheDir, mfi.Name);
-                // Load the MIDI file.
-                var midiFile = new MeltySynth.MidiFile(path);
-                player.Play(midiFile);
+                PlayHttpFile(new Uri(AwsBucketUrl + mfi.Location)).ContinueWith((action) =>
+                    {
+                        var midifile = action.Result;
+                        player.Play(midifile);
+                    });
             }
         }
 
-        async Task<MeltySynth.MidiFile> PlayFile(Uri url)
+        async Task<MeltySynth.MidiFile> PlayHttpFile(Uri url)
         {
             var response = await httpClient.GetAsync(url);
             byte[] bytes = await response.Content.ReadAsByteArrayAsync();
