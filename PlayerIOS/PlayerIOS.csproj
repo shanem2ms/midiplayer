@@ -136,7 +136,6 @@
     <ItemGroup>
         <InterfaceDefinition Include="LaunchScreen.storyboard" />
         <InterfaceDefinition Include="Main.storyboard" />
-        <InterfaceDefinition Include="MidiSongsViewController.xib" />
     </ItemGroup>
     <ItemGroup>
         <None Include="Info.plist" />
@@ -151,10 +150,6 @@
             <DependentUpon>ViewController.cs</DependentUpon>
         </Compile>
         <Compile Include="AVAudioEngineOut.cs" />
-        <Compile Include="MidiSongsViewController.cs" />
-        <Compile Include="MidiSongsViewController.designer.cs">
-          <DependentUpon>MidiSongsViewController.cs</DependentUpon>
-        </Compile>
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\midilib\midilib.csproj">
