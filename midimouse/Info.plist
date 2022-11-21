@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDisplayName</key>
-    <string>PlayerIOS</string>
+    <string>midimouse</string>
     <key>CFBundleIdentifier</key>
-    <string>com.sam.PlayerIOS</string>
+    <string>com.sam.midimouse</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
     <key>CFBundleVersion</key>

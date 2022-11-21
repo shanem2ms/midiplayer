@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace PlayerIOS
+namespace midimouse
 {
     public class Application
     {

@@ -25,7 +25,7 @@ namespace midilib
         string homedir;
         MidiDb db;
         public MidiDb Db => db;
-
+        MidiDb.Fi currentPlayingSong;
 
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
         int volume = 100;
@@ -52,7 +52,12 @@ namespace midilib
         public event EventHandler<ChannelEvent> OnChannelEvent;
         public event EventHandler<TimeSpan> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
-        public event EventHandler<TimeSpan> OnPlaybackStart;
+        public struct PlaybackStartArgs
+        {
+            public TimeSpan timeSpan;
+            public MidiDb.Fi file;
+        }
+        public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
 
         public MidiPlayer(MidiDb dbin)
         {
@@ -79,7 +84,8 @@ namespace midilib
 
         private void Sequencer_OnPlaybackStart(object sender, TimeSpan e)
         {
-            OnPlaybackStart?.Invoke(sender, e);
+            OnPlaybackStart?.Invoke(sender, new PlaybackStartArgs() { file = this.currentPlayingSong,
+            timeSpan = e});
         }
 
         private void Sequencer_OnPlaybackComplete(object sender, bool e)
@@ -113,7 +119,7 @@ namespace midilib
 
             await ChangeSoundFont(currentSoundFont);
             OnAudioEngineCreate(player);
-            return await Db.Initialize();
+            return true;
         }
 
         public void SetVolume(int volume)
@@ -122,6 +128,7 @@ namespace midilib
         }
         public async void PlaySong(MidiDb.Fi mfi)
         {
+            currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
             player.Play(midiFile);
