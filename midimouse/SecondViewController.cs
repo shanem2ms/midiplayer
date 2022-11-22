@@ -34,12 +34,13 @@ namespace midimouse
 
         void SynthSelect(string synth)
         {
-
+            player.CurrentSoundFont =
+                synth;
         }
 
         public void OnPlayerInitialized()
         {
-            InvokeOnMainThread(() =>
+            BeginInvokeOnMainThread(() =>
             {
                 synthListTableSource = new SynthListTableSource(player, SynthSelect);
                 synthListTableView.Source = synthListTableSource;
@@ -60,7 +61,7 @@ namespace midimouse
 
         private void Player_OnPlaybackTime(object sender, TimeSpan e)
         {
-            InvokeOnMainThread(() =>
+            BeginInvokeOnMainThread(() =>
             {
                 float lerp = (float)(e.TotalMilliseconds / currentSongTime.TotalMilliseconds);
                 songPosSldier.Value =
