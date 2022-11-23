@@ -38,7 +38,6 @@ namespace midilib
             set
             {
                 currentSoundFont = value;
-                ChangeSoundFont(currentSoundFont);
             }
         }
 
@@ -66,11 +65,12 @@ namespace midilib
             player = new MidiSampleProvider();
         }
 
-        async Task<bool> ChangeSoundFont(string soundFont)
+        public async Task<bool> ChangeSoundFont(string soundFont)
         {
             player.Stop();
             await player.Initialize(soundFont, homedir);
             SetSequencer(player.Sequencer);
+            this.currentSoundFont = soundFont;
             return true;
         }
 
