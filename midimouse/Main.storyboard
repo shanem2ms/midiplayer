@@ -66,32 +66,35 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eMR-Uu-LsE">
-                                <rect key="frame" x="38" y="231" width="97" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="PNL-HT-24L" userLabel="SynthList">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="PNL-HT-24L" userLabel="SynthList">
                                 <rect key="frame" x="20" y="391" width="374" height="372"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="372" id="YqA-u0-Efb"/>
+                                </constraints>
                             </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="SynthName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CXR-bR-ZQ1" userLabel="SynthName">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SynthName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CXR-bR-ZQ1" userLabel="SynthName">
                                 <rect key="frame" x="20" y="347" width="89" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="PNL-HT-24L" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leadingMargin" id="5xz-mJ-uKS"/>
+                            <constraint firstItem="PNL-HT-24L" firstAttribute="leading" secondItem="CXR-bR-ZQ1" secondAttribute="leading" id="Dg1-KT-GfG"/>
+                            <constraint firstItem="Djb-ko-YwX" firstAttribute="top" secondItem="PNL-HT-24L" secondAttribute="bottom" constant="50" id="fex-0O-Ili"/>
+                            <constraint firstItem="PNL-HT-24L" firstAttribute="trailing" secondItem="QS5-Rx-YEW" secondAttribute="trailingMargin" id="k1I-Mi-Tjp"/>
+                            <constraint firstItem="PNL-HT-24L" firstAttribute="top" secondItem="CXR-bR-ZQ1" secondAttribute="bottom" constant="23" id="pup-eb-7bL"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Second" image="Second" id="cPa-gy-q4n"/>
                     <connections>
                         <outlet property="songLabel" destination="6mc-hr-q1p" id="GUM-X6-3op"/>
                         <outlet property="songPosSldier" destination="byM-CK-e1v" id="feD-N6-5hE"/>
                         <outlet property="synthListTableView" destination="PNL-HT-24L" id="vk5-Mf-uOE"/>
+                        <outlet property="synthName" destination="CXR-bR-ZQ1" id="Kkp-76-Jlh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>

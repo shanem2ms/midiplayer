@@ -34,8 +34,13 @@ namespace midimouse
 
         void SynthSelect(string synth)
         {
-            player.CurrentSoundFont =
-                synth;
+            player.ChangeSoundFont(synth).ContinueWith((action) =>
+            {
+                BeginInvokeOnMainThread(() =>
+                {
+                    synthName.Text = player.CurrentSoundFont;
+                });
+            });
         }
 
         public void OnPlayerInitialized()
@@ -45,6 +50,7 @@ namespace midimouse
                 synthListTableSource = new SynthListTableSource(player, SynthSelect);
                 synthListTableView.Source = synthListTableSource;
                 synthListTableView.ReloadData();
+                synthName.Text = player.CurrentSoundFont;
             });
         }
 

@@ -11,6 +11,7 @@ namespace midimouse
         public MidiDb Db { get; set; }
         TableSource tableSource;
         public event EventHandler<MidiDb.Fi> OnSongSelected;
+        UITapGestureRecognizer gestureRecognizer;
         public FirstViewController (IntPtr handle) : base (handle)
         {
         }
@@ -18,6 +19,15 @@ namespace midimouse
         public override void ViewDidLoad ()
         {
             base.ViewDidLoad ();
+            gestureRecognizer = new UITapGestureRecognizer(() =>
+            {
+                if (!uiSearchTextField.ResignFirstResponder())
+                {
+
+                }
+            });
+            gestureRecognizer.CancelsTouchesInView = false;
+            View.AddGestureRecognizer(gestureRecognizer);
             Initialize();
         }
 

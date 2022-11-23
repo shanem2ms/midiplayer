@@ -31,7 +31,6 @@ namespace midilib
 
         public async Task<bool> Initialize(string soundFontPath, string cacheDir)
         {
-            //SoundFont
             string cacheFile = Path.Combine(cacheDir, soundFontPath);
             if (!File.Exists(cacheFile))
             {

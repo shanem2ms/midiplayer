@@ -20,9 +20,17 @@ namespace midimouse
 
 		[Outlet]
 		UIKit.UITableView synthListTableView { get; set; }
+
+		[Outlet]
+		UIKit.UILabel synthName { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (synthName != null) {
+				synthName.Dispose ();
+				synthName = null;
+			}
+
 			if (songLabel != null) {
 				songLabel.Dispose ();
 				songLabel = null;
