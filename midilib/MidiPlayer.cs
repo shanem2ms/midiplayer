@@ -5,16 +5,10 @@ using System.Net.Http;
 using System.Linq;
 using System.Threading.Tasks;
 using NAudio.Midi;
-using Newtonsoft.Json;
 using System.Xml;
-using System.Numerics;
-using Newtonsoft.Json.Linq;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace midilib
 {
-
-
     public class MidiPlayer
     {
         string CacheDir => Path.Combine(homedir, "cache");
@@ -26,6 +20,7 @@ namespace midilib
         MidiDb db;
         public MidiDb Db => db;
         MidiDb.Fi currentPlayingSong;
+        UserSettings userSettings;
 
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
         int volume = 100;
@@ -34,14 +29,9 @@ namespace midilib
 
         public string CurrentSoundFont
         {
-            get => currentSoundFont;
-            set
-            {
-                currentSoundFont = value;
-            }
+            get => userSettings.CurrentSoundFont;
+            set => userSettings.CurrentSoundFont = value;
         }
-
-        string currentSoundFont = "TimGM6mb.sf2";
 
         public class ChannelEvent
         {
@@ -63,6 +53,7 @@ namespace midilib
             db = dbin;
             homedir = db.HomeDir;
             player = new MidiSampleProvider();
+            userSettings = UserSettings.FromFile(Path.Combine(homedir, "usersettings.json"));
         }
 
         public async Task<bool> ChangeSoundFont(string soundFont)
@@ -70,7 +61,8 @@ namespace midilib
             player.Stop();
             await player.Initialize(soundFont, homedir);
             SetSequencer(player.Sequencer);
-            this.currentSoundFont = soundFont;
+            userSettings.CurrentSoundFont = soundFont;
+            userSettings.Persist();
             return true;
         }
 
@@ -117,7 +109,7 @@ namespace midilib
                 }
             }
 
-            await ChangeSoundFont(currentSoundFont);
+            await ChangeSoundFont(userSettings.CurrentSoundFont);
             OnAudioEngineCreate(player);
             return true;
         }

@@ -8,6 +8,7 @@ using Avalonia;
 using System.Collections.ObjectModel;
 using midilib;
 using NAudio.Wave;
+using Avalonia.Media;
 
 namespace PlayerAv
 {
@@ -30,7 +31,14 @@ namespace PlayerAv
         public string CurrentSoundFont
         {
             get => player.CurrentSoundFont;
-            set => player.CurrentSoundFont = value;
+            set
+            {
+                FontReadyRect.Fill = Brushes.Red;
+                player.ChangeSoundFont(value).ContinueWith((action) =>
+                {
+                    Dispatcher.UIThread.Post(() => FontReadyRect.Fill = Brushes.Green);
+                });
+            }
         }
 
         public string SearchStr
@@ -59,7 +67,6 @@ namespace PlayerAv
             //NextSong();
             player.Initialize(OnEngineCreate).ContinueWith((action) =>
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));                
                 player.OnChannelEvent += Player_OnChannelEvent;
@@ -67,8 +74,16 @@ namespace PlayerAv
                 player.OnPlaybackStart += Player_OnPlaybackStart;
                 player.OnPlaybackComplete += Player_OnPlaybackComplete;
             });
+            db.Initialize().ContinueWith((action) =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            });
         }
 
+        private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
+        {
+            currentSongTime = e.timeSpan;
+        }
 
         void OnEngineCreate(MidiSampleProvider midiSampleProvider)
         {
@@ -81,10 +96,6 @@ namespace PlayerAv
             NextSong();
         }
 
-        private void Player_OnPlaybackStart(object? sender, TimeSpan e)
-        {
-            currentSongTime = e;
-        }
 
         private void Player_OnPlaybackTime(object? sender, TimeSpan e)
         {
