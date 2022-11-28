@@ -23,6 +23,9 @@ namespace midilib
         UserSettings userSettings;
 
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
+        public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
+        public OnProcessMidiMessageDel OnProcessMidiMessage;
+
         int volume = 100;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
         public List<string> AllSoundFonts { get; } = new List<string>();
@@ -71,7 +74,7 @@ namespace midilib
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
             sequencer.OnPlaybackStart += Sequencer_OnPlaybackStart;
-            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessage;
+            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
         }
 
         private void Sequencer_OnPlaybackStart(object sender, TimeSpan e)
@@ -126,35 +129,9 @@ namespace midilib
             player.Play(midiFile);
         }
 
-        void OnProcessMidiMessage(int channel, int command, int data1, int data2)
+        void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)
         {
-            //var channelInfo = channels[channel];
-            switch (command)
-            {
-                case 0x80: // Note Off
-                    {
-                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
-                        midiOut?.Send(cmd);
-                    }
-                    break;
-
-                case 0x90: // Note On
-                    {
-                        int vol = (data2 * volume) / 100;
-                        int cmd = channel | command | (data1 << 8) | (vol << 16);
-                        midiOut?.Send(cmd);
-                        OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, data = data1 });
-                        break;
-                    }
-                default:
-                    {
-                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
-                        midiOut?.Send(cmd);
-                    }
-                    break;
-
-            }
-
+            OnProcessMidiMessage?.Invoke(channel, command, data1, data2);
         }
 
     }
