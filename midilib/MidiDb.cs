@@ -12,7 +12,7 @@ using System.Xml;
 using static midilib.MidiDb;
 
 namespace midilib
-{
+{    
     public class MidiDb
     {
         public class Fi
@@ -34,13 +34,15 @@ namespace midilib
                 Location = location;
             }
         }
-        
+
+        public MappingsFile Mappings { get; private set; }
         HttpClient httpClient = new HttpClient();
         Fi[] midiFiles; 
         public string searchStr;
         string homedir;
         string midiCacheDir;
         public string HomeDir => homedir;
+        public List<string> AllSoundFonts { get; } = new List<string>();
 
         public string SearchStr
         {
@@ -82,7 +84,9 @@ namespace midilib
         public async Task<bool> Initialize()
         {
             string mappingsFile = Path.Combine(homedir, "mappings.json");
-            if (!File.Exists(mappingsFile))
+            var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.AwsBucketUrl + "mappings.json"));
+            long contentLen = (long)resp.Content.Headers.ContentLength;
+            if (!File.Exists(mappingsFile) || new System.IO.FileInfo(mappingsFile).Length != contentLen)
             {
                 var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + "mappings.json");
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
@@ -93,9 +97,9 @@ namespace midilib
                 fs.Close();
             }
             string jsonstr = await File.ReadAllTextAsync(mappingsFile);
-            var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonstr);
+            Mappings = JsonConvert.DeserializeObject<MappingsFile>(jsonstr);
             List<Fi> midFileLsit = new List<Fi>();
-            foreach (var kv in result)
+            foreach (var kv in Mappings.midifiles)
             {
                 string name = kv.Key;
                 string url = kv.Value;
@@ -103,6 +107,7 @@ namespace midilib
             }
 
             this.midiFiles = midFileLsit.ToArray();
+            this.AllSoundFonts.AddRange(Mappings.soundfonts.Keys);
             return true;
         }
         public async Task<string> GetLocalFile(Fi mfi)
@@ -124,7 +129,11 @@ namespace midilib
 
             return cacheFile;
         }
+    }
 
-
+    public class MappingsFile
+    {
+        public Dictionary<string, string> midifiles { get; set; }
+        public Dictionary<string, string> soundfonts { get; set; }        
     }
 }

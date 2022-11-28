@@ -28,8 +28,6 @@ namespace midilib
 
         int volume = 100;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
-        public List<string> AllSoundFonts { get; } = new List<string>();
-
         public string CurrentSoundFont
         {
             get => userSettings.CurrentSoundFont;
@@ -95,23 +93,6 @@ namespace midilib
 
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            {
-                HttpClient httpClient = new HttpClient();
-                var listResponse = await httpClient.GetAsync("https://midisongs.s3.us-east-2.amazonaws.com/?list-type=2&prefix=sf/");
-                string xmlstr = await listResponse.Content.ReadAsStringAsync();
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(xmlstr);
-                var root = doc.DocumentElement;
-                foreach (XmlElement node in root.ChildNodes)
-                {
-                    if (node.Name == "Contents")
-                    {
-                        AllSoundFonts.Add(
-                            node.FirstChild.InnerText.Substring(3));
-                    }
-                }
-            }
-
             await ChangeSoundFont(userSettings.CurrentSoundFont);
             OnAudioEngineCreate(player);
             return true;
