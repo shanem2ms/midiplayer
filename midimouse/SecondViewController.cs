@@ -2,12 +2,14 @@
 using UIKit;
 using midilib;
 using Foundation;
+using System.Linq;
 
 namespace midimouse
 {
     public partial class SecondViewController : UIViewController
     {
         MidiPlayer player;
+        MidiDb db;
         TimeSpan currentSongTime;
         SynthListTableSource synthListTableSource;
         public MidiPlayer Player
@@ -20,6 +22,15 @@ namespace midimouse
             }
         }
 
+        public MidiDb Db
+        {
+            get => db;
+            set
+            {
+                db = value;
+                OnDbSet();
+            }
+        }
         public SecondViewController (IntPtr handle) : base (handle)
         {
         }
@@ -47,7 +58,17 @@ namespace midimouse
         {
             BeginInvokeOnMainThread(() =>
             {
-                synthListTableSource = new SynthListTableSource(player, SynthSelect);
+                synthListTableView.Source = synthListTableSource;
+                synthListTableView.ReloadData();
+                synthName.Text = player.CurrentSoundFont;
+            });
+        }
+
+        void OnDbSet()
+        {
+            BeginInvokeOnMainThread(() =>
+            {
+                synthListTableSource = new SynthListTableSource(db, SynthSelect);
                 synthListTableView.Source = synthListTableSource;
                 synthListTableView.ReloadData();
                 synthName.Text = player.CurrentSoundFont;
@@ -94,7 +115,7 @@ namespace midimouse
     public class SynthListTableSource : UITableViewSource
     {
 
-        MidiPlayer player;
+        MidiDb db;
         string CellIdentifier = "SynthListCell";
         string[] items;
         public delegate void SynthSelectedDel(string synth);
@@ -102,14 +123,14 @@ namespace midimouse
 
         public void Refresh()
         {
-            items = player.AllSoundFonts.ToArray();
+            items = db.Mappings.soundfonts.Keys.ToArray();
         }
 
-        public SynthListTableSource(MidiPlayer _player, SynthSelectedDel del)
+        public SynthListTableSource(MidiDb _db, SynthSelectedDel del)
         {
-            player = _player;
+            db = _db;
             SynthSelected = del;
-            items = player.AllSoundFonts.ToArray();
+            items = db.AllSoundFonts.ToArray();
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
