@@ -81,6 +81,7 @@ namespace midilib
             timeSpan = e});
         }
 
+
         private void Sequencer_OnPlaybackComplete(object sender, bool e)
         {
             OnPlaybackComplete?.Invoke(sender, e);
@@ -108,6 +109,11 @@ namespace midilib
             string cacheFile = await db.GetLocalFile(mfi);
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
             player.Play(midiFile);
+        }
+
+        public void Seek(TimeSpan time)
+        {
+            player.Sequencer.SeekTo(time);
         }
 
         void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)

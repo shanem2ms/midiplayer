@@ -9,11 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "midilib", "midilib\midilib.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerIOS", "PlayerIOS\PlayerIOS.csproj", "{DB201D9A-E8DF-4BED-80E7-C01D13B2D319}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1AA2827A-57A2-48B4-9A15-FFD81D1FF85B}"
-	ProjectSection(SolutionItems) = preProject
-		midiplayer.sln = midiplayer.sln
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "midimouse", "midimouse\midimouse.csproj", "{D9CA577D-2BC5-40AA-874F-82E5076220B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerWPF", "PlayerWPF\PlayerWPF.csproj", "{9337E90E-53DB-45D4-A424-E96A85F1E1A3}"

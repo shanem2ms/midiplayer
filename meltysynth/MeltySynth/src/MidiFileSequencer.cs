@@ -24,6 +24,7 @@ namespace MeltySynth
         private TimeSpan currentTime;
         private int msgIndex;
         private int loopIndex;
+        private bool justSeeked;
         public event EventHandler<TimeSpan> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
         public event EventHandler<TimeSpan> OnPlaybackStart;
@@ -69,6 +70,21 @@ namespace MeltySynth
 
             OnPlaybackStart?.Invoke(this, this.midiFile.Length);
             synthesizer.Reset();
+        }
+
+        public void SeekTo(TimeSpan time)
+        {
+            if (midiFile == null)
+                return;
+            int index = Array.BinarySearch(midiFile.Times, time);
+            if (index < 0)
+            {
+                index = ~index;                
+            }
+
+            currentTime = time;
+            msgIndex = index;
+            justSeeked = true;
         }
 
         /// <summary>
@@ -118,6 +134,12 @@ namespace MeltySynth
 
             while (msgIndex < midiFile.Messages.Length)
             {
+                if (justSeeked)
+                {
+                    synthesizer.NoteOffAll(false);
+                    justSeeked = false;
+                }
+
                 var time = midiFile.Times[msgIndex];
                 var msg = midiFile.Messages[msgIndex];
                 if (time <= currentTime)

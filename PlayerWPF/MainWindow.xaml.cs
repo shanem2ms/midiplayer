@@ -71,7 +71,7 @@ namespace PlayerWPF
                 Ch0, Ch1, Ch2, Ch3, Ch4, Ch5, Ch6, Ch7,
             Ch8, Ch9, Ch10, Ch11, Ch12, Ch13, Ch14, Ch15 };
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
-
+            CurrentPosSlider.ValueChanged += CurrentPosSlider_ValueChanged;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             //NextSong();
@@ -107,15 +107,28 @@ namespace PlayerWPF
         }
 
 
+        bool isChanging = false;
         private void Player_OnPlaybackTime(object? sender, TimeSpan e)
         {
             Dispatcher.BeginInvoke(() =>
             {
                 double lerp = e.TotalMilliseconds / currentSongTime.TotalMilliseconds;
+                isChanging = true;
                 CurrentPosSlider.Value =
                     (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum) * lerp +
                         CurrentPosSlider.Minimum;
+                isChanging = false;
             });
+        }
+
+        private void CurrentPosSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (isChanging)
+                return;
+            double lerp = 
+                (CurrentPosSlider.Value - CurrentPosSlider.Minimum) / (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum);
+            TimeSpan t = new TimeSpan((long)(currentSongTime.Ticks * lerp));
+            player.Seek(t);
         }
 
         private void Player_OnChannelEvent(object? sender, MidiPlayer.ChannelEvent e)
