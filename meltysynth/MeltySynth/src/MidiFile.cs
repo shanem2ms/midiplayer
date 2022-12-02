@@ -264,30 +264,33 @@ namespace MeltySynth
                 switch (first)
                 {
                     case 0xF0: // System Exclusive
-                        DiscardData(reader);
+                        DiscardData(reader, 0);
                         break;
 
                     case 0xF7: // System Exclusive
-                        DiscardData(reader);
+                        DiscardData(reader, 0);
                         break;
 
                     case 0xFF: // Meta Event
-                        switch (reader.ReadByte())
                         {
-                            case 0x2F: // End of Track
-                                reader.ReadByte();
-                                messages.Add(Message.EndOfTrack());
-                                ticks.Add(tick);
-                                return (messages, ticks);
+                            byte metaEvent = reader.ReadByte();
+                            switch (metaEvent)
+                            {
+                                case 0x2F: // End of Track
+                                    reader.ReadByte();
+                                    messages.Add(Message.EndOfTrack());
+                                    ticks.Add(tick);
+                                    return (messages, ticks);
 
-                            case 0x51: // Tempo
-                                messages.Add(Message.TempoChange(ReadTempo(reader)));
-                                ticks.Add(tick);
-                                break;
+                                case 0x51: // Tempo
+                                    messages.Add(Message.TempoChange(ReadTempo(reader)));
+                                    ticks.Add(tick);
+                                    break;
 
-                            default:
-                                DiscardData(reader);
-                                break;
+                                default:
+                                    DiscardData(reader, metaEvent);
+                                    break;
+                            }
                         }
                         break;
 
@@ -385,10 +388,15 @@ namespace MeltySynth
             return (b1 << 16) | (b2 << 8) | b3;
         }
 
-        private static void DiscardData(BinaryReader reader)
+        private static void DiscardData(BinaryReader reader, byte metaEvent)
         {
             var size = reader.ReadIntVariableLength();
-            reader.BaseStream.Position += size;
+            if (metaEvent == 3)
+            {
+                string title = reader.ReadFixedLengthString(size);
+            }
+            else
+                reader.BaseStream.Position += size;
         }
 
         /// <summary>
