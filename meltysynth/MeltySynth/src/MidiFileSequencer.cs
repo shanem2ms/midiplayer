@@ -76,6 +76,7 @@ namespace MeltySynth
         {
             if (midiFile == null)
                 return;
+
             int index = Array.BinarySearch(midiFile.Times, time);
             if (index < 0)
             {
@@ -140,7 +141,7 @@ namespace MeltySynth
                     justSeeked = false;
                 }
 
-                var time = midiFile.Times[msgIndex];
+                var time = midiFile.Messages[msgIndex].Time;
                 var msg = midiFile.Messages[msgIndex];
                 if (time <= currentTime)
                 {
@@ -158,7 +159,7 @@ namespace MeltySynth
                         }
                         else if (msg.Type == MidiFile.MessageType.LoopEnd)
                         {
-                            currentTime = midiFile.Times[loopIndex];
+                            currentTime = midiFile.Messages[loopIndex].Time;
                             msgIndex = loopIndex;
                             synthesizer.NoteOffAll(false);
                         }                        
@@ -176,7 +177,7 @@ namespace MeltySynth
                 synthesizer.NoteOffAll(false);
                 if (loop)
                 {
-                    currentTime = midiFile.Times[loopIndex];
+                    currentTime = midiFile.Messages[loopIndex].Time;
                     msgIndex = loopIndex;
                 }
                 else

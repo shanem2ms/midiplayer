@@ -13,7 +13,8 @@ namespace MeltySynth
     public sealed class MidiFile
     {
         private Message[] messages;
-        private TimeSpan[] times;
+        //private TimeSpan[] times;
+        private Meta[] metas;
 
         /// <summary>
         /// Loads a MIDI file from the stream.
@@ -30,7 +31,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         /// <summary>
@@ -54,7 +54,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         /// <summary>
@@ -73,7 +72,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         /// <summary>
@@ -94,7 +92,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         /// <summary>
@@ -121,7 +118,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         /// <summary>
@@ -143,7 +139,6 @@ namespace MeltySynth
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
-            Debug.Assert(times != null);
         }
 
         // Some .NET implementations round TimeSpan to the nearest millisecond,
@@ -181,9 +176,10 @@ namespace MeltySynth
 
                 var messageLists = new List<Message>[trackCount];
                 var tickLists = new List<int>[trackCount];
+                var metasList = new List<Meta>[trackCount];
                 for (var i = 0; i < trackCount; i++)
                 {
-                    (messageLists[i], tickLists[i]) = ReadTrack(reader, loopType);
+                    (messageLists[i], tickLists[i], metasList[i]) = ReadTrack(reader, loopType);
                 }
 
                 if (loopPoint != 0)
@@ -209,11 +205,12 @@ namespace MeltySynth
                     }
                 }
 
-                (messages, times) = MergeTracks(messageLists, tickLists, resolution);
+                messages = MergeTracks(messageLists, tickLists, resolution);
+                metas = metasList.SelectMany(x => x).ToArray();
             }
         }
 
-        private static (List<Message>, List<int>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType)
+        private static (List<Message>, List<int>, List<Meta>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType)
         {
             var chunkType = reader.ReadFourCC();
             if (chunkType != "MTrk")
@@ -225,6 +222,7 @@ namespace MeltySynth
 
             var messages = new List<Message>();
             var ticks = new List<int>();
+            var metas = new List<Meta>();
 
             int tick = 0;
             byte lastStatus = 0;
@@ -264,11 +262,11 @@ namespace MeltySynth
                 switch (first)
                 {
                     case 0xF0: // System Exclusive
-                        DiscardData(reader, 0);
+                        AddMeta(metas, reader, 0);
                         break;
 
                     case 0xF7: // System Exclusive
-                        DiscardData(reader, 0);
+                        AddMeta(metas, reader, 0);
                         break;
 
                     case 0xFF: // Meta Event
@@ -280,7 +278,7 @@ namespace MeltySynth
                                     reader.ReadByte();
                                     messages.Add(Message.EndOfTrack());
                                     ticks.Add(tick);
-                                    return (messages, ticks);
+                                    return (messages, ticks, metas);
 
                                 case 0x51: // Tempo
                                     messages.Add(Message.TempoChange(ReadTempo(reader)));
@@ -288,7 +286,7 @@ namespace MeltySynth
                                     break;
 
                                 default:
-                                    DiscardData(reader, metaEvent);
+                                    AddMeta(metas, reader, metaEvent);
                                     break;
                             }
                         }
@@ -316,10 +314,9 @@ namespace MeltySynth
             }
         }
 
-        private static (Message[], TimeSpan[]) MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution)
+        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution)
         {
             var mergedMessages = new List<Message>();
-            var mergedTimes = new List<TimeSpan>();
 
             var indices = new int[messageLists.Length];
 
@@ -364,14 +361,14 @@ namespace MeltySynth
                 }
                 else
                 {
+                    message.Time = currentTime;
                     mergedMessages.Add(message);
-                    mergedTimes.Add(currentTime);
                 }
 
                 indices[minIndex]++;
             }
 
-            return (mergedMessages.ToArray(), mergedTimes.ToArray());
+            return mergedMessages.ToArray();
         }
 
         private static int ReadTempo(BinaryReader reader)
@@ -388,40 +385,50 @@ namespace MeltySynth
             return (b1 << 16) | (b2 << 8) | b3;
         }
 
-        private static void DiscardData(BinaryReader reader, byte metaEvent)
+        private static void AddMeta(List<Meta> metas, BinaryReader reader, byte metaEvent)
         {
             var size = reader.ReadIntVariableLength();
+            Meta meta = new Meta() { metaType = metaEvent, data = reader.ReadBytes(size) };
+            metas.Add(meta);
+            /*
             if (metaEvent == 3)
             {
                 string title = reader.ReadFixedLengthString(size);
             }
             else
-                reader.BaseStream.Position += size;
+                reader.BaseStream.Position += size;*/
         }
 
         /// <summary>
         /// The length of the MIDI file.
         /// </summary>
-        public TimeSpan Length => times.Last();
+        public TimeSpan Length => messages.Last().Time;
 
-        internal Message[] Messages => messages;
-        internal TimeSpan[] Times => times;
+        public Message[] Messages => messages;
+        public TimeSpan[] Times => messages.Select(m => m.Time).ToArray();
+        public Meta[] Metas => metas;
 
 
+        public struct Meta
+        {
+            public byte metaType;
+            public byte[] data; 
+        }
 
-        internal struct Message
+        public struct Message
         {
             private byte channel;
             private byte command;
             private byte data1;
             private byte data2;
-
+            private TimeSpan time;
             private Message(byte channel, byte command, byte data1, byte data2)
             {
                 this.channel = channel;
                 this.command = command;
                 this.data1 = data1;
                 this.data2 = data2;
+                this.time = TimeSpan.Zero;
             }
 
             public static Message Common(byte status, byte data1)
@@ -546,14 +553,15 @@ namespace MeltySynth
             public byte Channel => channel;
             public byte Command => command;
             public byte Data1 => data1;
-            public byte Data2 => data2;
+            public byte Data2 => data2;            
+            public TimeSpan Time { get => time; set => time = value; }
 
             public double Tempo => 60000000.0 / ((command << 16) | (data1 << 8) | data2);
         }
 
 
 
-        internal enum MessageType
+        public enum MessageType
         {
             Normal = 0,
             TempoChange = 252,

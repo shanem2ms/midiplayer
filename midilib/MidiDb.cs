@@ -110,11 +110,14 @@ namespace midilib
             this.AllSoundFonts.AddRange(Mappings.soundfonts.Keys);
             return true;
         }
-        public async Task<string> GetLocalFile(Fi mfi)
+        public async Task<string> GetLocalFile(Fi mfi, bool allowDownloads = true)
         {
             string cacheFile = Path.Combine(midiCacheDir, mfi.Location);
             if (!File.Exists(cacheFile))
             {
+                if (!allowDownloads)
+                    return null;
+
                 string dir = Path.GetDirectoryName(cacheFile);
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
