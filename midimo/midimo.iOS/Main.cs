@@ -1,6 +1,11 @@
-﻿using UIKit;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace midimouse
+using Foundation;
+using UIKit;
+
+namespace midimo.iOS
 {
     public class Application
     {
@@ -13,3 +18,4 @@ namespace midimouse
         }
     }
 }
+
