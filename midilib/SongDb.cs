@@ -8,6 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace midilib
 {
@@ -28,46 +31,79 @@ namespace midilib
         {
             con.Open();
 
+            Stopwatch sw = new Stopwatch();
             using var cmd = con.CreateCommand();
-            cmd.CommandText = "CREATE TABLE songs (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Length INT, Channels INT)";
+            cmd.CommandText = "CREATE TABLE songs (Id INTEGER PRIMARY KEY, Name TEXT, Length INT, Channels INT)";
             cmd.ExecuteNonQuery();
             cmd.CommandText = "CREATE TABLE channelpatches (Id INTEGER, Channel INTEGER, Patch INTEGER, FOREIGN KEY(ID) REFERENCES songs(Id))";
             cmd.ExecuteNonQuery();
+            cmd.CommandText = "CREATE TABLE songtext (Id INTEGER, TEXT Text, TrackId INTEGER, FOREIGN KEY(ID) REFERENCES songs(Id))";
+            cmd.ExecuteNonQuery();
 
-            int rowcnt = 1;
-            foreach (MidiDb.Fi fi in db.FilteredMidiFiles)
+            int rowcnt = 0;
+            List<MidiDb.Fi> allfiles = db.FilteredMidiFiles.ToList();
+            for (int idx = 0; idx < allfiles.Count;)
             {
-                string path = await db.GetLocalFile(fi, false);
-                if (path == null) continue;
-                try
-                {
-                    MidiFile midiFile = new MidiFile(path);
-                    MidiFile.Message[] messages = midiFile.Messages;
-                    var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
-                    int ms = midiFile.Length.Milliseconds;
-                    int channels = channelMessages.Keys.Count - 1;
-                    string escname = fi.Name.Replace("'", "''");
-                    cmd.CommandText = $"INSERT INTO songs (Name, Length, Channels) VALUES ('{escname}', {ms}, {channels})";
-                    cmd.ExecuteNonQuery();
+                int batchSize = Math.Min(allfiles.Count() - idx, 1024);
+                var batch = allfiles.GetRange(idx, idx + batchSize);
 
-                    foreach (var kv in channelMessages)
+                sw.Reset();
+                sw.Start();
+                cmd.CommandText = $"BEGIN";
+                await cmd.ExecuteNonQueryAsync();
+
+                var tasks = batch.Select(async fi =>
+                {
+                    int rowId = Interlocked.Increment(ref rowcnt);
+                    string path = await db.GetLocalFile(fi, false);
+                    if (path == null) return false;
+                    try
                     {
-                        var msgs = kv.Value;
-                        var patchmsg = msgs.FirstOrDefault(m => (m.Command & 0xF0) == 0xC0);
-                        if (patchmsg.Command != 0)
+                        MidiFile midiFile = new MidiFile(path);
+                        MidiFile.Message[] messages = midiFile.Messages;
+                        var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
+                        int ms = midiFile.Length.Milliseconds;
+                        int channels = channelMessages.Keys.Count - 1;
+                        string escname = fi.Name.Replace("'", "''");
+                        cmd.CommandText = $"INSERT INTO songs (Id, Name, Length, Channels) VALUES ({rowId}, '{escname}', {ms}, {channels})";
+                        await cmd.ExecuteNonQueryAsync();
+
+                        foreach (var kv in channelMessages)
                         {
-                            cmd.CommandText = $"INSERT INTO channelpatches (Id, Channel, Patch) VALUES ('{rowcnt}', {kv.Key}, {patchmsg.Data1})";
-                            cmd.ExecuteNonQuery();
+                            var msgs = kv.Value;
+                            var patchmsg = msgs.FirstOrDefault(m => (m.Command & 0xF0) == 0xC0);
+                            if (patchmsg.Command != 0)
+                            {
+                                cmd.CommandText = $"INSERT INTO channelpatches (Id, Channel, Patch) VALUES ({rowId}, {kv.Key}, {patchmsg.Data1})";
+                                await cmd.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        MidiFile.Meta[] metas = midiFile.Metas;
+                        foreach (var meta in metas)
+                        {
+                            if (meta.metaType == 3)
+                            {
+                                string metatext = meta.GetStringData().Replace("'", "''");
+                                cmd.CommandText = $"INSERT INTO songtext (Id, Text, TrackId) VALUES ({rowId}, '{metatext}', {meta.trackIdx})";
+                                await cmd.ExecuteNonQueryAsync();
+                            }
                         }
                     }
-                    if (rowcnt++ == 1000)
-                        break;
-                    //Console.WriteLine(path);
-                }
-                catch
-                {
-                    Console.WriteLine($"FAILED {path}");
-                }
+                    catch
+                    {
+                        Console.WriteLine($"FAILED {path}");
+                    }
+                    return true;
+
+                });                
+                await Task.WhenAll(tasks);
+                cmd.CommandText = $"COMMIT";
+                await cmd.ExecuteNonQueryAsync();
+
+                sw.Stop();                
+                idx += batchSize;
+                Console.WriteLine($"Complete {idx} of {allfiles.Count}. {sw.ElapsedMilliseconds / 1000} seconds");
             }
             con.Close();
             return true;

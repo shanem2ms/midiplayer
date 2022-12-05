@@ -179,7 +179,7 @@ namespace MeltySynth
                 var metasList = new List<Meta>[trackCount];
                 for (var i = 0; i < trackCount; i++)
                 {
-                    (messageLists[i], tickLists[i], metasList[i]) = ReadTrack(reader, loopType);
+                    (messageLists[i], tickLists[i], metasList[i]) = ReadTrack(reader, loopType, i);
                 }
 
                 if (loopPoint != 0)
@@ -210,7 +210,7 @@ namespace MeltySynth
             }
         }
 
-        private static (List<Message>, List<int>, List<Meta>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType)
+        private static (List<Message>, List<int>, List<Meta>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType, int trackIdx)
         {
             var chunkType = reader.ReadFourCC();
             if (chunkType != "MTrk")
@@ -262,11 +262,11 @@ namespace MeltySynth
                 switch (first)
                 {
                     case 0xF0: // System Exclusive
-                        AddMeta(metas, reader, 0);
+                        AddMeta(metas, reader, 0, trackIdx);
                         break;
 
                     case 0xF7: // System Exclusive
-                        AddMeta(metas, reader, 0);
+                        AddMeta(metas, reader, 0, trackIdx);
                         break;
 
                     case 0xFF: // Meta Event
@@ -286,7 +286,7 @@ namespace MeltySynth
                                     break;
 
                                 default:
-                                    AddMeta(metas, reader, metaEvent);
+                                    AddMeta(metas, reader, metaEvent, trackIdx);
                                     break;
                             }
                         }
@@ -385,18 +385,11 @@ namespace MeltySynth
             return (b1 << 16) | (b2 << 8) | b3;
         }
 
-        private static void AddMeta(List<Meta> metas, BinaryReader reader, byte metaEvent)
+        private static void AddMeta(List<Meta> metas, BinaryReader reader, byte metaEvent, int trackIdx)
         {
             var size = reader.ReadIntVariableLength();
-            Meta meta = new Meta() { metaType = metaEvent, data = reader.ReadBytes(size) };
+            Meta meta = new Meta() { metaType = metaEvent, data = reader.ReadBytes(size), trackIdx = trackIdx };
             metas.Add(meta);
-            /*
-            if (metaEvent == 3)
-            {
-                string title = reader.ReadFixedLengthString(size);
-            }
-            else
-                reader.BaseStream.Position += size;*/
         }
 
         /// <summary>
@@ -412,7 +405,13 @@ namespace MeltySynth
         public struct Meta
         {
             public byte metaType;
-            public byte[] data; 
+            public byte[] data;
+            public int trackIdx;
+
+            public string GetStringData()
+            {
+                return Encoding.ASCII.GetString(data).TrimEnd('\0');
+            }
         }
 
         public struct Message

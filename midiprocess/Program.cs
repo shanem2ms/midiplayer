@@ -7,7 +7,8 @@ namespace midiprocess
     {
         static void Main(string[] args)
         {
-            Process().Wait();
+            ThreadPool.SetMaxThreads(32, 32);
+            Task.WaitAll(Process());
         }
 
         static async Task<bool> Process()
