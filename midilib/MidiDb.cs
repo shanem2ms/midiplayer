@@ -112,6 +112,13 @@ namespace midilib
             OnIntialized?.Invoke(this, true);
             return true;
         }
+        public string GetLocalFileSync(Fi mfi, bool allowDownloads = true)
+        {
+            var task = GetLocalFile(mfi, allowDownloads);
+            task.Wait();
+            return task.Result;
+        }
+        
         public async Task<string> GetLocalFile(Fi mfi, bool allowDownloads = true)
         {
             string cacheFile = Path.Combine(midiCacheDir, mfi.Location);

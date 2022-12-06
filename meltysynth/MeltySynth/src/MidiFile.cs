@@ -395,7 +395,7 @@ namespace MeltySynth
         /// <summary>
         /// The length of the MIDI file.
         /// </summary>
-        public TimeSpan Length => messages.Last().Time;
+        public TimeSpan Length => messages.Length > 0 ? messages.Last().Time : TimeSpan.Zero;
 
         public Message[] Messages => messages;
         public TimeSpan[] Times => messages.Select(m => m.Time).ToArray();
@@ -410,7 +410,21 @@ namespace MeltySynth
 
             public string GetStringData()
             {
-                return Encoding.ASCII.GetString(data).TrimEnd('\0');
+                return ReadFixedLengthString();
+            }
+
+            public string ReadFixedLengthString()
+            {
+                int actualLength;
+                for (actualLength = 0; actualLength < data.Length; actualLength++)
+                {
+                    if (data[actualLength] == 0)
+                    {
+                        break;
+                    }
+                }
+
+                return Encoding.ASCII.GetString(data, 0, actualLength);
             }
         }
 

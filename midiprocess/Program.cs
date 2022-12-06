@@ -16,6 +16,7 @@ namespace midiprocess
             MidiDb db = new MidiDb();
             await db.Initialize();
             SongDb sdb = new SongDb(db);
+            //await sdb.Md5();
             return await sdb.Build();
         }
 }
