@@ -15,47 +15,76 @@ namespace midimo
         MidiDb db;
         MidiPlayer player;
         public event PropertyChangedEventHandler PropertyChanged;
+        TimeSpan songLength = new TimeSpan();
+        public string CurrentSong { get; set; }
 
-        //ObservableCollection<MidiDb.Fi> midiFiles;
-        //public ObservableCollection<MidiDb.Fi> MidiFiles => midiFiles;
-        public IEnumerable<MidiDb.Fi> MidiFiles => db.FilteredMidiFiles;
 
-        MidiDb.Fi selectedFile;
-        public MidiDb.Fi SelectedFile
+        public MidiDb Db
         {
-            get => selectedFile;
-            set {
-                selectedFile = value;
-                OnSelectedFile(value);
-            }
+            get => db;
+            set => db = value;
         }
-        public MainPage(MidiDb _db, MidiPlayer _player)
+        public MidiPlayer Player => player;
+
+        public MainPage()
         {
             this.BindingContext = this;
-            db = _db;
-            player = _player;
-            Initialize();
+            db = App.Instance.db;
+            player = App.Instance.player;
+            player.OnPlaybackComplete += Player_OnPlaybackComplete;
+            player.OnPlaybackStart += Player_OnPlaybackStart;
+            player.OnPlaybackTime += Player_OnPlaybackTime;
             InitializeComponent();
+
+            SongPosSlider.ValueChanged += S_ValueChanged;
             
         }
 
-        void OnSelectedFile(MidiDb.Fi fi)
+        bool noValChangeEvent = false;
+        private void Player_OnPlaybackTime(object sender, TimeSpan e)
         {
-            player.PlaySong(fi);
+            double lerp = ((double)e.Ticks / (double)songLength.Ticks);
+            Dispatcher.BeginInvokeOnMainThread(() =>
+            {
+                noValChangeEvent = true;
+                SongPosSlider.Value = (SongPosSlider.Maximum - SongPosSlider.Minimum) * lerp +
+                    (SongPosSlider.Minimum);
+                noValChangeEvent = false;
+            });
         }
 
-        async void Initialize()
+        private void Player_OnPlaybackStart(object sender, MidiPlayer.PlaybackStartArgs e)
         {
-            await db.Initialize();            
-            //midiFiles = new ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MidiFiles)));
+            this.CurrentSong = e.file.Name;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
+            songLength = e.timeSpan;
         }
 
-        void Entry_TextChanged(System.Object sender, Xamarin.Forms.TextChangedEventArgs e)
+        private void Player_OnPlaybackComplete(object sender, bool e)
         {
-            db.SearchStr = e.NewTextValue;
-            //midiFiles = new ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MidiFiles)));
+
+        }
+
+        private void S_ValueChanged(object sender, ValueChangedEventArgs e)
+        {
+            if (noValChangeEvent)
+                return;
+            double lerp = (e.NewValue - SongPosSlider.Minimum) /
+                (SongPosSlider.Maximum - SongPosSlider.Minimum);
+            TimeSpan ts = songLength * lerp;
+            player.Seek(ts);
+        }
+
+        void Songs_Pressed(System.Object sender, System.EventArgs e)
+        {
+            SongList.IsVisible = true;
+            SynthList.IsVisible = false;
+        }
+
+        void Synths_Pressed(System.Object sender, System.EventArgs e)
+        {
+            SongList.IsVisible = false;
+            SynthList.IsVisible = true;
         }
     }
 }

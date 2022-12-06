@@ -7,15 +7,18 @@ namespace midimo
 {
     public partial class App : Application
     {
-        MidiDb db;
-        MidiPlayer player;
+        public MidiDb db;
+        public MidiPlayer player;
+
+        public static App Instance;
 
         public App (MidiDb _db, MidiPlayer _player)
         {
+            Instance = this;
             InitializeComponent();
             db = _db;
             player = _player;
-            MainPage = new MainPage(db, player);
+            MainPage = new MainPage();
         }
 
         protected override void OnStart ()

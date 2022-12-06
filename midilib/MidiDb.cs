@@ -43,6 +43,7 @@ namespace midilib
         string midiCacheDir;
         public string HomeDir => homedir;
         public List<string> AllSoundFonts { get; } = new List<string>();
+        public event EventHandler<bool> OnIntialized;
 
         public string SearchStr
         {
@@ -108,6 +109,7 @@ namespace midilib
 
             this.midiFiles = midFileLsit.ToArray();
             this.AllSoundFonts.AddRange(Mappings.soundfonts.Keys);
+            OnIntialized?.Invoke(this, true);
             return true;
         }
         public async Task<string> GetLocalFile(Fi mfi, bool allowDownloads = true)

@@ -2,43 +2,33 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:m="clr-namespace:midilib;assembly=midilib"
+             xmlns:local="clr-namespace:midimo;assembly=midimo"
              x:Class="midimo.MainPage">
-
-    <Grid>
+    <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
         </Grid.RowDefinitions>
         <Frame Grid.Row="0" BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
             <Label Text="Midi Songs" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
         </Frame>
-        <Entry Grid.Row="1" TextChanged="Entry_TextChanged"/>
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Path=MidiFiles}"
-                        SelectionMode="Single" SelectedItem="{Binding Path=SelectedFile, Mode=TwoWay}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="10" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Label Grid.Row="1" Text="{Binding Name}" />
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup Name="CommonStates">
-                                <VisualState Name="Normal" />
-                                <VisualState Name="Selected">
-                                    <VisualState.Setters>
-                                        <Setter Property="BackgroundColor" Value="Yellow" />
-                                    </VisualState.Setters>
-                                </VisualState>
-
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <local:SongList x:Name="SongList" Grid.Row="1" />
+        <local:SynthList x:Name="SynthList" Grid.Row="1" IsVisible="false"/>
+        <Grid Grid.Row="2" Padding="0,20" Background="#222222">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Text="{Binding Path=CurrentSong}" TextColor="White"/>
+            <Slider Grid.Row="1"  x:Name="SongPosSlider" Margin="0,5" />
+        </Grid>
+        <StackLayout Grid.Row="3" Orientation="Horizontal">
+            <Button Text="Songs" Margin="10,0" Pressed="Songs_Pressed" />
+            <Button Text="Synths" Margin="10,0" Pressed="Synths_Pressed"/>
+        </StackLayout>
     </Grid>
 </ContentPage>
 

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="midimo.SynthList">
+    <ContentView.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Text="{Binding SelectedSynth}" TextColor="White" Margin="0,10"/>
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Path=Synths}" Background= "LightBlue"
+                        SelectionMode="Single" SelectedItem="{Binding Path=SelectedSynth, Mode=TwoWay}">
+            </CollectionView>
+        </Grid>
+    </ContentView.Content>
+</ContentView>
+
