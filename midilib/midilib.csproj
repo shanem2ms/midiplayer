@@ -25,6 +25,8 @@
     <None Remove="NAudio.Asio" />
     <None Remove="NAudio.Midi" />
     <None Remove="Newtonsoft.Json" />
+    <None Remove="Veldrid" />
+    <None Remove="Veldrid.MetalBindings" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.0" />
@@ -33,5 +35,7 @@
     <PackageReference Include="NAudio.Midi" Version="2.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
+    <PackageReference Include="Veldrid" Version="4.8.0" />
+    <PackageReference Include="Veldrid.MetalBindings" Version="4.8.0" />
   </ItemGroup>
 </Project>
