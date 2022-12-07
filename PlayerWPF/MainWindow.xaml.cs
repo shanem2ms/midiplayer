@@ -136,7 +136,7 @@ namespace PlayerWPF
             if (e.channel < channelOutputs.Length)
             {
                 Dispatcher.BeginInvoke(() =>
-                    channelOutputs[e.channel].SetMidiData(e.data));
+                    channelOutputs[e.channel].SetMidiData(e));
             }
         }
 

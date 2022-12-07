@@ -1,4 +1,5 @@
-﻿using System;
+﻿using midilib;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -33,6 +34,8 @@ namespace PlayerWPF
 
         public int DataValue { get; set; } = 0;
         DispatcherTimer dispatcherTimer;
+        public int PatchNumber { get; set; }
+        public string Instrument => GMInstruments.Names[PatchNumber];
         public ChannelOutput()
         {
             this.DataContext = this;
@@ -48,15 +51,19 @@ namespace PlayerWPF
             if (this.DataValue > 0)
             {
                 this.DataValue -= 8;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DataValue"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataValue)));
             }
         }
 
-        public void SetMidiData(int data)
+        public void SetMidiData(MidiPlayer.ChannelEvent e)
         {
             DataValue = 255;
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DataValue"));
+            if (e.command == 0xC0)
+            {
+                PatchNumber = e.data1;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PatchNumber)));
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataValue)));
         }
     }
 

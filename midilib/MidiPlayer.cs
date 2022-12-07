@@ -37,7 +37,9 @@ namespace midilib
         public class ChannelEvent
         {
             public int channel;
-            public int data;
+            public int command;
+            public int data1;
+            public int data2;
         }
         public event EventHandler<ChannelEvent> OnChannelEvent;
         public event EventHandler<TimeSpan> OnPlaybackTime;
@@ -118,7 +120,8 @@ namespace midilib
 
         void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)
         {
-            OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, data = command });
+            OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, command = command,
+                data1 = data1, data2 = data2});
             OnProcessMidiMessage?.Invoke(channel, command, data1, data2);
         }
 
