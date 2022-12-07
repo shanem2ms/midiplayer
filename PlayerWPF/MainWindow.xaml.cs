@@ -157,6 +157,19 @@ namespace PlayerWPF
         {
 
         }
+
+        private void Playing_Click(object sender, RoutedEventArgs e)
+        {
+            PlayingCtrl.Visibility = Visibility.Visible;
+            SongsLb.Visibility = Visibility.Collapsed;
+        }
+
+        private void Songs_Click(object sender, RoutedEventArgs e)
+        {
+            PlayingCtrl.Visibility = Visibility.Collapsed;
+            SongsLb.Visibility = Visibility.Visible;
+        }
+
         void NextSong()
         {
             //PlaySong(player.GetNextSong());
