@@ -126,4 +126,12 @@ namespace midilib
         }
 
     }
+
+    public static class MidiSpec
+    {
+        public static int NoteOn = 0x90;
+        public static int NoteOff = 0x80;
+        public static int PatchChange = 0xC0;
+    }
+
 }

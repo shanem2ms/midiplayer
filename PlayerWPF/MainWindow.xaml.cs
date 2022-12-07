@@ -28,9 +28,8 @@ namespace PlayerWPF
         public ObservableCollection<MidiDb.Fi> MidiFiles => db.FilteredMidiFiles != null ? new
             ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles) : null;
         public string CurrentSong { get; set; }
-        ChannelOutput[] channelOutputs;
-        MidiDb db = new MidiDb();
-        MidiPlayer player;
+        MidiDb db = App.Db;
+        MidiPlayer player = App.Player;
         WaveOut waveOut;
         TimeSpan currentSongTime;
 
@@ -63,13 +62,9 @@ namespace PlayerWPF
 
         public MainWindow()
         {
-            player = new MidiPlayer(db);
             this.DataContext = this;
             InitializeComponent();
 
-            channelOutputs = new ChannelOutput[] {
-                Ch0, Ch1, Ch2, Ch3, Ch4, Ch5, Ch6, Ch7,
-            Ch8, Ch9, Ch10, Ch11, Ch12, Ch13, Ch14, Ch15 };
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
             CurrentPosSlider.ValueChanged += CurrentPosSlider_ValueChanged;
 
@@ -77,7 +72,6 @@ namespace PlayerWPF
             //NextSong();
             player.Initialize(OnEngineCreate).ContinueWith((action) =>
             {
-                player.OnChannelEvent += Player_OnChannelEvent;
                 player.OnPlaybackTime += Player_OnPlaybackTime;
                 player.OnPlaybackStart += Player_OnPlaybackStart;
                 player.OnPlaybackComplete += Player_OnPlaybackComplete;
@@ -130,15 +124,7 @@ namespace PlayerWPF
             TimeSpan t = new TimeSpan((long)(currentSongTime.Ticks * lerp));
             player.Seek(t);
         }
-
-        private void Player_OnChannelEvent(object? sender, MidiPlayer.ChannelEvent e)
-        {
-            if (e.channel < channelOutputs.Length)
-            {
-                Dispatcher.BeginInvoke(() =>
-                    channelOutputs[e.channel].SetMidiData(e));
-            }
-        }
+  
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

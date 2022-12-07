@@ -13,13 +13,15 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="10" />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="1" Text="{Binding Path=PatchNumber}" />
-        <Rectangle Grid.Column="1" x:Name="DataRect" Grid.Row="1" Fill="{Binding Path=DataValue, Converter={StaticResource IntToBrush}}" Width="16" Height="16"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path=ChannelId}" />
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Instrument}" />
+        <Rectangle Grid.Row="2" Grid.Column="1" x:Name="DataRect" Fill="{Binding Path=DataValue, Converter={StaticResource IntToBrush}}" Width="16" Height="16"/>
     </Grid>
 </UserControl>

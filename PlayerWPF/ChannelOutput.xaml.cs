@@ -26,16 +26,21 @@ namespace PlayerWPF
     public partial class ChannelOutput : UserControl, INotifyPropertyChanged
     {        
         public new event PropertyChangedEventHandler? PropertyChanged;
+        
+        public static readonly DependencyProperty ChannelIdProperty =
+           DependencyProperty.Register("ChannelId", typeof(int), typeof(UserControl), new
+              PropertyMetadata(0));
+
         public int ChannelId
         {
-            get;
-            set;
+            get { return (int)GetValue(ChannelIdProperty); }
+            set { SetValue(ChannelIdProperty, value); }
         }
-
         public int DataValue { get; set; } = 0;
         DispatcherTimer dispatcherTimer;
         public int PatchNumber { get; set; }
-        public string Instrument => GMInstruments.Names[PatchNumber];
+        public string Instrument => ChannelId == 9 ? "Drums" : GMInstruments.Names[PatchNumber];
+        bool isEnabled = true;
         public ChannelOutput()
         {
             this.DataContext = this;
@@ -55,13 +60,31 @@ namespace PlayerWPF
             }
         }
 
+        public void ResetForSong()
+        {
+            Dispatcher.BeginInvoke(() => Visibility = Visibility.Collapsed);
+            PatchNumber = 0;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PatchNumber)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Instrument)));
+            isEnabled = false;
+        }
+
         public void SetMidiData(MidiPlayer.ChannelEvent e)
         {
-            DataValue = 255;
-            if (e.command == 0xC0)
+            if (e.command == MidiSpec.PatchChange)
             {
                 PatchNumber = e.data1;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PatchNumber)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Instrument)));                
+            }
+            else if (e.command == MidiSpec.NoteOff || e.command == MidiSpec.NoteOn)
+            {
+                DataValue = 255;
+                if (!isEnabled)
+                {
+                    Dispatcher.BeginInvoke(() => Visibility = Visibility.Visible);
+                    isEnabled = true;
+                }
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataValue)));
         }
