@@ -17,6 +17,7 @@
         </Frame>
         <local:SongList x:Name="SongList" Grid.Row="1" />
         <local:SynthList x:Name="SynthList" Grid.Row="1" IsVisible="false"/>
+        <local:PlayingView x:Name="PlayingView" Grid.Row="1" IsVisible="false"/>
         <Grid Grid.Row="2" Padding="0,20" Background="#222222">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -25,7 +26,8 @@
             <Label Grid.Row="0" Text="{Binding Path=CurrentSong}" TextColor="White"/>
             <Slider Grid.Row="1"  x:Name="SongPosSlider" Margin="0,5" />
         </Grid>
-        <StackLayout Grid.Row="3" Orientation="Horizontal">
+        <StackLayout Grid.Row="3" Orientation="Horizontal" Background="Black">
+            <Button Text="Playing" Margin="10,0" Pressed="Playing_Pressed" />
             <Button Text="Songs" Margin="10,0" Pressed="Songs_Pressed" />
             <Button Text="Synths" Margin="10,0" Pressed="Synths_Pressed"/>
         </StackLayout>

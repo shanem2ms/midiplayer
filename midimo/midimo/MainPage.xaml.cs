@@ -79,13 +79,22 @@ namespace midimo
         {
             SongList.IsVisible = true;
             SynthList.IsVisible = false;
+            PlayingView.IsVisible = false;
         }
 
         void Synths_Pressed(System.Object sender, System.EventArgs e)
         {
             SongList.IsVisible = false;
             SynthList.IsVisible = true;
+            PlayingView.IsVisible = false;
         }
+
+        void Playing_Pressed(System.Object sender, System.EventArgs e)
+        {
+            SongList.IsVisible = false;
+            SynthList.IsVisible = false;
+            PlayingView.IsVisible = true;
+        }        
     }
 }
 

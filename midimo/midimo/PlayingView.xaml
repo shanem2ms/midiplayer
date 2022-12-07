@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:midimo;assembly=midimo"
+    x:Class="midimo.PlayingView">
+    <ContentView.Content>
+        <StackLayout Orientation="Vertical" Background="Gray">
+            <local:ChannelOutput x:Name="Ch0" ChannelId="0" />
+            <local:ChannelOutput x:Name="Ch1" ChannelId="1" />
+            <local:ChannelOutput x:Name="Ch2" ChannelId="2" />
+            <local:ChannelOutput x:Name="Ch3" ChannelId="3" />
+            <local:ChannelOutput x:Name="Ch4" ChannelId="4" />
+            <local:ChannelOutput x:Name="Ch5" ChannelId="5" />
+            <local:ChannelOutput x:Name="Ch6" ChannelId="6" />
+            <local:ChannelOutput x:Name="Ch7" ChannelId="7" />
+            <local:ChannelOutput x:Name="Ch8" ChannelId="8" />
+            <local:ChannelOutput x:Name="Ch9" ChannelId="9" />
+            <local:ChannelOutput x:Name="Ch10" ChannelId="10" />
+            <local:ChannelOutput x:Name="Ch11" ChannelId="11" />
+            <local:ChannelOutput x:Name="Ch12" ChannelId="12" />
+            <local:ChannelOutput x:Name="Ch13" ChannelId="13" />
+            <local:ChannelOutput x:Name="Ch14" ChannelId="14" />
+            <local:ChannelOutput x:Name="Ch15" ChannelId="15" />
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>
+
