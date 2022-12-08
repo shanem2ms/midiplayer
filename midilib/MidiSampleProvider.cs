@@ -15,6 +15,8 @@ namespace midilib
         private Synthesizer synthesizer;
         private MidiFileSequencer sequencer;
         public MidiFileSequencer Sequencer => sequencer;
+        private float rms = 0;
+        public float RMS => rms;
 
 
         private object mutex;
@@ -64,6 +66,19 @@ namespace midilib
             }
         }
 
+        float maxval = 0;
+        float CalculateRms(float[] buffer, int offset, int count)
+        {
+            float total = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                float v = buffer[i];
+                maxval = MathF.Max(maxval, MathF.Abs(v));
+                total += v * v; 
+            }
+            return MathF.Sqrt(total /= count);
+        }
+
         public int Read(float[] buffer, int offset, int count)
         {
             lock (mutex)
@@ -71,6 +86,7 @@ namespace midilib
                 sequencer.RenderInterleaved(buffer.AsSpan(offset, count));
             }
 
+            rms = CalculateRms(buffer, offset, count);
             return count;
         }
 

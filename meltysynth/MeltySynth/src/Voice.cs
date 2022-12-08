@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace MeltySynth
 {
@@ -91,7 +92,7 @@ namespace MeltySynth
             {
                 // According to the Polyphone's implementation, the initial attenuation should be reduced to 40%.
                 // I'm not sure why, but this indeed improves the loudness variability.
-                var sampleAttenuation = 0.4F * region.InitialAttenuation;
+                var sampleAttenuation = 0.4F * Math.Max(region.InitialAttenuation, 0);
                 var filterAttenuation = 0.5F * region.InitialFilterQ;
                 var decibels = 2 * SoundFontMath.LinearToDecibels(velocity / 127F) - sampleAttenuation - filterAttenuation;
                 noteGain = SoundFontMath.DecibelsToLinear(decibels);
