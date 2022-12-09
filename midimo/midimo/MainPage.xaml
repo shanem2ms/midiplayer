@@ -10,7 +10,6 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="20" />
         </Grid.RowDefinitions>
         <Frame Grid.Row="0" BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
             <Label Text="Midi Songs" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
@@ -26,10 +25,10 @@
             <Label Grid.Row="0" Text="{Binding Path=CurrentSong}" TextColor="White"/>
             <Slider Grid.Row="1"  x:Name="SongPosSlider" Margin="0,5" />
         </Grid>
-        <StackLayout Grid.Row="3" Orientation="Horizontal" Background="Black">
-            <Button Text="Playing" Margin="10,0" Pressed="Playing_Pressed" />
-            <Button Text="Songs" Margin="10,0" Pressed="Songs_Pressed" />
-            <Button Text="Synths" Margin="10,0" Pressed="Synths_Pressed"/>
+        <StackLayout Grid.Row="3" Orientation="Horizontal" Background="DimGray" Padding="0,0,0,20">
+            <Button Text="Playing" Padding="10,0" Pressed="Playing_Pressed" BackgroundColor="DarkBlue" />
+            <Button Text="Songs" Padding="10,0" Pressed="Songs_Pressed" BackgroundColor="Transparent"/>
+            <Button Text="Synths" Padding="10,0" Pressed="Synths_Pressed"/>
         </StackLayout>
     </Grid>
 </ContentPage>

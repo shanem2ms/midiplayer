@@ -21,15 +21,15 @@ namespace midimo
             set { SetValue(ChannelIdProperty, value); }
         }
 
-        public static readonly BindableProperty DataColorProperty =
-           BindableProperty.CreateAttached("DataColor", typeof(Brush), typeof(ChannelOutput),
-              Brush.Black);
+        public static readonly BindableProperty DataValueProperty =
+           BindableProperty.CreateAttached("DataValue", typeof(int), typeof(ChannelOutput),
+              0);
 
         int dataValue = 0;
-        public Brush DataColor
+        public int DataValue
         {
-            get { return (Brush)GetValue(DataColorProperty); }
-            set { SetValue(DataColorProperty, value); }
+            get { return (int)GetValue(DataValueProperty); }
+            set { SetValue(DataValueProperty, value); }
         }
 
         public int PatchNumber { get; set; }
@@ -48,8 +48,8 @@ namespace midimo
             if (this.dataValue > 0)
             {
                 this.dataValue -= 8;
-                this.DataColor = LerpColor(Color.LightGray, Color.Green, this.dataValue);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataColor)));
+                this.DataValue = dataValue;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataValue)));
             }
             return true;
         }
@@ -74,7 +74,7 @@ namespace midimo
             else if (e.command == MidiSpec.NoteOff || e.command == MidiSpec.NoteOn)
             {
                 dataValue = 255;
-                this.DataColor = Color.Green;
+                this.DataValue = 255;
                 if (!isEnabled)
                 {
                     Dispatcher.BeginInvokeOnMainThread(() => IsVisible = true);
@@ -97,14 +97,15 @@ namespace midimo
     {
         public static readonly IntToBrushConverter Instance = new IntToBrushConverter();
 
-
         Color LerpColor(Color l, Color r, int v)
         {
-            return Color.FromRgba(255,
-                (byte)(((r.R * v) + (l.R * (255 - v))) / 255),
-                (byte)(((r.G * v) + (l.G * (255 - v))) / 255),
-                (byte)(((r.B * v) + (l.B * (255 - v))) / 255));
+            return Color.FromRgba(
+                (byte)(((r.R * 255 * v) + (l.R * 255 * (255 - v))) / 255),
+                (byte)(((r.G * 255 * v) + (l.G * 255 * (255 - v))) / 255),
+                (byte)(((r.B * 255 * v) + (l.B * 255 * (255 - v))) / 255),
+                255);
         }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Color OffColor = Color.LightGray;

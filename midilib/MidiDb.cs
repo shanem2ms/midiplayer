@@ -29,7 +29,8 @@ namespace midilib
 
             public Fi(string name, string location)
             {
-                Name = name;
+                string[] allnames = name.Split(new char[] { ' ', '-', '_' });
+                Name = string.Join(' ', allnames);
                 nameLower = name.ToLower();
                 Location = location;
             }
