@@ -12,7 +12,7 @@ using System.Xml;
 using static midilib.MidiDb;
 
 namespace midilib
-{    
+{
     public class MidiDb
     {
         public class Fi
@@ -22,6 +22,9 @@ namespace midilib
             string nameLower;
             public string NmLwr => nameLower;
             public string Location { get; }
+
+            string[] searchTokens;
+            public string[]SearchTokens { get => searchTokens; }
             public Fi(string name) :
                 this(name, null)
             {
@@ -29,20 +32,25 @@ namespace midilib
 
             public Fi(string name, string location)
             {
-                string[] allnames = name.Split(new char[] { ' ', '-', '_' });
-                Name = string.Join(' ', allnames);
+                Name = name;
                 nameLower = name.ToLower();
+                int idx = nameLower.IndexOf('.');
+                if (idx > 0)
+                    nameLower = nameLower.Substring(0, idx);
+                searchTokens = nameLower.Split(new char[] { ' ', '-', '_' });
                 Location = location;
             }
         }
 
         public MappingsFile Mappings { get; private set; }
         HttpClient httpClient = new HttpClient();
-        Fi[] midiFiles; 
+        Fi[] midiFiles;
         public string searchStr;
         string homedir;
         string midiCacheDir;
         public string HomeDir => homedir;
+
+        Dictionary<string, List<Fi>> searchTree = new Dictionary<string, List<Fi>>();
         public List<string> AllSoundFonts { get; } = new List<string>();
         public event EventHandler<bool> OnIntialized;
 
@@ -52,19 +60,42 @@ namespace midilib
             set
             {
                 searchStr = value;
+                //OnSearchStringChanged();
             }
+        }
+
+        IEnumerable<Fi> OnSearchStringChanged()
+        {
+            if (searchStr != null &
+                searchStr?.Trim().Length > 2)
+            {
+                string ssLower = searchStr.ToLower().Trim();
+                string[] searchTerms = ssLower.Split(new char[] { ' ', '-', '_' });
+                HashSet<Fi> fiFinal = null;
+                foreach (string term in searchTerms)
+                {
+                    if (term.Length > 2)
+                    {
+                        var results = searchTree.Where(kv => kv.Key.Contains(term));
+                        HashSet<Fi> fi = results.SelectMany(kv => kv.Value).ToHashSet();
+                        if (fiFinal == null)
+                            fiFinal = fi;
+                        else
+                            fiFinal.IntersectWith(fi);
+                    }
+                }
+                return fiFinal;
+            }
+            return null;
         }
 
         public IEnumerable<Fi> FilteredMidiFiles
         {
             get
             {
-                if (searchStr != null &
-                    searchStr?.Trim().Length > 2)
-                {
-                    string ssLower = searchStr.ToLower();
-                    return midiFiles.Where(fi => fi.NmLwr.Contains(ssLower));
-                }
+                var result = OnSearchStringChanged();
+                if (result != null)
+                    return result;
                 else
                     return midiFiles;
             }
@@ -109,9 +140,27 @@ namespace midilib
             }
 
             this.midiFiles = midFileLsit.ToArray();
+            BuildSearchTree();
             this.AllSoundFonts.AddRange(Mappings.soundfonts.Keys);
             OnIntialized?.Invoke(this, true);
             return true;
+        }
+
+        void BuildSearchTree()
+        {
+            foreach (Fi fi in midiFiles)
+            {
+                foreach (string token in fi.SearchTokens)
+                {
+                    List<Fi> fiList;
+                    if (!searchTree.TryGetValue(token, out fiList))
+                    {
+                        fiList = new List<Fi>();
+                        searchTree.Add(token, fiList);
+                    }
+                    fiList.Add(fi);
+                }
+            }
         }
         public string GetLocalFileSync(Fi mfi, bool allowDownloads = true)
         {
