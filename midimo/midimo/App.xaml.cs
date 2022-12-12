@@ -11,13 +11,16 @@ namespace midimo
         public MidiPlayer player;
 
         public static App Instance;
+        public delegate View OnAddGlViewDel();
+        public OnAddGlViewDel OnAddGlView;
 
-        public App (MidiDb _db, MidiPlayer _player)
+        public App (MidiDb _db, MidiPlayer _player, OnAddGlViewDel glView)
         {
             Instance = this;
             InitializeComponent();
             db = _db;
             player = _player;
+            OnAddGlView = glView;
             MainPage = new MainPage();
         }
 

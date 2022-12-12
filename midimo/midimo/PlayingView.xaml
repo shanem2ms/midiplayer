@@ -5,6 +5,7 @@
     xmlns:local="clr-namespace:midimo;assembly=midimo"
     x:Class="midimo.PlayingView">
     <ContentView.Content>
+        <StackLayout x:Name="MainStack" Orientation="Vertical" Background="Black">
         <StackLayout Orientation="Vertical" Background="Gray">
             <local:ChannelOutput x:Name="Ch0" ChannelId="0" />
             <local:ChannelOutput x:Name="Ch1" ChannelId="1" />
@@ -22,6 +23,7 @@
             <local:ChannelOutput x:Name="Ch13" ChannelId="13" />
             <local:ChannelOutput x:Name="Ch14" ChannelId="14" />
             <local:ChannelOutput x:Name="Ch15" ChannelId="15" />
+        </StackLayout>
         </StackLayout>
     </ContentView.Content>
 </ContentView>

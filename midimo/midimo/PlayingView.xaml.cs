@@ -21,6 +21,7 @@ namespace midimo
             Ch8, Ch9, Ch10, Ch11, Ch12, Ch13, Ch14, Ch15 };
             player.OnChannelEvent += Player_OnChannelEvent;
             player.OnPlaybackStart += Player_OnPlaybackStart;
+            MainStack.Children.Insert(0, App.Instance.OnAddGlView());
         }
 
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)

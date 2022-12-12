@@ -5,6 +5,8 @@ using NAudio.Wave;
 using Foundation;
 using UIKit;
 using midilib;
+using OpenTK.Graphics.ES30;
+using Xamarin.Forms;
 
 namespace midimo.iOS
 {
@@ -29,7 +31,7 @@ namespace midimo.iOS
         {
             player = new MidiPlayer(db);
             global::Xamarin.Forms.Forms.Init();
-            LoadApplication(new App(db, player));
+            LoadApplication(new App(db, player, InitOpenGlView));
             player.Initialize(OnEngineCreate);
             midiOut = new MidiOut();
 
@@ -41,6 +43,46 @@ namespace midimo.iOS
             aVAudioEngineOut = new NAudio.Wave.AVAudioEngineOut();
             aVAudioEngineOut.Init(midiSampleProvider);
             aVAudioEngineOut.Play();
+        }
+
+        View InitOpenGlView()
+        {
+            var view = new OpenGLView { HasRenderLoop = true };
+            var toggle = new Switch { IsToggled = true };
+            var button = new Button { Text = "Display" };
+
+            view.HeightRequest = 300;
+            view.WidthRequest = 300;
+
+            float red = 0, green = 0, blue = 0;
+            view.OnDisplay = r => {
+
+                GL.ClearColor(red, green, blue, 1.0f);
+                GL.Clear((ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
+                red += 0.01f;
+                if (red >= 1.0f)
+                    red -= 1.0f;
+                green += 0.02f;
+                if (green >= 1.0f)
+                    green -= 1.0f;
+                blue += 0.03f;
+                if (blue >= 1.0f)
+                    blue -= 1.0f;
+            };
+
+            toggle.Toggled += (s, a) => {
+                view.HasRenderLoop = toggle.IsToggled;
+            };
+            button.Clicked += (s, a) => view.Display();
+
+            StackLayout stack = new StackLayout
+            {
+                Padding = new Size(20, 20),
+                Children = { view, toggle, button }
+            };
+
+            return stack;
         }
 
     }

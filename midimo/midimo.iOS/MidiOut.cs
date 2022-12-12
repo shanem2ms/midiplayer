@@ -24,7 +24,37 @@ namespace midimo.iOS
             }
         }
 
-        void OnProcessMidiMessage(int channelwsa
+        void OnProcessMidiMessage(int channel, int command, int data1, int data2)
+        {
+
+            //var channelInfo = channels[channel];
+            switch (command)
+            {
+                case 0x80: // Note Off
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        outputPort.Send(midiOut, new MidiPacket[] { new MidiPacket(0, BitConverter.GetBytes(cmd)) });
+                        //midiOut?.Send(cmd);
+                    }
+                    break;
+
+                case 0x90: // Note On
+                    {
+                        int vol = (data2 * volume) / 100;
+                        int cmd = channel | command | (data1 << 8) | (vol << 16);
+                        outputPort.Send(midiOut, new MidiPacket[] { new MidiPacket(0, BitConverter.GetBytes(cmd)) });
+                        //OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, data = data1 });
+                        break;
+                    }
+                default:
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        outputPort.Send(midiOut, new MidiPacket[] { new MidiPacket(0, BitConverter.GetBytes(cmd)) });
+                    }
+                    break;
+
+            }
+        }
     }
 }
 
