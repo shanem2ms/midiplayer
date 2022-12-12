@@ -18,7 +18,6 @@ namespace midimo
         TimeSpan songLength = new TimeSpan();
         public string CurrentSong { get; set; }
 
-
         public MidiDb Db
         {
             get => db;
@@ -75,11 +74,22 @@ namespace midimo
             player.Seek(ts);
         }
 
+        void RefreshTabs(object sender)
+        {
+            foreach (Button child in TabButtonsStack.Children)
+            {
+                child.BackgroundColor = sender == child ?
+                    Color.DarkBlue :
+                    Color.Transparent;
+            }
+        }
+
         void Songs_Pressed(System.Object sender, System.EventArgs e)
         {
             SongList.IsVisible = true;
             SynthList.IsVisible = false;
             PlayingView.IsVisible = false;
+            RefreshTabs(sender);
         }
 
         void Synths_Pressed(System.Object sender, System.EventArgs e)
@@ -87,6 +97,7 @@ namespace midimo
             SongList.IsVisible = false;
             SynthList.IsVisible = true;
             PlayingView.IsVisible = false;
+            RefreshTabs(sender);
         }
 
         void Playing_Pressed(System.Object sender, System.EventArgs e)
@@ -94,7 +105,8 @@ namespace midimo
             SongList.IsVisible = false;
             SynthList.IsVisible = false;
             PlayingView.IsVisible = true;
-        }        
+            RefreshTabs(sender);
+        }
     }
 }
 

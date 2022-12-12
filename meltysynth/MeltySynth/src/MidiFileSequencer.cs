@@ -126,6 +126,7 @@ namespace MeltySynth
                 wrote += rem;
             }
         }
+
         private void ProcessEvents()
         {
             if (midiFile == null)

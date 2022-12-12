@@ -49,10 +49,13 @@ namespace midilib
         string homedir;
         string midiCacheDir;
         public string HomeDir => homedir;
+        IEnumerable<Fi> filteredFiles = null;
 
         Dictionary<string, List<Fi>> searchTree = new Dictionary<string, List<Fi>>();
         public List<string> AllSoundFonts { get; } = new List<string>();
         public event EventHandler<bool> OnIntialized;
+
+        public event EventHandler<bool> OnSearchResults;
 
         public string SearchStr
         {
@@ -60,11 +63,18 @@ namespace midilib
             set
             {
                 searchStr = value;
-                //OnSearchStringChanged();
+                OnSearchStringChanged();
             }
         }
 
-        IEnumerable<Fi> OnSearchStringChanged()
+        async void OnSearchStringChanged()
+        {
+            IEnumerable<Fi> fis = await GetSearchResults(this.searchStr);
+            this.filteredFiles = fis;
+            OnSearchResults?.Invoke(this, true);
+        }
+
+        async Task<IEnumerable<Fi>> GetSearchResults(string searchStr)
         {
             if (searchStr != null &
                 searchStr?.Trim().Length > 2)
@@ -93,14 +103,10 @@ namespace midilib
         {
             get
             {
-                var result = OnSearchStringChanged();
-                if (result != null)
-                    return result;
-                else
-                    return midiFiles;
+                return filteredFiles != null ? filteredFiles : midiFiles;
             }
-
         }
+
         public MidiDb()
         {
             homedir = GetHomeDir();
@@ -162,6 +168,7 @@ namespace midilib
                 }
             }
         }
+
         public string GetLocalFileSync(Fi mfi, bool allowDownloads = true)
         {
             var task = GetLocalFile(mfi, allowDownloads);

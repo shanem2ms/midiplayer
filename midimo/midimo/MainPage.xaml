@@ -25,7 +25,7 @@
             <Label Grid.Row="0" Text="{Binding Path=CurrentSong}" TextColor="White"/>
             <Slider Grid.Row="1"  x:Name="SongPosSlider" Margin="0,5" />
         </Grid>
-        <StackLayout Grid.Row="3" Orientation="Horizontal" Background="DimGray" Padding="0,0,0,20">
+        <StackLayout x:Name="TabButtonsStack" Grid.Row="3" Orientation="Horizontal" Background="DimGray" Padding="0,0,0,20">
             <Button Text="Playing" Padding="10,0" Pressed="Playing_Pressed" BackgroundColor="DarkBlue" />
             <Button Text="Songs" Padding="10,0" Pressed="Songs_Pressed" BackgroundColor="Transparent"/>
             <Button Text="Synths" Padding="10,0" Pressed="Synths_Pressed"/>

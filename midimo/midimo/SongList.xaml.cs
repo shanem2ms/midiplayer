@@ -32,10 +32,16 @@ namespace midimo
         public SongList()
         {
             db = App.Instance.db;
+            db.OnSearchResults += Db_OnSearchResults;
             player = App.Instance.player;
             this.BindingContext = this;
             InitializeComponent();
             Initialize();
+        }
+
+        private void Db_OnSearchResults(object sender, bool e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MidiFiles)));
         }
 
         void OnSelectedFile(MidiDb.Fi fi)
@@ -54,7 +60,6 @@ namespace midimo
         {
             db.SearchStr = e.NewTextValue;
             //midiFiles = new ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MidiFiles)));
         }
     }
 }
