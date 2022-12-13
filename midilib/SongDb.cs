@@ -1,19 +1,12 @@
 ﻿using System;
 using MeltySynth;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Text;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using Newtonsoft.Json.Linq;
-
 
 namespace midilib
 {
@@ -30,101 +23,7 @@ namespace midilib
             con = new SQLiteConnection($"Data Source={file}; Version=3;New=True;Compress=True;");
         }
 
-        class Hash : IEquatable<Hash>
-        {
-            byte []array;
-
-            public Hash(byte[] array)
-            {
-                this.array = array;
-            }
-
-            public bool Equals(Hash other)
-            {
-                if (this == other)
-                {
-                    return true;
-                }
-                if (this == null || other == null)
-                {
-                    return false;
-                }
-                if (array.Length != array.Length)
-                {
-                    return false;
-                }
-                for (int i = 0; i < this.array.Length; i++)
-                {
-                    if (this.array[i] != other.array[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    if (array == null)
-                    {
-                        return 0;
-                    }
-                    int hash = 17;
-                    foreach (byte element in array)
-                    {
-                        hash = hash * 31 + element;
-                    }
-                    return hash;
-                }
-            }
-        }
-        public async Task<bool> Md5()
-        {
-            List<MidiDb.Fi> allfiles = db.FilteredMidiFiles.ToList();
-            Dictionary<Hash, List<MidiDb.Fi>> filesDicts = new Dictionary<Hash, List<MidiDb.Fi>>();
-            foreach (MidiDb.Fi fi in allfiles)
-            {
-                string path = await db.GetLocalFile(fi, true);
-                if (path == null)
-                    continue;
-                using (var md5 = MD5.Create())
-                {
-                    using (var stream = File.OpenRead(path))
-                    {
-                        Hash h = new Hash(md5.ComputeHash(stream));
-                        List<MidiDb.Fi> outList;
-                        if (filesDicts.TryGetValue(h, out outList))
-                        {
-                            outList.Add(fi);
-                        }
-                        else
-                        {
-                            filesDicts.Add(h, new List<MidiDb.Fi>() { fi });
-                        }
-                    }
-                }
-            }
-
-            MappingsFile mappings = db.Mappings;
-            var dupes = filesDicts.Where(kv => kv.Value.Count > 1);
-            int removed = 0;
-            foreach (var dup in dupes)
-            {
-                List<MidiDb.Fi> files = dup.Value;
-                files.RemoveAt(0);
-                
-                foreach (MidiDb.Fi fi in files)
-                {
-                    if (!mappings.midifiles.Remove(fi.Name))
-                        Debugger.Break();
-                    removed++;
-                }
-            }
-            return true;
-        }
+        
         
         public async Task<bool> Build()
         {
@@ -134,9 +33,39 @@ namespace midilib
             using var cmd = con.CreateCommand();
             cmd.CommandText = "CREATE TABLE songs (Id INTEGER PRIMARY KEY, Name TEXT, Length INT, Channels INT)";
             cmd.ExecuteNonQuery();
-            cmd.CommandText = "CREATE TABLE channelpatches (Id INTEGER, Channel INTEGER, Patch INTEGER, FOREIGN KEY(ID) REFERENCES songs(Id))";
-            cmd.ExecuteNonQuery();
             cmd.CommandText = "CREATE TABLE songtext (Id INTEGER, TEXT Text, TrackId INTEG ER, FOREIGN KEY(ID) REFERENCES songs(Id))";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "CREATE TABLE instruments (Id INTEGER PRIMARY KEY, TEXT Text)";
+            cmd.ExecuteNonQuery();
+            int instid = 0;
+            cmd.CommandText = "BEGIN";
+            cmd.ExecuteNonQuery();
+            foreach (var instrument in GMInstruments.Names)
+            {
+                cmd.CommandText = $"INSERT INTO instruments (Id, TEXT) VALUES ({instid}, '{instrument}')";
+                cmd.ExecuteNonQuery();
+                instid++;
+            }
+            cmd.CommandText = "COMMIT";
+            cmd.ExecuteNonQuery();
+
+
+            cmd.CommandText = "CREATE TABLE drums (Id INTEGER PRIMARY KEY, TEXT Text)";
+            cmd.ExecuteNonQuery();
+            instid = 0;
+            cmd.CommandText = "BEGIN";
+            cmd.ExecuteNonQuery();
+            foreach (var instrument in GMInstruments.Drums)
+            {
+                cmd.CommandText = $"INSERT INTO drums (Id, TEXT) VALUES ({instid}, '{instrument}')";
+                cmd.ExecuteNonQuery();
+                instid++;
+            }
+            cmd.CommandText = "COMMIT";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "CREATE TABLE channelpatches (Id INTEGER, Channel INTEGER, Patch INTEGER, FOREIGN KEY(ID) REFERENCES songs(Id), FOREIGN KEY(Patch) REFERENCES instruments(Id))";
             cmd.ExecuteNonQuery();
 
             int rowcnt = 0;
@@ -148,7 +77,7 @@ namespace midilib
 
                 sw.Reset();
                 sw.Start();
-                cmd.CommandText = $"BEGIN";
+                cmd.CommandText = "BEGIN";
                 await cmd.ExecuteNonQueryAsync();
 
                 Parallel.ForEach(batch, fi =>
@@ -197,7 +126,7 @@ namespace midilib
                     return;
 
                 });                
-                cmd.CommandText = $"COMMIT";
+                cmd.CommandText = "COMMIT";
                 await cmd.ExecuteNonQueryAsync();
 
                 sw.Stop();                

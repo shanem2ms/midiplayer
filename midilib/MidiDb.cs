@@ -52,10 +52,23 @@ namespace midilib
         IEnumerable<Fi> filteredFiles = null;
 
         Dictionary<string, List<Fi>> searchTree = new Dictionary<string, List<Fi>>();
-        public List<string> AllSoundFonts { get; } = new List<string>();
+
+        public class SoundFontDesc
+        {
+            public string Name { get; set; }
+            public int Length { get; set; }
+            public bool IsCached { get; set; }
+        }
+        public List<SoundFontDesc> AllSoundFonts { get; } = new List<SoundFontDesc>();
         public event EventHandler<bool> OnIntialized;
 
         public event EventHandler<bool> OnSearchResults;
+
+
+        public SoundFontDesc SFDescFromName(string sfname)
+        {
+            return AllSoundFonts.FirstOrDefault(sf => sf.Name == sfname);
+        }
 
         public string SearchStr
         {
@@ -120,7 +133,52 @@ namespace midilib
             return documents;
         }
 
-        public async Task<bool> Initialize()
+        void GetAllMidiFiles(List<Fi> allFiles, DirectoryInfo di)
+        {
+            var dirs = di.GetDirectories();
+            foreach (var childDir in dirs)
+            {
+                GetAllMidiFiles(allFiles, childDir);
+            }
+
+            foreach (var mfile in di.GetFiles("*.mid"))
+            {
+                Fi fi = new Fi(mfile.Name, mfile.FullName);
+                allFiles.Add(fi);
+            }
+        }
+
+        bool IsSoundfontInstalled(string soundFontPath)
+        {
+            string cacheFile = Path.Combine(this.homedir, soundFontPath);
+            return File.Exists(cacheFile);
+        }
+        public async Task<string> InstallSoundFont(MidiDb.SoundFontDesc sfDesc)
+        {
+            string cacheFile = Path.Combine(this.homedir, sfDesc.Name);
+            if (!File.Exists(cacheFile))
+            {
+                HttpClient httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + "sf/" + sfDesc.Name);
+                Stream inputstream = await response.Content.ReadAsStreamAsync();
+                inputstream.Seek(0, SeekOrigin.Begin);
+                FileStream fs = File.OpenWrite(cacheFile);
+                inputstream.CopyTo(fs);
+                fs.Close();
+            }
+
+            return cacheFile;
+        }
+        List<Fi> GetMidiFiles(string folder)
+        {
+            DirectoryInfo di = new DirectoryInfo(folder);
+            List<Fi> allFiles = new List<Fi>();
+            GetAllMidiFiles(allFiles, di);
+            this.midiFiles = allFiles.ToArray();
+            return allFiles;
+        }
+        
+        public async Task<bool> InitializeMappings()
         {
             string mappingsFile = Path.Combine(homedir, "mappings.json");
             var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.AwsBucketUrl + "mappings.json"));
@@ -137,17 +195,31 @@ namespace midilib
             }
             string jsonstr = await File.ReadAllTextAsync(mappingsFile);
             Mappings = JsonConvert.DeserializeObject<MappingsFile>(jsonstr);
-            List<Fi> midFileLsit = new List<Fi>();
-            foreach (var kv in Mappings.midifiles)
-            {
-                string name = kv.Key;
-                string url = kv.Value;
-                midFileLsit.Add(new Fi(name, kv.Value));
-            }
+            this.AllSoundFonts.Clear();
+            var sfonts = Mappings.soundfonts.Select(kv => new SoundFontDesc() { Name = kv.Key, Length = 0, IsCached = IsSoundfontInstalled(kv.Key) });
+            this.AllSoundFonts.AddRange(sfonts);
+            return true;
+        }
 
-            this.midiFiles = midFileLsit.ToArray();
+        public async Task<bool> InitSongList(bool fromCache)
+        { 
+            if (fromCache)
+            {
+                var midFileLsit = GetMidiFiles(this.midiCacheDir);
+                this.midiFiles = midFileLsit.ToArray();
+            }
+            else
+            {
+                List<Fi> midFileLsit = new List<Fi>();
+                foreach (var kv in Mappings.midifiles)
+                {
+                    string name = kv.Key;
+                    string url = kv.Value;
+                    midFileLsit.Add(new Fi(name, kv.Value));
+                }
+                this.midiFiles = midFileLsit.ToArray();
+            }
             BuildSearchTree();
-            this.AllSoundFonts.AddRange(Mappings.soundfonts.Keys);
             OnIntialized?.Invoke(this, true);
             return true;
         }

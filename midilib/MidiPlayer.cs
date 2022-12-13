@@ -28,10 +28,10 @@ namespace midilib
 
         int volume = 100;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
-        public string CurrentSoundFont
+        public MidiDb.SoundFontDesc CurrentSoundFont
         {
-            get => userSettings.CurrentSoundFont;
-            set => userSettings.CurrentSoundFont = value;
+            get => db.SFDescFromName(userSettings.CurrentSoundFont);
+            set => userSettings.CurrentSoundFont = value.Name;
         }
 
         public class ChannelEvent
@@ -59,12 +59,13 @@ namespace midilib
             userSettings = UserSettings.FromFile(Path.Combine(homedir, "usersettings.json"));
         }
 
-        public async Task<bool> ChangeSoundFont(string soundFont)
+        public async Task<bool> ChangeSoundFont(MidiDb.SoundFontDesc soundFont)
         {
             player.Stop();
-            await player.Initialize(soundFont, homedir);
+            string soundFontCacheFile = await db.InstallSoundFont(soundFont);
+            await player.Initialize(soundFontCacheFile);
             SetSequencer(player.Sequencer);
-            userSettings.CurrentSoundFont = soundFont;
+            userSettings.CurrentSoundFont = soundFont.Name;
             userSettings.Persist();
             return true;
         }
@@ -96,7 +97,9 @@ namespace midilib
 
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            await ChangeSoundFont(userSettings.CurrentSoundFont);
+            await db.InitializeMappings();
+            await ChangeSoundFont(
+                db.SFDescFromName(userSettings.CurrentSoundFont));
             OnAudioEngineCreate(player);
             return true;
         }

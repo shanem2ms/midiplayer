@@ -31,19 +31,8 @@ namespace midilib
             mutex = new object();
         }
 
-        public async Task<bool> Initialize(string soundFontPath, string cacheDir)
-        {
-            string cacheFile = Path.Combine(cacheDir, soundFontPath);
-            if (!File.Exists(cacheFile))
-            {
-                HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + "sf/" + soundFontPath);
-                Stream inputstream = await response.Content.ReadAsStreamAsync();
-                inputstream.Seek(0, SeekOrigin.Begin);
-                FileStream fs = File.OpenWrite(cacheFile);
-                inputstream.CopyTo(fs);
-                fs.Close();
-            }
+        public async Task<bool> Initialize(string cacheFile)
+        {                        
             SoundFont sf = new SoundFont(cacheFile);
             synthesizer = new Synthesizer(sf, format.SampleRate);
             synthesizer.MasterVolume = 1.0f;

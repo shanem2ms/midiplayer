@@ -33,11 +33,11 @@ namespace PlayerWPF
         WaveOut waveOut;
         TimeSpan currentSongTime;
 
-        public ObservableCollection<string> SoundFonts
+        public ObservableCollection<MidiDb.SoundFontDesc> SoundFonts
         {
-            get => new ObservableCollection<string>(db.AllSoundFonts);
+            get => new ObservableCollection<MidiDb.SoundFontDesc>(db.AllSoundFonts);
         }
-        public string CurrentSoundFont
+        public MidiDb.SoundFontDesc CurrentSoundFont
         {
             get => player.CurrentSoundFont;
             set
@@ -68,20 +68,21 @@ namespace PlayerWPF
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
             CurrentPosSlider.ValueChanged += CurrentPosSlider_ValueChanged;
 
+            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
+            Initialize();            
+        }
+
+        private async Task<bool> Initialize()
+        {
+            await player.Initialize(OnEngineCreate);
+            player.OnPlaybackTime += Player_OnPlaybackTime;
+            player.OnPlaybackStart += Player_OnPlaybackStart;
+            player.OnPlaybackComplete += Player_OnPlaybackComplete;
+            await db.InitSongList(false);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
-            //NextSong();
-            player.Initialize(OnEngineCreate).ContinueWith((action) =>
-            {
-                player.OnPlaybackTime += Player_OnPlaybackTime;
-                player.OnPlaybackStart += Player_OnPlaybackStart;
-                player.OnPlaybackComplete += Player_OnPlaybackComplete;
-            });
-            db.Initialize().ContinueWith((action) =>
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));
-            });
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));
+            return true;
         }
 
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
