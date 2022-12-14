@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using Xamarin.Forms;
 using midilib;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace midimo
 {
@@ -41,6 +42,30 @@ namespace midimo
         private void Db_OnIntialized(object sender, bool e)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Synths)));
+        }
+    }
+
+
+    public class BoolToColorConverter : IValueConverter
+    {
+        public static readonly BoolToColorConverter Instance = new BoolToColorConverter();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Color OffColor = Color.LightGray;
+            Color OnColor = Color.Green;
+            if (value is bool sourceInt
+                && typeof(Color).IsAssignableFrom(targetType))
+            {
+                return sourceInt ? OnColor : OffColor;
+            }
+            // converter used for the wrong type
+            return null;
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
 }
