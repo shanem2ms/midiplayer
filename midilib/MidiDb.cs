@@ -177,7 +177,8 @@ namespace midilib
             this.midiFiles = allFiles.ToArray();
             return allFiles;
         }
-        
+
+        TaskCompletionSource<bool> IsMappingsInitialized = new TaskCompletionSource<bool>();
         public async Task<bool> InitializeMappings()
         {
             string mappingsFile = Path.Combine(homedir, "mappings.json");
@@ -198,11 +199,13 @@ namespace midilib
             this.AllSoundFonts.Clear();
             var sfonts = Mappings.soundfonts.Select(kv => new SoundFontDesc() { Name = kv.Key, Length = 0, IsCached = IsSoundfontInstalled(kv.Key) });
             this.AllSoundFonts.AddRange(sfonts);
+            IsMappingsInitialized.SetResult(true);
             return true;
         }
 
         public async Task<bool> InitSongList(bool fromCache)
-        { 
+        {
+            await IsMappingsInitialized.Task;
             if (fromCache)
             {
                 var midFileLsit = GetMidiFiles(this.midiCacheDir);

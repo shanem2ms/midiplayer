@@ -10,13 +10,13 @@ namespace midimo
     public partial class SynthList : ContentView, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        public ObservableCollection<string> Synths =>
-            new  ObservableCollection<string>(db.AllSoundFonts);
+        public ObservableCollection<MidiDb.SoundFontDesc> Synths =>
+            new  ObservableCollection<MidiDb.SoundFontDesc>(db.AllSoundFonts);
         MidiDb db;
         MidiPlayer player;
 
-        string selectedSynth;
-        public string SelectedSynth
+        MidiDb.SoundFontDesc selectedSynth;
+        public MidiDb.SoundFontDesc SelectedSynth
         {
             get => selectedSynth;
             set

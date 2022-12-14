@@ -7,6 +7,7 @@ using UIKit;
 using midilib;
 using OpenTK.Graphics.ES30;
 using Xamarin.Forms;
+using System.Threading.Tasks;
 
 namespace midimo.iOS
 {
@@ -32,10 +33,17 @@ namespace midimo.iOS
             player = new MidiPlayer(db);
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App(db, player, InitOpenGlView));
-            player.Initialize(OnEngineCreate);
-            midiOut = new MidiOut();
+            Init();
 
             return base.FinishedLaunching(app, options);
+        }
+
+        async Task<bool> Init()
+        {
+            await db.InitializeMappings();
+            await player.Initialize(OnEngineCreate);
+            midiOut = new MidiOut();
+            return true;
         }
 
         void OnEngineCreate(MidiSampleProvider midiSampleProvider)

@@ -97,7 +97,6 @@ namespace midilib
 
         public async Task<bool> Initialize(OnAudioEngineCreateDel OnAudioEngineCreate)
         {
-            await db.InitializeMappings();
             await ChangeSoundFont(
                 db.SFDescFromName(userSettings.CurrentSoundFont));
             OnAudioEngineCreate(player);
