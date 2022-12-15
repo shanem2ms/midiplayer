@@ -27,9 +27,13 @@ namespace MeltySynth
         private bool justSeeked;
         public event EventHandler<TimeSpan> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
-        public event EventHandler<TimeSpan> OnPlaybackStart;
+        public event EventHandler<MidiFile> OnPlaybackStart;
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
         public OnProcessMidiMessageDel OnProcessMidiMessage;
+
+        public TimeSpan CurrentTime => currentTime;
+        public MidiFile? CurrentMidiFile => midiFile;
+
 
         /// <summary>
         /// Initializes a new instance of the sequencer.
@@ -68,7 +72,7 @@ namespace MeltySynth
             msgIndex = 0;
             loopIndex = 0;
 
-            OnPlaybackStart?.Invoke(this, this.midiFile.Length);
+            OnPlaybackStart?.Invoke(this, this.midiFile);
             synthesizer.Reset();
         }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NAudio.Midi;
 using System.Xml;
+using MeltySynth;
 
 namespace midilib
 {
@@ -13,7 +14,7 @@ namespace midilib
     {
         string CacheDir => Path.Combine(homedir, "cache");
 
-        MidiSampleProvider player;
+        MidiSampleProvider sampleProvider;
 
         MidiOut midiOut;
         string homedir;
@@ -46,25 +47,28 @@ namespace midilib
         public event EventHandler<bool> OnPlaybackComplete;
         public struct PlaybackStartArgs
         {
-            public TimeSpan timeSpan;
             public MidiDb.Fi file;
+            public MeltySynth.MidiFile midiFile;
+
         }
         public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
+
+        public TimeSpan CurrentSongTime => sampleProvider.Sequencer.CurrentTime;
 
         public MidiPlayer(MidiDb dbin)
         {
             db = dbin;
             homedir = db.HomeDir;
-            player = new MidiSampleProvider();
+            sampleProvider = new MidiSampleProvider();
             userSettings = UserSettings.FromFile(Path.Combine(homedir, "usersettings.json"));
         }
 
         public async Task<bool> ChangeSoundFont(MidiDb.SoundFontDesc soundFont)
         {
-            player.Stop();
+            sampleProvider.Stop();
             string soundFontCacheFile = await db.InstallSoundFont(soundFont);
-            await player.Initialize(soundFontCacheFile);
-            SetSequencer(player.Sequencer);
+            await sampleProvider.Initialize(soundFontCacheFile);
+            SetSequencer(sampleProvider.Sequencer);
             userSettings.CurrentSoundFont = soundFont.Name;
             userSettings.Persist();
             return true;
@@ -75,13 +79,13 @@ namespace midilib
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
             sequencer.OnPlaybackStart += Sequencer_OnPlaybackStart;
-            player.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
+            sampleProvider.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
         }
 
-        private void Sequencer_OnPlaybackStart(object sender, TimeSpan e)
+        private void Sequencer_OnPlaybackStart(object sender, MeltySynth.MidiFile midiFile)
         {
             OnPlaybackStart?.Invoke(sender, new PlaybackStartArgs() { file = this.currentPlayingSong,
-            timeSpan = e});
+            midiFile = midiFile });
         }
 
 
@@ -99,25 +103,25 @@ namespace midilib
         {
             await ChangeSoundFont(
                 db.SFDescFromName(userSettings.CurrentSoundFont));
-            OnAudioEngineCreate(player);
+            OnAudioEngineCreate(sampleProvider);
             return true;
         }
 
         public void SetVolume(int volume)
         {
-            player.SetVolume(volume);
+            sampleProvider.SetVolume(volume);
         }
         public async void PlaySong(MidiDb.Fi mfi)
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
-            player.Play(midiFile);
+            sampleProvider.Play(midiFile);
         }
 
         public void Seek(TimeSpan time)
         {
-            player.Sequencer.SeekTo(time);
+            sampleProvider.Sequencer.SeekTo(time);
         }
 
         void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)

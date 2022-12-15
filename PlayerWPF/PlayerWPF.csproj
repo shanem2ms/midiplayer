@@ -18,4 +18,16 @@
     <ProjectReference Include="..\midilib\midilib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Shaders\Main.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\Main.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\Pick.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

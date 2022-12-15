@@ -74,6 +74,7 @@ namespace PlayerWPF
 
         private async Task<bool> Initialize()
         {
+            await db.InitializeMappings();
             await player.Initialize(OnEngineCreate);
             player.OnPlaybackTime += Player_OnPlaybackTime;
             player.OnPlaybackStart += Player_OnPlaybackStart;
@@ -87,7 +88,7 @@ namespace PlayerWPF
 
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
-            currentSongTime = e.timeSpan;
+            currentSongTime = e.midiFile.Length;
         }
 
         void OnEngineCreate(MidiSampleProvider midiSampleProvider)
