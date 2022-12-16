@@ -46,7 +46,7 @@ namespace midilib
         void GetNotes(TimeSpan now, TimeSpan delta)
         {
             activeNotes = new Dictionary<uint, ActiveNote>();
-            int startIndex = Array.BinarySearch(midiFile.Times, now);
+            int startIndex = Array.BinarySearch(midiFile.Times, now - delta);
             if (startIndex < 0)
             {
                 startIndex = ~startIndex;
