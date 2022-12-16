@@ -56,7 +56,7 @@ namespace midimo
         {
             this.CurrentSong = e.file.Name;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
-            songLength = e.timeSpan;
+            songLength = e.midiFile.Length;
         }
 
         private void Player_OnPlaybackComplete(object sender, bool e)

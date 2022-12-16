@@ -21,6 +21,7 @@ namespace midimo.iOS
         MidiPlayer player;
         NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
         MidiOut midiOut;
+        GlView glView;
         //
         // This method is invoked when the application has loaded and is ready to run. In this 
         // method you should instantiate the window, load the UI into it and then make the window
@@ -56,38 +57,20 @@ namespace midimo.iOS
         View InitOpenGlView()
         {
             var view = new OpenGLView { HasRenderLoop = true };
-            var toggle = new Switch { IsToggled = true };
-            var button = new Button { Text = "Display" };
+
+            glView = new GlView(player);
 
             view.HeightRequest = 300;
             view.WidthRequest = 300;
 
-            float red = 0, green = 0, blue = 0;
             view.OnDisplay = r => {
-
-                GL.ClearColor(red, green, blue, 1.0f);
-                GL.Clear((ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-
-                red += 0.01f;
-                if (red >= 1.0f)
-                    red -= 1.0f;
-                green += 0.02f;
-                if (green >= 1.0f)
-                    green -= 1.0f;
-                blue += 0.03f;
-                if (blue >= 1.0f)
-                    blue -= 1.0f;
+                glView.OnRender();
             };
-
-            toggle.Toggled += (s, a) => {
-                view.HasRenderLoop = toggle.IsToggled;
-            };
-            button.Clicked += (s, a) => view.Display();
 
             StackLayout stack = new StackLayout
             {
                 Padding = new Size(20, 20),
-                Children = { view, toggle, button }
+                Children = { view }
             };
 
             return stack;
