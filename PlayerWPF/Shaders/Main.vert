@@ -1,13 +1,12 @@
-﻿#version 150 compatibility
-uniform mat4 uMVP;
+﻿uniform mat4 uMVP;
 uniform mat4 uWorldInvTranspose;
 uniform mat4 uWorld;
-in vec3 aPosition;
-in vec3 aTexCoord0;
-in vec3 aNormal;
-out vec3 vTexCoord;
-out vec3 vWsPos;
-out vec3 vNormal;
+attribute vec3 aPosition;
+attribute vec3 aTexCoord0;
+attribute vec3 aNormal;
+varying vec3 vTexCoord;
+varying vec3 vWsPos;
+varying vec3 vNormal;
 void main() {
     gl_Position = uMVP * vec4(aPosition, 1.0);
     vTexCoord = aTexCoord0;
