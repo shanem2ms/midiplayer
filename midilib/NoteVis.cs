@@ -10,6 +10,14 @@ namespace midilib
     public class NoteVis
     {
         MeltySynth.MidiFile midiFile;
+
+        TimeSpan now;
+        TimeSpan currentLength;
+        List<NoteBlock> noteBlocks;
+        public List<NoteBlock> NoteBlocks => noteBlocks;
+        Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
+        public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
+
         public NoteVis(MeltySynth.MidiFile _midiFile)
         {
             midiFile = _midiFile;
@@ -24,10 +32,20 @@ namespace midilib
             {
                 times.Add(new Tuple<TimeSpan, bool>(ts, onoff));
             }
+
+            public bool OnAtTime(TimeSpan ts)
+            {
+                bool ison = false;
+                foreach (var t in times)
+                {
+                    if (ts < t.Item1)
+                        return ison;
+                    ison = t.Item2;
+                }
+                return false;
+            }
         }
 
-        Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
-        public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
         uint ToIndex(byte channel, byte note)
         {
             return (uint)(channel << 16) | note;
@@ -88,7 +106,43 @@ namespace midilib
             public float Start;
             public float Length;
         }
-        public List<NoteBlock> GetNoteBlocks(TimeSpan start, TimeSpan length)
+
+        public void Update(TimeSpan start, TimeSpan length)
+        {
+            now = start;
+            currentLength = length;
+            noteBlocks = GetNoteBlocks(start, length);
+            UpdatePianoKeys();
+        }
+
+        public static int MidiToPiano(int midi)
+        {
+            if (midi < 21 || midi > 108)
+                return -1;
+            else return midi - 21;
+        }
+        void UpdatePianoKeys()
+        {
+            foreach (var key in PianoKeys)
+            {
+                key.channelsOn = 0;
+            }
+
+            foreach (var kv in activeNotes)
+            {
+                if (kv.Value.OnAtTime(now))
+                {
+                    byte channel = (byte)(kv.Key >> 16);
+                    byte note = (byte)(kv.Key & 0xff);
+                    int noteIdx = MidiToPiano(note);
+                    if (noteIdx >= 0)
+                    {
+                        PianoKeys[noteIdx].channelsOn |= (uint)(1 << channel);
+                    }
+                }
+            }
+        }
+        List<NoteBlock> GetNoteBlocks(TimeSpan start, TimeSpan length)
         {
             GetNotes(start, length);
             List<NoteBlock> noteBlocks = new List<NoteBlock>();
@@ -147,6 +201,7 @@ namespace midilib
             public float xs;
             public float ys;
             public bool isBlack;
+            public uint channelsOn = 0;
         }
 
         public PianoKey[] PianoKeys = new PianoKey[88];

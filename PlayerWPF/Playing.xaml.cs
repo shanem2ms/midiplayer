@@ -83,7 +83,8 @@ namespace PlayerWPF
             {
                 Matrix4 viewProj = Matrix4.CreatePerspectiveFieldOfView(1.0f, 1.0f, 0.1f, 10.0f);
                 glProgram.Use(0);
-                List<NoteVis.NoteBlock> noteBlocks = noteVis.GetNoteBlocks(t, visTimeSpan);
+                noteVis.Update(t, visTimeSpan);
+                List<NoteVis.NoteBlock> noteBlocks = noteVis.NoteBlocks;
                 foreach (var nb in noteBlocks)
                 {
                     if (nb.Length < 0)
@@ -112,13 +113,14 @@ namespace PlayerWPF
 
                 Vector4 pianoWhiteColor = Vector4.One;
                 Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
+                Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
                 foreach (var key in noteVis.PianoKeys)
                 {
                     if (key.isBlack) continue;
                     Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
                     glProgram.SetMVP(mat, viewProj);
-                    glProgram.Set4("meshColor", pianoWhiteColor);
+                    glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor);
                     glProgram.Set1("ambient", 1.0f);
                     glProgram.Set1("opacity", 1.0f);
                     glCube.Draw();
@@ -130,7 +132,7 @@ namespace PlayerWPF
                     Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
                     glProgram.SetMVP(mat, viewProj);
-                    glProgram.Set4("meshColor", pianoBlackColor);
+                    glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoPlayingColor : pianoBlackColor);
                     glProgram.Set1("ambient", 1.0f);
                     glProgram.Set1("opacity", 1.0f);
                     glCube.Draw();
