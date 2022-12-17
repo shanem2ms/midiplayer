@@ -203,6 +203,10 @@ namespace midilib
             return true;
         }
 
+        TaskCompletionSource<bool> isSonglistInitialized = new TaskCompletionSource<bool>();
+
+        public Task<bool> Initialized => isSonglistInitialized.Task;
+
         public async Task<bool> InitSongList(bool fromCache)
         {
             await IsMappingsInitialized.Task;
@@ -224,6 +228,7 @@ namespace midilib
             }
             BuildSearchTree();
             OnIntialized?.Invoke(this, true);
+            isSonglistInitialized.SetResult(true);
             return true;
         }
 
@@ -272,6 +277,11 @@ namespace midilib
             }
 
             return cacheFile;
+        }
+
+        public MidiDb.Fi GetSongByName(string name)
+        {
+            return this.midiFiles.First(fi => fi.Name == name);
         }
     }
 

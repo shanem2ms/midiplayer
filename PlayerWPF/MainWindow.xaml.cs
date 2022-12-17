@@ -27,7 +27,7 @@ namespace PlayerWPF
         public new event PropertyChangedEventHandler? PropertyChanged;
         public ObservableCollection<MidiDb.Fi> MidiFiles => db.FilteredMidiFiles != null ? new
             ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles) : null;
-        public string CurrentSong { get; set; }
+        public string CurrentSong => player.CurrentPlayingSong?.Name;
         MidiDb db = App.Db;
         MidiPlayer player = App.Player;
         WaveOut waveOut;
@@ -75,11 +75,12 @@ namespace PlayerWPF
         private async Task<bool> Initialize()
         {
             await db.InitializeMappings();
-            await player.Initialize(OnEngineCreate);
+            db.InitSongList(false);
             player.OnPlaybackTime += Player_OnPlaybackTime;
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackComplete += Player_OnPlaybackComplete;
-            await db.InitSongList(false);
+            await player.Initialize(OnEngineCreate);
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));
@@ -165,7 +166,6 @@ namespace PlayerWPF
         void PlaySong(MidiDb.Fi midiFI)
         {
             player.PlaySong(midiFI);
-            CurrentSong = midiFI.Name;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSong"));
 
         }

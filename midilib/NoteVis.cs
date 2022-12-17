@@ -2,6 +2,8 @@
 using midilib;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using static midilib.NoteVis;
 
 namespace midilib
 {
@@ -11,6 +13,7 @@ namespace midilib
         public NoteVis(MeltySynth.MidiFile _midiFile)
         {
             midiFile = _midiFile;
+            BuildPianoKeys();
         }
 
         public class ActiveNote
@@ -104,15 +107,18 @@ namespace midilib
                         continue;
                     if (!notetime.Item2)
                     {
-                        float noteEndTime = (float)notetime.Item1.TotalMilliseconds;
-                        NoteBlock nb = new NoteBlock()
+                        if (notetime.Item1 > start)
                         {
-                            Channel = channel,
-                            Note = note,
-                            Start = onTime - startTime,
-                            Length = (noteEndTime - onTime)
-                        };
-                        noteBlocks.Add(nb);
+                            float noteEndTime = (float)notetime.Item1.TotalMilliseconds;
+                            NoteBlock nb = new NoteBlock()
+                            {
+                                Channel = channel,
+                                Note = note,
+                                Start = onTime - startTime,
+                                Length = (noteEndTime - onTime)
+                            };
+                            noteBlocks.Add(nb);
+                        }
                     }
                     else
                         onTime = (float)notetime.Item1.TotalMilliseconds;
@@ -131,6 +137,49 @@ namespace midilib
                 }
             }
             return noteBlocks;
+        }
+
+
+        public class PianoKey
+        {
+            public float x;
+            public float y;
+            public float xs;
+            public float ys;
+            public bool isBlack;
+        }
+
+        public PianoKey[] PianoKeys = new PianoKey[88];
+        public float PianoTopY = 0;
+        void BuildPianoKeys()
+        {
+            int nWhiteKeys = 52;
+            float xscale = 2.0f / (float)(nWhiteKeys + 1);
+            float yscale = xscale * 4;
+            float xleft = -1;
+            float yval = -1 + yscale / 2;
+            float ytop = yval + yscale / 2;
+            this.PianoTopY = ytop;
+            bool[] hasBlackKey = { true, false, true, true, false, true, true };
+            float yscaleBlk = xscale * 2;
+            float byval = ytop - yscaleBlk / 2;
+
+            int keyIdx = 0;
+            for (int i = 0; i < nWhiteKeys; i++)
+            {
+                float xval = xleft + (i + 0.5f) * xscale;
+
+                float xs = xscale * 0.4f;
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = yval, xs = xs, ys = yscale };
+
+                int note = i % 7;
+                if (!hasBlackKey[note] || keyIdx >= 88)
+                    continue;
+
+                xval = xleft + (i + 1) * xscale;
+                xs = xscale * 0.25f;
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = byval, xs = xs, ys = yscaleBlk };
+            }
         }
     }
 }

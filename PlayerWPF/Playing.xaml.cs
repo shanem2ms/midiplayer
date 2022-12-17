@@ -71,7 +71,7 @@ namespace PlayerWPF
                 Dispatcher.BeginInvoke(() =>
                     channelOutputs[e.channel].SetMidiData(e));
             }
-        }       
+        }
         private void OpenTkControl_OnRender(TimeSpan delta)
         {
             GL.ClearColor(Color4.DarkGray);
@@ -88,21 +88,54 @@ namespace PlayerWPF
                 {
                     if (nb.Length < 0)
                         continue;
-                    float notescale = 1.0f / 127.0f;
-                    float x0 = nb.Note / 127.0f;
+                    if (nb.Note < 21 || nb.Note > 108)
+                        continue;
+
+                    int pianoKeyIdx = nb.Note - 21;
+                    NoteVis.PianoKey pianoKey = noteVis.PianoKeys[pianoKeyIdx];
+                    float x0 = pianoKey.x;
+                    float xs = 0.005f;
                     float ys = nb.Length / blockLength;
                     float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
+                    float yOffset = 1 + noteVis.PianoTopY;
 
-                    x0 = x0 * 2 - 1;
                     y0 = y0 * 2 - 1;
-                    Matrix4 mat = Matrix4.CreateScale(new Vector3(notescale, ys, notescale)) * 
-                        Matrix4.CreateTranslation(new Vector3(x0, y0, -2));
+                    Matrix4 mat = Matrix4.CreateScale(new Vector3(xs, ys, 0.003f)) *
+                        Matrix4.CreateTranslation(new Vector3(x0, y0 + yOffset, -2));
                     glProgram.SetMVP(mat, viewProj);
                     glProgram.Set4("meshColor", channelColors[nb.Channel]);
                     glProgram.Set1("ambient", 1.0f);
                     glProgram.Set1("opacity", 1.0f);
                     glCube.Draw();
                 }
+
+
+                Vector4 pianoWhiteColor = Vector4.One;
+                Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
+                foreach (var key in noteVis.PianoKeys)
+                {
+                    if (key.isBlack) continue;
+                    Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
+                        Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
+                    glProgram.SetMVP(mat, viewProj);
+                    glProgram.Set4("meshColor", pianoWhiteColor);
+                    glProgram.Set1("ambient", 1.0f);
+                    glProgram.Set1("opacity", 1.0f);
+                    glCube.Draw();
+
+                }
+                foreach (var key in noteVis.PianoKeys)
+                {
+                    if (!key.isBlack) continue;
+                    Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
+                        Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
+                    glProgram.SetMVP(mat, viewProj);
+                    glProgram.Set4("meshColor", pianoBlackColor);
+                    glProgram.Set1("ambient", 1.0f);
+                    glProgram.Set1("opacity", 1.0f);
+                    glCube.Draw();
+
+                }                
             }
         }
     }

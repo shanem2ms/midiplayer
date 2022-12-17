@@ -52,6 +52,7 @@
         <Label Grid.Row="3" Grid.Column="1" Content="Volume"/>
         <Slider x:Name="CurrentPosSlider" Grid.Row="3" Grid.Column="2" />
         <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" >
+            <Label Content="{Binding CurrentSong}" />
             <Button Content="&lt;" Width="30" Height="30" Margin="5" Click="Prev_Click" />
             <Button Content="&gt;" Width="30" Height="30" Margin="5" Click="Next_Click" />
         </StackPanel>

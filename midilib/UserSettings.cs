@@ -11,6 +11,7 @@ namespace midilib
     public class UserSettings
     {
         public string CurrentSoundFont { get; set; }
+        public List<string> PlayHistory { get; set; } 
 
         string settingsFile;
 
@@ -27,6 +28,8 @@ namespace midilib
                 settings = new UserSettings();
                 settings.CurrentSoundFont = "TimGM6mb.sf2";
             }
+            if (settings.PlayHistory == null)
+                settings.PlayHistory = new List<string>();
             settings.settingsFile = file;
             return settings;
         }

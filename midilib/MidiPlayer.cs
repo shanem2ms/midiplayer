@@ -23,6 +23,9 @@ namespace midilib
         MidiDb.Fi currentPlayingSong;
         UserSettings userSettings;
 
+
+        public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
+
         public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
         public OnProcessMidiMessageDel OnProcessMidiMessage;
@@ -74,7 +77,7 @@ namespace midilib
             return true;
         }
 
-        void SetSequencer(MeltySynth.MidiFileSequencer sequencer)
+        void SetSequencer(MidiFileSequencer sequencer)
         {
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
@@ -104,6 +107,11 @@ namespace midilib
             await ChangeSoundFont(
                 db.SFDescFromName(userSettings.CurrentSoundFont));
             OnAudioEngineCreate(sampleProvider);
+            if (userSettings.PlayHistory.Count > 0)
+            {
+                await db.Initialized;
+                this.PlaySong(db.GetSongByName(userSettings.PlayHistory.Last()));
+            }
             return true;
         }
 
@@ -115,6 +123,8 @@ namespace midilib
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
+            userSettings.PlayHistory.Add(mfi.Name);
+            userSettings.Persist();
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
             sampleProvider.Play(midiFile);
         }
