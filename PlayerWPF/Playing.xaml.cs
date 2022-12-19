@@ -22,7 +22,6 @@ namespace PlayerWPF
         GLObjects.VertexArray glCube;
         MeltySynth.MidiFile? currentMidiFile;
         TimeSpan visTimeSpan = new TimeSpan(0, 0, 5);
-        Vector4[] channelColors = new Vector4[16];
 
         public Playing()
         {
@@ -41,11 +40,6 @@ namespace PlayerWPF
             glProgram = GLObjects.Program.FromFiles("Main.vert", "Main.frag");
             glCube = GLObjects.Cube.MakeCube(glProgram);
 
-            Random r = new Random();
-            for (int i = 0; i < 16; ++i)
-            {
-                channelColors[i] = new Vector4(r.NextSingle(), r.NextSingle(), r.NextSingle(), 1);
-            }
         }
 
         private void Player_OnPlaybackComplete(object? sender, bool e)
@@ -54,9 +48,17 @@ namespace PlayerWPF
         }
 
         NoteVis noteVis;
+        Vector4[] channelColors = new Vector4[16];
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             noteVis = new NoteVis(e.midiFile);
+            for (int i = 0; i < 16; ++i)
+            {
+                channelColors[i] = new Vector4(noteVis.ChannelColors[i].R / 255.0f,
+                    noteVis.ChannelColors[i].G / 255.0f,
+                    noteVis.ChannelColors[i].B / 255.0f,
+                    1);
+            }
             currentMidiFile = e.midiFile;
             foreach (ChannelOutput c in channelOutputs)
             {
@@ -114,6 +116,7 @@ namespace PlayerWPF
                 Vector4 pianoWhiteColor = Vector4.One;
                 Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
                 Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
+                Vector4 pianoBlackPlayingColor = new Vector4(0.35f, 0.75f, 1, 1);
                 foreach (var key in noteVis.PianoKeys)
                 {
                     if (key.isBlack) continue;
@@ -132,7 +135,7 @@ namespace PlayerWPF
                     Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
                     glProgram.SetMVP(mat, viewProj);
-                    glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoPlayingColor : pianoBlackColor);
+                    glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor);
                     glProgram.Set1("ambient", 1.0f);
                     glProgram.Set1("opacity", 1.0f);
                     glCube.Draw();

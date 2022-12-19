@@ -1,4 +1,4 @@
-﻿using midilib;
+﻿using m = midilib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,7 +39,7 @@ namespace PlayerWPF
         public int DataValue { get; set; } = 0;
         DispatcherTimer dispatcherTimer;
         public int PatchNumber { get; set; }
-        public string Instrument => ChannelId == 9 ? "Drums" : GMInstruments.Names[PatchNumber];
+        public string Instrument => ChannelId == 9 ? "Drums" : m.GMInstruments.Names[PatchNumber];
         bool isEnabled = true;
         public ChannelOutput()
         {
@@ -69,15 +69,15 @@ namespace PlayerWPF
             isEnabled = false;
         }
 
-        public void SetMidiData(MidiPlayer.ChannelEvent e)
+        public void SetMidiData(m.MidiPlayer.ChannelEvent e)
         {
-            if (e.command == MidiSpec.PatchChange)
+            if (e.command == m.MidiSpec.PatchChange)
             {
                 PatchNumber = e.data1;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PatchNumber)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Instrument)));                
             }
-            else if (e.command == MidiSpec.NoteOff || e.command == MidiSpec.NoteOn)
+            else if (e.command == m.MidiSpec.NoteOff || e.command == m.MidiSpec.NoteOn)
             {
                 DataValue = 255;
                 if (!isEnabled)

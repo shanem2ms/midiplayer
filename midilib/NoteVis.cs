@@ -17,11 +17,24 @@ namespace midilib
         public List<NoteBlock> NoteBlocks => noteBlocks;
         Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
         public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
+        public Colors.RGB[] ChannelColors;
 
         public NoteVis(MeltySynth.MidiFile _midiFile)
         {
             midiFile = _midiFile;
             BuildPianoKeys();
+            BuildPalette();
+        }
+
+        void BuildPalette()
+        {
+            ChannelColors = new Colors.RGB[16];
+            for (int i = 0; i < 16; ++i)
+            {
+                float h = (float)i / 16.0f;
+                Colors.HSL hsl = new Colors.HSL() { H = h, S = 1, L = 0.5f };
+                ChannelColors[i] = Colors.HSLToRGB(hsl);
+            }
         }
 
         public class ActiveNote
