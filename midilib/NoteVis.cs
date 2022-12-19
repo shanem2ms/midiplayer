@@ -212,7 +212,6 @@ namespace midilib
         {
             public float x;
             public float y;
-            public float xs;
             public float ys;
             public bool isBlack;
             public uint channelsOn = 0;
@@ -220,34 +219,41 @@ namespace midilib
 
         public PianoKey[] PianoKeys = new PianoKey[88];
         public float PianoTopY = 0;
+        public float PianoWhiteXs = 0;
+        public float PianoBlackXs = 0;
         void BuildPianoKeys()
         {
             int nWhiteKeys = 52;
-            float xscale = 2.0f / (float)(nWhiteKeys + 1);
-            float yscale = xscale * 4;
-            float xleft = -1;
-            float yval = -1 + yscale / 2;
-            float ytop = yval + yscale / 2;
-            this.PianoTopY = ytop;
+            float xscale = 1.0f / (float)(nWhiteKeys + 1);
+            float xleft = 0;
             bool[] hasBlackKey = { true, false, true, true, false, true, true };
-            float yscaleBlk = xscale * 2;
-            float byval = ytop - yscaleBlk / 2;
+
+            PianoWhiteXs = xscale * 0.8f;
+            PianoBlackXs = PianoWhiteXs * 0.5f;
 
             int keyIdx = 0;
             for (int i = 0; i < nWhiteKeys; i++)
             {
                 float xval = xleft + (i + 0.5f) * xscale;
 
-                float xs = xscale * 0.4f;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = yval, xs = xs, ys = yscale };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1 };
 
                 int note = i % 7;
                 if (!hasBlackKey[note] || keyIdx >= 88)
                     continue;
 
                 xval = xleft + (i + 1) * xscale;
-                xs = xscale * 0.25f;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = byval, xs = xs, ys = yscaleBlk };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.2f, ys = 0.4f };
+            }
+
+            float yscale = 0.1f;
+            this.PianoTopY = 1 - yscale;
+            for (int i = 0; i < PianoKeys.Length; ++i)
+            {
+                PianoKeys[i].y = 1 - PianoKeys[i].y;
+                PianoKeys[i].y *= yscale;
+                PianoKeys[i].ys *= yscale;
+                PianoKeys[i].y = 1 - PianoKeys[i].y;
             }
         }
     }

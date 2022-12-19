@@ -362,6 +362,7 @@ namespace MeltySynth
                 else
                 {
                     message.Time = currentTime;
+                    message.Ticks = currentTick;
                     mergedMessages.Add(message);
                 }
 
@@ -435,6 +436,7 @@ namespace MeltySynth
             private byte data1;
             private byte data2;
             private TimeSpan time;
+            private int ticks;
             private Message(byte channel, byte command, byte data1, byte data2)
             {
                 this.channel = channel;
@@ -442,6 +444,7 @@ namespace MeltySynth
                 this.data1 = data1;
                 this.data2 = data2;
                 this.time = TimeSpan.Zero;
+                this.ticks = 0;
             }
 
             public static Message Common(byte status, byte data1)
@@ -568,6 +571,7 @@ namespace MeltySynth
             public byte Data1 => data1;
             public byte Data2 => data2;            
             public TimeSpan Time { get => time; set => time = value; }
+            public int Ticks { get => ticks; set => ticks = value; }
 
             public double Tempo => 60000000.0 / ((command << 16) | (data1 << 8) | data2);
         }

@@ -8,6 +8,8 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using static GLObjects.Program;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
+using static midilib.NoteVis;
 
 namespace PlayerWPF
 {
@@ -76,17 +78,18 @@ namespace PlayerWPF
         }
         private void OpenTkControl_OnRender(TimeSpan delta)
         {
-            GL.ClearColor(Color4.DarkGray);
+            GL.ClearColor(new Color4(16, 16, 16, 255));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             TimeSpan t = player.CurrentSongTime;
             float blockLength = (float)visTimeSpan.TotalMilliseconds;
             if (noteVis != null)
             {
-                Matrix4 viewProj = Matrix4.CreatePerspectiveFieldOfView(1.0f, 1.0f, 0.1f, 10.0f);
+                Matrix4 viewProj = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0.1f, 10);
                 glProgram.Use(0);
                 noteVis.Update(t, visTimeSpan);
                 List<NoteVis.NoteBlock> noteBlocks = noteVis.NoteBlocks;
+
                 foreach (var nb in noteBlocks)
                 {
                     if (nb.Length < 0)
@@ -97,14 +100,12 @@ namespace PlayerWPF
                     int pianoKeyIdx = nb.Note - 21;
                     NoteVis.PianoKey pianoKey = noteVis.PianoKeys[pianoKeyIdx];
                     float x0 = pianoKey.x;
-                    float xs = 0.005f;
+                    float xs = pianoKey.isBlack ? noteVis.PianoBlackXs : noteVis.PianoWhiteXs * 0.75f;
                     float ys = nb.Length / blockLength;
-                    float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
-                    float yOffset = 1 + noteVis.PianoTopY;
+                    float y0 = 1 - (nb.Start + nb.Length) / blockLength;
 
-                    y0 = y0 * 2 - 1;
                     Matrix4 mat = Matrix4.CreateScale(new Vector3(xs, ys, 0.003f)) *
-                        Matrix4.CreateTranslation(new Vector3(x0, y0 + yOffset, -2));
+                        Matrix4.CreateTranslation(new Vector3(x0, y0, -2));
                     glProgram.SetMVP(mat, viewProj);
                     glProgram.Set4("meshColor", channelColors[nb.Channel]);
                     glProgram.Set1("ambient", 1.0f);
@@ -120,7 +121,7 @@ namespace PlayerWPF
                 foreach (var key in noteVis.PianoKeys)
                 {
                     if (key.isBlack) continue;
-                    Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
+                    Matrix4 mat = Matrix4.CreateScale(new Vector3(noteVis.PianoWhiteXs, key.ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
                     glProgram.SetMVP(mat, viewProj);
                     glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor);
@@ -132,7 +133,7 @@ namespace PlayerWPF
                 foreach (var key in noteVis.PianoKeys)
                 {
                     if (!key.isBlack) continue;
-                    Matrix4 mat = Matrix4.CreateScale(new Vector3(key.xs, key.ys, 0.003f)) *
+                    Matrix4 mat = Matrix4.CreateScale(new Vector3(noteVis.PianoBlackXs, key.ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(key.x, key.y, -2));
                     glProgram.SetMVP(mat, viewProj);
                     glProgram.Set4("meshColor", key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor);
