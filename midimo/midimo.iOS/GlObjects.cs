@@ -1,6 +1,6 @@
 ﻿using System;
-using OpenTK.Graphics.ES30;
 using OpenTK;
+using OpenTK.Graphics.ES30;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 

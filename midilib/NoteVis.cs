@@ -77,7 +77,7 @@ namespace midilib
             an.AddTime(time, on);
         }
 
-        void GetNotes(TimeSpan now, TimeSpan delta)
+        void BuildAciveNotes(TimeSpan now, TimeSpan delta)
         {
             activeNotes = new Dictionary<uint, ActiveNote>();
             int startIndex = Array.BinarySearch(midiFile.Times, now - delta);
@@ -96,7 +96,8 @@ namespace midilib
                 MeltySynth.MidiFile.Message msg = midiFile.Messages[idx];
                 if (msg.Channel >= 16)
                     continue;
-                if (msg.Command == MidiSpec.NoteOff || msg.Command == MidiSpec.NoteOn)
+                if ((msg.Command == MidiSpec.NoteOff || msg.Command == MidiSpec.NoteOn)
+                    && msg.Channel != 9)
                 {
                     if (msg.Command == MidiSpec.NoteOff ||
                         msg.Data2 == 0)
@@ -157,7 +158,7 @@ namespace midilib
         }
         List<NoteBlock> GetNoteBlocks(TimeSpan start, TimeSpan length)
         {
-            GetNotes(start, length);
+            BuildAciveNotes(start, length);
             List<NoteBlock> noteBlocks = new List<NoteBlock>();
             float endTime = (float)(start + length).TotalMinutes;
             float startTime = (float)start.TotalMilliseconds;

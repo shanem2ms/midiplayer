@@ -51,8 +51,7 @@ namespace midimo
 
         async void Initialize()
         {
-            await db.InitSongList(false);
-            //midiFiles = new ObservableCollection<MidiDb.Fi>(db.FilteredMidiFiles);
+            await db.Initialized;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MidiFiles)));
         }
 

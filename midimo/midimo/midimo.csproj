@@ -17,6 +17,7 @@
     <PackageReference Include="NAudio.Core" Version="2.1.0" />
     <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
     <PackageReference Include="NAudio.Asio" Version="2.1.0" />
+    <PackageReference Include="Xamarin.Legacy.OpenTK" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NAudio" />
@@ -27,6 +28,7 @@
     <None Remove="Microsoft.Extensions.Configuration.UserSecrets" />
     <None Remove="OpenTK.GLControl" />
     <None Remove="OpenTK.Graphics" />
+    <None Remove="Xamarin.Legacy.OpenTK" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\midilib\midilib.csproj" />

@@ -42,6 +42,7 @@ namespace midimo.iOS
         async Task<bool> Init()
         {
             await db.InitializeMappings();
+            db.InitSongList(false);
             await player.Initialize(OnEngineCreate);
             midiOut = new MidiOut();
             return true;
@@ -67,13 +68,8 @@ namespace midimo.iOS
                 glView.OnRender();
             };
 
-            StackLayout stack = new StackLayout
-            {
-                Padding = new Size(20, 20),
-                Children = { view }
-            };
 
-            return stack;
+            return view;
         }
 
     }
