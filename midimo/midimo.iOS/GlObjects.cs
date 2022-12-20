@@ -3,6 +3,7 @@ using OpenTK;
 using OpenTK.Graphics.ES30;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace GLObjects
 {
@@ -1088,7 +1089,8 @@ namespace GLObjects
                     Vector3.Dot(_Cube[i], ydir), (float)sideIdx / 6.0f);
             }
 
-            return new VertexArray(program, _Cube, indices, texCoords, nrmCoords);
+            var halfvtx = _Cube.Select(v => v * 0.5f).ToArray();
+            return new VertexArray(program, halfvtx, indices, texCoords, nrmCoords);
         }
 
         static Vector3[] _Octahedron

@@ -81,10 +81,10 @@ namespace PlayerWPF
             GL.ClearColor(new Color4(16, 16, 16, 255));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            TimeSpan t = player.CurrentSongTime;
             float blockLength = (float)visTimeSpan.TotalMilliseconds;
             if (noteVis != null)
             {
+                TimeSpan t = player.CurrentSongTime;
                 Matrix4 viewProj = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0.1f, 10);
                 glProgram.Use(0);
                 noteVis.Update(t, visTimeSpan);
