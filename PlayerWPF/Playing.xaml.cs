@@ -89,7 +89,7 @@ namespace PlayerWPF
                 glProgram.Use(0);
                 noteVis.Update(t, visTimeSpan);
                 List<NoteVis.NoteBlock> noteBlocks = noteVis.NoteBlocks;
-
+                float noteYScale = noteVis.PianoTopY;
                 foreach (var nb in noteBlocks)
                 {
                     if (nb.Length < 0)
@@ -102,7 +102,9 @@ namespace PlayerWPF
                     float x0 = pianoKey.x;
                     float xs = pianoKey.isBlack ? noteVis.PianoBlackXs : noteVis.PianoWhiteXs * 0.75f;
                     float ys = nb.Length / blockLength;
-                    float y0 = 1 - (nb.Start + nb.Length) / blockLength;
+                    float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
+                    ys *= noteYScale;
+                    y0 = noteYScale - y0;
 
                     Matrix4 mat = Matrix4.CreateScale(new Vector3(xs, ys, 0.003f)) *
                         Matrix4.CreateTranslation(new Vector3(x0, y0, -2));

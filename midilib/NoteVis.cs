@@ -178,12 +178,13 @@ namespace midilib
                         if (notetime.Item1 > start)
                         {
                             float noteEndTime = (float)notetime.Item1.TotalMilliseconds;
+                            float tt = MathF.Max(onTime, startTime);
                             NoteBlock nb = new NoteBlock()
                             {
                                 Channel = channel,
                                 Note = note,
-                                Start = onTime - startTime,
-                                Length = (noteEndTime - onTime)
+                                Start = tt - startTime,
+                                Length = (noteEndTime - tt)
                             };
                             noteBlocks.Add(nb);
                         }
@@ -194,12 +195,13 @@ namespace midilib
                 }
                 if (ison)
                 {
+                    float tt = MathF.Max(onTime, startTime);
                     NoteBlock nb = new NoteBlock()
                     {
                         Channel = channel,
                         Note = note,
-                        Start = onTime - startTime,
-                        Length = (endTime - onTime)
+                        Start = tt - startTime,
+                        Length = (endTime - tt)
                     };
                     noteBlocks.Add(nb);
                 }
