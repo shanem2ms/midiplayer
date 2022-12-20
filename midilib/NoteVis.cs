@@ -229,7 +229,7 @@ namespace midilib
             bool[] hasBlackKey = { true, false, true, true, false, true, true };
 
             PianoWhiteXs = xscale * 0.8f;
-            PianoBlackXs = PianoWhiteXs * 0.5f;
+            PianoBlackXs = PianoWhiteXs * 0.75f;
 
             int keyIdx = 0;
             for (int i = 0; i < nWhiteKeys; i++)
@@ -243,7 +243,7 @@ namespace midilib
                     continue;
 
                 xval = xleft + (i + 1) * xscale;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.2f, ys = 0.4f };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f };
             }
 
             float yscale = 0.1f;
