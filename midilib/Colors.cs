@@ -19,6 +19,14 @@ namespace midilib
             public byte R;
             public byte G;
             public byte B;
+
+            public Vector4 ToVector4()
+            {
+                return  new Vector4(R / 255.0f,
+                    G / 255.0f,
+                    B / 255.0f,
+                    1);
+            }
         }
 
         public struct HSL

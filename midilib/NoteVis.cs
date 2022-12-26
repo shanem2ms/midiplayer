@@ -14,10 +14,9 @@ namespace midilib
         TimeSpan now;
         TimeSpan currentLength;
         List<NoteBlock> noteBlocks;
-        public List<NoteBlock> NoteBlocks => noteBlocks;
         Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
         public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
-        public Colors.RGB[] ChannelColors;
+        public Vector4 []ChannelColors;
 
         public NoteVis(MeltySynth.MidiFile _midiFile)
         {
@@ -28,12 +27,12 @@ namespace midilib
 
         void BuildPalette()
         {
-            ChannelColors = new Colors.RGB[16];
+            ChannelColors = new Vector4[16];
             for (int i = 0; i < 16; ++i)
             {
                 float h = (float)i / 16.0f;
                 Colors.HSL hsl = new Colors.HSL() { H = h, S = 1, L = 0.5f };
-                ChannelColors[i] = Colors.HSLToRGB(hsl);
+                ChannelColors[i] = Colors.HSLToRGB(hsl).ToVector4();
             }
         }
 
@@ -131,9 +130,9 @@ namespace midilib
 
         public static int MidiToPiano(int midi)
         {
-            if (midi < 21 || midi > 108)
+            if (midi < GMInstruments.MidiStartIdx || midi > GMInstruments.MidiEndIdx)
                 return -1;
-            else return midi - 21;
+            else return midi - GMInstruments.MidiStartIdx;
         }
         void UpdatePianoKeys()
         {
@@ -257,6 +256,63 @@ namespace midilib
                 PianoKeys[i].ys *= yscale;
                 PianoKeys[i].y = 1 - PianoKeys[i].y;
             }
+        }
+
+        public class Cube
+        {
+            public Matrix4x4 mat;
+            public Vector4 color;
+        }
+        public List<Cube> DoVis(TimeSpan visTimeSpan, MidiPlayer player)
+        {
+            List<Cube> outCubes = new List<Cube>();
+            float blockLength = (float)visTimeSpan.TotalMilliseconds;
+            TimeSpan t = player.CurrentSongTime;
+            Update(t, visTimeSpan);
+            float noteYScale = this.PianoTopY;
+            foreach (var nb in noteBlocks)
+            {
+                if (nb.Length < 0)
+                    continue;
+                if (nb.Note < 21 || nb.Note > 108)
+                    continue;
+
+                int pianoKeyIdx = nb.Note - 21;
+                NoteVis.PianoKey pianoKey = this.PianoKeys[pianoKeyIdx];
+                float x0 = pianoKey.x;
+                float xs = pianoKey.isBlack ? this.PianoBlackXs : this.PianoWhiteXs * 0.75f;
+                float ys = nb.Length / blockLength;
+                float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
+                ys *= noteYScale;
+                y0 = noteYScale - y0;
+
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(xs, ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(x0, y0, -2));
+                outCubes.Add(new Cube() { mat = mat, color = ChannelColors[nb.Channel] });
+            }
+
+
+            Vector4 pianoWhiteColor = Vector4.One;
+            Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
+            Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
+            Vector4 pianoBlackPlayingColor = new Vector4(0.35f, 0.75f, 1, 1);
+            foreach (var key in this.PianoKeys)
+            {
+                if (key.isBlack) continue;
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoWhiteXs, key.ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
+                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor });
+            }
+            foreach (var key in this.PianoKeys)
+            {
+                if (!key.isBlack) continue;
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoBlackXs, key.ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
+
+                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor });
+            }
+
+            return outCubes;
         }
     }
 }

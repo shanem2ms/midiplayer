@@ -324,6 +324,9 @@ namespace midilib
             "Mute Triangle",
             "Open Triangle"
                     };
+        public static int MidiStartIdx = 21;
+        public static int MidiEndIdx = 108;
+        public static int DrumMidiStartIdx = 35;
     }
 
     public sealed class ArrayEqualityComparer<T> : IEqualityComparer<T[]>
