@@ -26,7 +26,6 @@ namespace midimo.iOS
 
         void OnProcessMidiMessage(int channel, int command, int data1, int data2)
         {
-
             //var channelInfo = channels[channel];
             switch (command)
             {

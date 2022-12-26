@@ -61,8 +61,8 @@ namespace midimo.iOS
 
             glView = new GlView(player);
 
-            view.HeightRequest = 300;
-            view.WidthRequest = 300;
+            //view.HeightRequest = 300;
+            //view.WidthRequest = 300;
 
             view.OnDisplay = r => {
                 glView.OnRender();

@@ -15,6 +15,14 @@ namespace midimo
            BindableProperty.CreateAttached("ChannelId", typeof(int), typeof(ChannelOutput),
               0);
 
+
+        Color channelColor;
+        public Color ChannelColor { get => channelColor;
+            set {
+                channelColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelColor)));
+            } }
+
         public int ChannelId
         {
             get { return (int)GetValue(ChannelIdProperty); }

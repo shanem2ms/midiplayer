@@ -16,16 +16,20 @@ namespace midilib
         List<NoteBlock> noteBlocks;
         Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
         public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
-        public Vector4 []ChannelColors;
+        static public Vector4 []ChannelColors;
+
+        static NoteVis()
+        {
+            BuildPalette();
+        }
 
         public NoteVis(MeltySynth.MidiFile _midiFile)
         {
             midiFile = _midiFile;
             BuildPianoKeys();
-            BuildPalette();
         }
 
-        void BuildPalette()
+        static void BuildPalette()
         {
             ChannelColors = new Vector4[16];
             for (int i = 0; i < 16; ++i)

@@ -27,7 +27,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
         <Rectangle x:Name="DataRect"
-                   Fill="{Binding Path=DataValue,Converter={StaticResource IntToBrush}}" 
+                   Fill="{Binding Path=ChannelColor}" 
                    Stroke="Black"
                    />
                 </Grid>
