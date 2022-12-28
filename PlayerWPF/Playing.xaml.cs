@@ -103,7 +103,7 @@ namespace PlayerWPF
                     glCube.Draw();
 
                 }
-            }
+            }            
         }
     }
 }
