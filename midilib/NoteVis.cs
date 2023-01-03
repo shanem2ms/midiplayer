@@ -3,32 +3,47 @@ using midilib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using static midilib.NoteVis;
+using static midilib.Vis;
 
 namespace midilib
 {
-    public class NoteVis
+    public abstract class Vis
     {
-        MeltySynth.MidiFile midiFile;
+        protected MeltySynth.MidiFile midiFile;
 
-        TimeSpan now;
-        TimeSpan currentLength;
+        protected TimeSpan now;
+        protected TimeSpan currentLength;
+       
+        protected Vis(MeltySynth.MidiFile _midiFile)
+        {
+            midiFile = _midiFile;
+        }
+
+        public class Cube
+        {
+            public Matrix4x4 mat;
+            public Vector4 color;
+        }
+        public abstract List<Cube> DoVis(TimeSpan visTimeSpan, MidiPlayer player);
+    }
+
+    public class NoteVis : Vis 
+    {
         List<NoteBlock> noteBlocks;
         Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
         public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
-        static public Vector4 []ChannelColors;
+        static public Vector4[] ChannelColors;
+
+        public NoteVis(MeltySynth.MidiFile _midiFile)
+            : base(_midiFile)
+        {
+            BuildPianoKeys();
+        }
 
         static NoteVis()
         {
             BuildPalette();
         }
-
-        public NoteVis(MeltySynth.MidiFile _midiFile)
-        {
-            midiFile = _midiFile;
-            BuildPianoKeys();
-        }
-
         static void BuildPalette()
         {
             ChannelColors = new Vector4[16];
@@ -80,7 +95,7 @@ namespace midilib
             an.AddTime(time, on);
         }
 
-        void BuildAciveNotes(TimeSpan now, TimeSpan delta)
+        protected void BuildAciveNotes(TimeSpan now, TimeSpan delta)
         {
             activeNotes = new Dictionary<uint, ActiveNote>();
             int startIndex = Array.BinarySearch(midiFile.Times, now - delta);
@@ -159,6 +174,58 @@ namespace midilib
                 }
             }
         }
+
+        public override List<Cube> DoVis(TimeSpan visTimeSpan, MidiPlayer player)
+        {
+            List<Cube> outCubes = new List<Cube>();
+            float blockLength = (float)visTimeSpan.TotalMilliseconds;
+            TimeSpan t = player.CurrentSongTime;
+            Update(t, visTimeSpan);
+            float noteYScale = this.PianoTopY;
+            foreach (var nb in noteBlocks)
+            {
+                if (nb.Length < 0)
+                    continue;
+                if (nb.Note < 21 || nb.Note > 108)
+                    continue;
+
+                int pianoKeyIdx = nb.Note - 21;
+                NoteVis.PianoKey pianoKey = this.PianoKeys[pianoKeyIdx];
+                float x0 = pianoKey.x;
+                float xs = pianoKey.isBlack ? this.PianoBlackXs : this.PianoWhiteXs * 0.75f;
+                float ys = nb.Length / blockLength;
+                float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
+                ys *= noteYScale;
+                y0 = noteYScale - y0;
+
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(xs, ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(x0, y0, -2));
+                outCubes.Add(new Cube() { mat = mat, color = ChannelColors[nb.Channel] });
+            }
+
+
+            Vector4 pianoWhiteColor = Vector4.One;
+            Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
+            Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
+            Vector4 pianoBlackPlayingColor = new Vector4(0.35f, 0.75f, 1, 1);
+            foreach (var key in this.PianoKeys)
+            {
+                if (key.isBlack) continue;
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoWhiteXs, key.ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
+                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor });
+            }
+            foreach (var key in this.PianoKeys)
+            {
+                if (!key.isBlack) continue;
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoBlackXs, key.ys, 0.003f)) *
+                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
+
+                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor });
+            }
+
+            return outCubes;
+        }
         List<NoteBlock> GetNoteBlocks(TimeSpan start, TimeSpan length)
         {
             BuildAciveNotes(start, length);
@@ -212,7 +279,6 @@ namespace midilib
             return noteBlocks;
         }
 
-
         public class PianoKey
         {
             public float x;
@@ -262,62 +328,6 @@ namespace midilib
             }
         }
 
-        public class Cube
-        {
-            public Matrix4x4 mat;
-            public Vector4 color;
-        }
-        public List<Cube> DoVis(TimeSpan visTimeSpan, MidiPlayer player)
-        {
-            List<Cube> outCubes = new List<Cube>();
-            float blockLength = (float)visTimeSpan.TotalMilliseconds;
-            TimeSpan t = player.CurrentSongTime;
-            Update(t, visTimeSpan);
-            float noteYScale = this.PianoTopY;
-            foreach (var nb in noteBlocks)
-            {
-                if (nb.Length < 0)
-                    continue;
-                if (nb.Note < 21 || nb.Note > 108)
-                    continue;
-
-                int pianoKeyIdx = nb.Note - 21;
-                NoteVis.PianoKey pianoKey = this.PianoKeys[pianoKeyIdx];
-                float x0 = pianoKey.x;
-                float xs = pianoKey.isBlack ? this.PianoBlackXs : this.PianoWhiteXs * 0.75f;
-                float ys = nb.Length / blockLength;
-                float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
-                ys *= noteYScale;
-                y0 = noteYScale - y0;
-
-                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(xs, ys, 0.003f)) *
-                    Matrix4x4.CreateTranslation(new Vector3(x0, y0, -2));
-                outCubes.Add(new Cube() { mat = mat, color = ChannelColors[nb.Channel] });
-            }
-
-
-            Vector4 pianoWhiteColor = Vector4.One;
-            Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
-            Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
-            Vector4 pianoBlackPlayingColor = new Vector4(0.35f, 0.75f, 1, 1);
-            foreach (var key in this.PianoKeys)
-            {
-                if (key.isBlack) continue;
-                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoWhiteXs, key.ys, 0.003f)) *
-                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
-                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor });
-            }
-            foreach (var key in this.PianoKeys)
-            {
-                if (!key.isBlack) continue;
-                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoBlackXs, key.ys, 0.003f)) *
-                    Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
-
-                outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor });
-            }
-
-            return outCubes;
-        }
     }
 }
 

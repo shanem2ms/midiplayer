@@ -50,12 +50,11 @@ namespace PlayerWPF
             currentMidiFile = null;
         }
 
-        NoteVis noteVis;
-        DrumVis drumVis;
+        List<Vis> visList = new List<Vis>();
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
-            noteVis = new NoteVis(e.midiFile);
-            drumVis = new DrumVis(e.midiFile);
+            visList.Add(new NoteVis(e.midiFile));
+            visList.Add(new DrumVis(e.midiFile));
             currentMidiFile = e.midiFile;
             foreach (ChannelOutput c in channelOutputs)
             {
@@ -88,10 +87,10 @@ namespace PlayerWPF
             GL.ClearColor(new Color4(16, 16, 16, 255));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            if (noteVis != null)
+            foreach (var vis in visList)
             {
                 Matrix4 viewProj = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0.1f, 10);
-                List<NoteVis.Cube> cubes = noteVis.DoVis(visTimeSpan, player);
+                List<NoteVis.Cube> cubes = vis.DoVis(visTimeSpan, player);
                 glProgram.Use(0);
                 foreach (var cube in cubes)
                 {
