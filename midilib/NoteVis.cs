@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using static midilib.Vis;
+using static midilib.ActiveVis;
 
 namespace midilib
 {
@@ -11,9 +12,7 @@ namespace midilib
     {
         protected MeltySynth.MidiFile midiFile;
 
-        protected TimeSpan now;
-        protected TimeSpan currentLength;
-       
+      
         protected Vis(MeltySynth.MidiFile _midiFile)
         {
             midiFile = _midiFile;
@@ -27,33 +26,17 @@ namespace midilib
         public abstract List<Cube> DoVis(TimeSpan visTimeSpan, MidiPlayer player);
     }
 
-    public class NoteVis : Vis 
+
+    public abstract class ActiveVis : Vis
     {
-        List<NoteBlock> noteBlocks;
+        protected TimeSpan now;
+        protected TimeSpan currentLength;
         Dictionary<uint, ActiveNote> activeNotes = new Dictionary<uint, ActiveNote>();
         public Dictionary<uint, ActiveNote> ActiveNotes => activeNotes;
-        static public Vector4[] ChannelColors;
 
-        public NoteVis(MeltySynth.MidiFile _midiFile)
-            : base(_midiFile)
-        {
-            BuildPianoKeys();
-        }
-
-        static NoteVis()
-        {
-            BuildPalette();
-        }
-        static void BuildPalette()
-        {
-            ChannelColors = new Vector4[16];
-            for (int i = 0; i < 16; ++i)
-            {
-                float h = (float)i / 16.0f;
-                Colors.HSL hsl = new Colors.HSL() { H = h, S = 1, L = 0.5f };
-                ChannelColors[i] = Colors.HSLToRGB(hsl).ToVector4();
-            }
-        }
+        protected ActiveVis(MeltySynth.MidiFile _midiFile) :
+            base(_midiFile)
+        { }
 
         public class ActiveNote
         {
@@ -131,6 +114,34 @@ namespace midilib
             }
         }
 
+    }
+    public class NoteVis : ActiveVis
+    {
+        List<NoteBlock> noteBlocks;
+        static public Vector4[] ChannelColors;
+
+        public NoteVis(MeltySynth.MidiFile _midiFile)
+            : base(_midiFile)
+        {
+            BuildPianoKeys();
+        }
+
+        static NoteVis()
+        {
+            BuildPalette();
+        }
+        static void BuildPalette()
+        {
+            ChannelColors = new Vector4[16];
+            for (int i = 0; i < 16; ++i)
+            {
+                float h = (float)i / 16.0f;
+                Colors.HSL hsl = new Colors.HSL() { H = h, S = 1, L = 0.5f };
+                ChannelColors[i] = Colors.HSLToRGB(hsl).ToVector4();
+            }
+        }
+
+    
         public class NoteBlock
         {
             public byte Channel;
@@ -160,7 +171,7 @@ namespace midilib
                 key.channelsOn = 0;
             }
 
-            foreach (var kv in activeNotes)
+            foreach (var kv in ActiveNotes)
             {
                 if (kv.Value.OnAtTime(now))
                 {
