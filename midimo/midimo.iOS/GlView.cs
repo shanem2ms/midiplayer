@@ -12,7 +12,7 @@ namespace midimo.iOS
         GLObjects.Program glProgram;
         GLObjects.VertexArray glCube;
         TimeSpan visTimeSpan = new TimeSpan(0, 0, 5);
-        NoteVis noteVis;
+        List<Vis> visualizations = new List<Vis>();
         MidiPlayer player;
         bool isInit = false;
         MeltySynth.MidiFile currentMidiFile;
@@ -39,7 +39,9 @@ namespace midimo.iOS
 
         private void Player_OnPlaybackStart(object sender, MidiPlayer.PlaybackStartArgs e)
         {
-            noteVis = new NoteVis(e.midiFile);
+            visualizations.Clear();
+            visualizations.Add(new NoteVis(e.midiFile));
+            visualizations.Add(new DrumVis(e.midiFile));
             currentMidiFile = e.midiFile;
         }   
 
@@ -62,10 +64,10 @@ namespace midimo.iOS
             GL.ClearColor(new Color4(16, 16, 16, 255));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            if (noteVis != null)
+            foreach (Vis vis in visualizations)
             {
                 Matrix4 viewProj = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0.1f, 10);
-                List<NoteVis.Cube> cubes = noteVis.DoVis(visTimeSpan, player);
+                List<NoteVis.Cube> cubes = vis.DoVis(visTimeSpan, player);
                 glProgram.Use(0);
                 foreach (var cube in cubes)
                 {

@@ -60,11 +60,15 @@ namespace midilib
                 if (ln == null || !ln.active)
                     continue;
                 float alpha = 1 - (ln.duration / totalLen);
+                float scale = 0.1f;
+                float x = (i % 8) / 8.0f;
+                float y = (i / 8) / 8.0f;
                 drumCubes.Add(new Cube()
                 {
-                    color = new Vector4(0.5f, 0.5f, 0.5f, 1) * alpha,
+                    color = new Vector4(0.75f, 1.0f, 1.0f, 1) * alpha,
                     mat =
-                    Matrix4x4.CreateScale(new Vector3(0.02f, 0.02f, 0.003f)) * Matrix4x4.CreateTranslation(new Vector3((float)i / liveNotes.Length, 0.5f, -2f))
+                    Matrix4x4.CreateScale(new Vector3(scale, scale, 0.003f)) *
+                        Matrix4x4.CreateTranslation(x,y, -2f)
                 });
                 ln.duration += 1.0f;
 
