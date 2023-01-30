@@ -25,6 +25,7 @@ namespace midilib
 
             string[] searchTokens;
             public string[]SearchTokens { get => searchTokens; }
+
             public Fi(string name) :
                 this(name, null)
             {
@@ -48,6 +49,7 @@ namespace midilib
         public string searchStr;
         string homedir;
         string midiCacheDir;
+        Random random = new Random();
         public string HomeDir => homedir;
         IEnumerable<Fi> filteredFiles = null;
 
@@ -279,6 +281,11 @@ namespace midilib
             return cacheFile;
         }
 
+        public MidiDb.Fi GetRandomSong()
+        {
+            int idx = random.Next(this.midiFiles.Length);
+            return this.midiFiles[idx];
+        }
         public MidiDb.Fi GetSongByName(string name)
         {
             return this.midiFiles.First(fi => fi.Name == name);

@@ -115,6 +115,10 @@ namespace midilib
             return true;
         }
 
+        public MidiDb.Fi GetNextSong()
+        {
+            return db.GetRandomSong();
+        }
         public void SetVolume(int volume)
         {
             sampleProvider.SetVolume(volume);

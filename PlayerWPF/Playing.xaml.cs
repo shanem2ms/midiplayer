@@ -11,6 +11,7 @@ using System.Linq;
 using System.Windows.Input;
 using static midilib.NoteVis;
 using OpenTK.Windowing.Common.Input;
+using System.Collections;
 
 namespace PlayerWPF
 {
@@ -53,6 +54,7 @@ namespace PlayerWPF
         List<Vis> visList = new List<Vis>();
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
+            visList.Clear();
             visList.Add(new NoteVis(e.midiFile));
             visList.Add(new DrumVis(e.midiFile));
             currentMidiFile = e.midiFile;

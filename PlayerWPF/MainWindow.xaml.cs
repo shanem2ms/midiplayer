@@ -161,7 +161,7 @@ namespace PlayerWPF
 
         void NextSong()
         {
-            //PlaySong(player.GetNextSong());
+            PlaySong(player.GetNextSong());
         }
         void PlaySong(MidiDb.Fi midiFI)
         {
