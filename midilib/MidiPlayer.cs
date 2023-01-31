@@ -56,7 +56,7 @@ namespace midilib
         }
         public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
 
-        public TimeSpan CurrentSongTime => sampleProvider.Sequencer.CurrentTime;
+        public TimeSpan CurrentSongTime => sampleProvider.Sequencer?.CurrentTime ?? new TimeSpan();
 
         public MidiPlayer(MidiDb dbin)
         {
@@ -68,12 +68,18 @@ namespace midilib
 
         public async Task<bool> ChangeSoundFont(MidiDb.SoundFontDesc soundFont)
         {
+            TimeSpan prevSongTime = CurrentSongTime;
             sampleProvider.Stop();
             string soundFontCacheFile = await db.InstallSoundFont(soundFont);
             await sampleProvider.Initialize(soundFontCacheFile);
             SetSequencer(sampleProvider.Sequencer);
             userSettings.CurrentSoundFont = soundFont.Name;
             userSettings.Persist();
+            if (currentPlayingSong != null)
+            {
+                PlaySong(currentPlayingSong);
+                Seek(prevSongTime);
+            }
             return true;
         }
 
