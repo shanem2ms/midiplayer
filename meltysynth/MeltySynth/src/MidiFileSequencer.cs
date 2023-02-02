@@ -131,6 +131,20 @@ namespace MeltySynth
             }
         }
 
+        void ProcessToIndex(int endIdx)
+        {
+            for (int idx = 0; idx < endIdx; ++idx)
+            {
+                var msg = midiFile.Messages[idx];
+
+                if (msg.Command == 0xB0 ||
+                    msg.Command == 0xC0)
+                {
+                    synthesizer.ProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
+                }
+            }
+        
+        }
         private void ProcessEvents()
         {
             if (midiFile == null)
@@ -143,6 +157,7 @@ namespace MeltySynth
                 if (justSeeked)
                 {
                     synthesizer.NoteOffAll(false);
+                    ProcessToIndex(msgIndex);
                     justSeeked = false;
                 }
 
