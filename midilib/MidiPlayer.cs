@@ -64,7 +64,7 @@ namespace midilib
             homedir = db.HomeDir;
             sampleProvider = new MidiSampleProvider();
             userSettings = UserSettings.FromFile(Path.Combine(homedir, "usersettings.json"));
-        }
+        } 
 
         public async Task<bool> ChangeSoundFont(MidiDb.SoundFontDesc soundFont)
         {
