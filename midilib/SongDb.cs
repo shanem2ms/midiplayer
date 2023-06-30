@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Diagnostics;
+using static midilib.MidiDb;
+using System.Text.RegularExpressions;
 
 namespace midilib
 {
@@ -23,9 +25,7 @@ namespace midilib
             con = new SQLiteConnection($"Data Source={file}; Version=3;New=True;Compress=True;");
         }
 
-        
-        
-        public async Task<bool> Build()
+        public async Task<bool> BuildDb()
         {
             con.Open();
 

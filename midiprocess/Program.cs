@@ -14,10 +14,11 @@ namespace midiprocess
         static async Task<bool> Process()
         {
             MidiDb db = new MidiDb();
-            await db.Initialize();
+            await db.InitializeMappings();
+            await db.InitSongList(false);
             SongDb sdb = new SongDb(db);
             //await sdb.Md5();
-            return await sdb.Build();
+            return await sdb.BuildDb();
         }
 }
 }
