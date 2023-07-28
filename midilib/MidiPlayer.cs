@@ -135,8 +135,14 @@ namespace midilib
             string cacheFile = await db.GetLocalFile(mfi);
             userSettings.PlayHistory.Add(mfi.Name);
             userSettings.Persist();
+            try
+            {
             MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
             sampleProvider.Play(midiFile);
+        }
+            catch (Exception e)
+            {
+            }
         }
 
         public void Seek(TimeSpan time)

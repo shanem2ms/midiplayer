@@ -111,14 +111,14 @@ namespace midilib
                 }
                 return fiFinal;
             }
-            return null;
+            return new List<Fi>();
         }
 
         public IEnumerable<Fi> FilteredMidiFiles
         {
             get
             {
-                return filteredFiles != null ? filteredFiles : midiFiles;
+                return filteredFiles;
             }
         }
 
