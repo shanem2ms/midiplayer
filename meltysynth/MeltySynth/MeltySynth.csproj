@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <Configurations>Release;Debug</Configurations>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
+    <BuildWithMSBuildOnMono>true</BuildWithMSBuildOnMono>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

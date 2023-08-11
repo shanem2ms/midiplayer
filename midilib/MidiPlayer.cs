@@ -137,9 +137,9 @@ namespace midilib
             userSettings.Persist();
             try
             {
-            MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
-            sampleProvider.Play(midiFile);
-        }
+                MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
+                sampleProvider.Play(midiFile);
+            }
             catch (Exception e)
             {
             }
