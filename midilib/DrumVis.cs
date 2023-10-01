@@ -45,11 +45,11 @@ namespace midilib
                 MeltySynth.MidiFile.Message msg = midiFile.Messages[idx];
                 if (msg.Channel == 9 && msg.Command == MidiSpec.NoteOn)
                 {
-                    int note = msg.Data1 - 21;
-                    if (liveNotes[msg.Data1 - 21] == null)
-                        liveNotes[msg.Data1 - 21] = new LiveNote();
-                    liveNotes[msg.Data1 - 21].active = true;
-                    liveNotes[msg.Data1 - 21].duration = 0;
+                    int note = Math.Max(msg.Data1 - 21, 0);
+                    if (liveNotes[note] == null)
+                        liveNotes[note] = new LiveNote();
+                    liveNotes[note].active = true;
+                    liveNotes[note].duration = 0;
                 }
             }
             prev = now;
