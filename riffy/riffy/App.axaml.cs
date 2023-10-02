@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using midilib;
 using riffy.ViewModels;
 using riffy.Views;
 
@@ -32,4 +33,9 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    public static MidiDb Db { get; set; } = new MidiDb();
+    public static MidiPlayer Player { get; set; } = new MidiPlayer(Db);
+
+
 }

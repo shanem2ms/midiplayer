@@ -34,7 +34,9 @@ namespace midilib
         public async Task<bool> Initialize(string cacheFile)
         {                        
             SoundFont sf = new SoundFont(cacheFile);
-            synthesizer = new Synthesizer(sf, format.SampleRate);
+            SynthesizerSettings settings = new SynthesizerSettings(format.SampleRate);
+            //settings.EnableReverbAndChorus = false;
+            synthesizer = new Synthesizer(sf, settings);
             synthesizer.MasterVolume = 1.0f;
             sequencer = new MidiFileSequencer(synthesizer);
             return true;
