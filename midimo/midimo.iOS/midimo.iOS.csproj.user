@@ -3,7 +3,7 @@
   <PropertyGroup>
     <SelectedDevice>shanem’s iPhone</SelectedDevice>
     <SelectedPlatformGroup>RemoteDevice</SelectedPlatformGroup>
-    <ActiveDebugProfile>shanem’s iPhone - Connected via network</ActiveDebugProfile>
+    <ActiveDebugProfile>shanem’s iPhone</ActiveDebugProfile>
     <DeveloperId>3F8768EX62</DeveloperId>
     <DevelopmentTeamId>73CP3TPHE9</DevelopmentTeamId>
     <DefaultDevice>iPhone 15 iOS 17.0</DefaultDevice>

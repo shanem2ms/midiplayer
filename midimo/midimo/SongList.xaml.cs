@@ -8,6 +8,7 @@ using Xamarin.Forms;
 using midilib;
 using System.Collections.ObjectModel;
 using System.Numerics;
+using static midilib.MidiDb;
 
 namespace midimo
 {
@@ -48,6 +49,12 @@ namespace midimo
         void OnSelectedFile(MidiDb.Fi fi)
         {
             player.PlaySong(fi, PianoMode);
+        }
+
+
+        public void RestartSong()
+        {            
+            player.PlaySong(player.CurrentPlayingSong, PianoMode);
         }
 
         async void Initialize()

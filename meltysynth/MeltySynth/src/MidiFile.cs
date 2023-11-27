@@ -371,11 +371,20 @@ namespace MeltySynth
                     if ((message.Command & 0xF0) == 0xC0)
                         message.Data1 = 0;
 
-                    if ((message.Command & 0xF0) == 0xE0 ||
+                    bool skip = false;
+                    if ((message.Command & 0xF0) == 0xB0)
+                    {
+                        if (!(message.Data1 == 7 || // volume 
+                            message.Data1 == 4 || // foot pedal
+                            message.Data1 == 36 || // foot pedal (fine) 
+                             message.Data1 == 39 || // volume (fine) 
+                            (message.Data1 >= 64 && message.Data1 <= 69))) //pedals
+                            skip = true;
+                    }
+                    if ((message.Command & 0xF0) == 0xE0 ||                        
                         message.Channel == 9)
-                        //skip
-                        ;
-                    else
+                        skip = true;
+                    if (!skip)
                     {
                         message.Channel = 0;
                         message.Time = currentTime;

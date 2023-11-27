@@ -76,11 +76,14 @@ namespace midimo
 
         void RefreshTabs(object sender)
         {
-            foreach (Button child in TabButtonsStack.Children)
+            foreach (var child in TabButtonsStack.Children)
             {
-                child.BackgroundColor = sender == child ?
-                    Color.DarkBlue :
-                    Color.Transparent;
+                if (child is Button btn)
+                {
+                    btn.BackgroundColor = sender == child ?
+                        Color.DarkBlue :
+                        Color.Transparent;
+                }
             }
         }
 
@@ -111,6 +114,7 @@ namespace midimo
         private void PianoMode_CheckedChanged(object sender, CheckedChangedEventArgs e)
         {
             SongList.PianoMode = e.Value;
+            SongList.RestartSong();
         }
     }
 }
