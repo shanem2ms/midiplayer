@@ -1,10 +1,7 @@
-﻿using System;
+﻿using MeltySynth;
 using NAudio.Wave;
-using MeltySynth;
-using System.Net.Http;
-using System.IO;
+using System;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace midilib
 {

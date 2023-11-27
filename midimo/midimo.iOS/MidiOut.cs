@@ -10,7 +10,7 @@ namespace midimo.iOS
         MidiEndpoint midiOut;
         MidiPort outputPort;
 		MidiPlayer player;
-        int volume = 5;
+        int volume = 50;
 
         public MidiOut()
 		{

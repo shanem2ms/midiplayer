@@ -1,17 +1,10 @@
 ﻿using midilib;
-using OpenTK.Mathematics;
-using System;
-using System.Windows.Controls;
 using OpenTK.Graphics.ES30;
+using OpenTK.Mathematics;
 using OpenTK.Wpf;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
-using static GLObjects.Program;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using static midilib.NoteVis;
-using OpenTK.Windowing.Common.Input;
-using System.Collections;
+using System.Windows.Controls;
 
 namespace PlayerWPF
 {

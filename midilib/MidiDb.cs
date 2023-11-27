@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Numerics;
-using System.Text;
-using static midilib.MidiPlayer;
 using System.Threading.Tasks;
-using System.Xml;
-using static midilib.MidiDb;
 
 namespace midilib
 {
@@ -52,6 +47,7 @@ namespace midilib
         Random random = new Random();
         public string HomeDir => homedir;
         IEnumerable<Fi> filteredFiles = null;
+        public Fi[] AllMidiFiles => midiFiles;
 
         Dictionary<string, List<Fi>> searchTree = new Dictionary<string, List<Fi>>();
 
@@ -118,7 +114,7 @@ namespace midilib
         {
             get
             {
-                return filteredFiles;
+                return filteredFiles ?? AllMidiFiles;
             }
         }
 

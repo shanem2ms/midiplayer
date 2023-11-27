@@ -107,6 +107,11 @@ namespace midimo
             PlayingView.IsVisible = true;
             RefreshTabs(sender);
         }
+
+        private void PianoMode_CheckedChanged(object sender, CheckedChangedEventArgs e)
+        {
+            SongList.PianoMode = e.Value;
+        }
     }
 }
 

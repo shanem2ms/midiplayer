@@ -19,6 +19,7 @@ namespace midimo
         MidiPlayer player;
 
         MidiDb.Fi selectedFile;
+        public bool PianoMode { get; set; } = false;
         public MidiDb.Fi SelectedFile
         {
             get => selectedFile;
@@ -46,7 +47,7 @@ namespace midimo
 
         void OnSelectedFile(MidiDb.Fi fi)
         {
-            player.PlaySong(fi);
+            player.PlaySong(fi, PianoMode);
         }
 
         async void Initialize()
