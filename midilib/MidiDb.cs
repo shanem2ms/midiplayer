@@ -48,7 +48,6 @@ namespace midilib
         Random random = new Random();
         public string HomeDir => homedir;
         IEnumerable<Fi> filteredFiles = null;
-        public Fi[] AllMidiFiles => midiFiles;
 
         Dictionary<string, List<Fi>> searchTree = new Dictionary<string, List<Fi>>();
 
