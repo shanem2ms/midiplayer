@@ -29,6 +29,7 @@
             <Button Text="Playing" Padding="10,0" Pressed="Playing_Pressed" BackgroundColor="Transparent" />
             <Button Text="Songs" Padding="10,0" Pressed="Songs_Pressed" BackgroundColor="DarkBlue"/>
             <Button Text="Synths" Padding="10,0" Pressed="Synths_Pressed"/>
+            <CheckBox CheckedChanged="PianoMode_CheckedChanged"/>
         </StackLayout>
     </Grid>
 </ContentPage>

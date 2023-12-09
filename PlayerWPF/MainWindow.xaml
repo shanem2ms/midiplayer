@@ -68,6 +68,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <Rectangle x:Name="FontReadyRect" Margin="10,0" Height="15" Width="15" Fill="Green"  />
+            <CheckBox Content="Piano Mode" IsChecked="{Binding Path=PianoMode, Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
 </Window>

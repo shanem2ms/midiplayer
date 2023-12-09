@@ -33,6 +33,8 @@ namespace PlayerWPF
         WaveOut waveOut;
         TimeSpan currentSongTime;
 
+        public bool PianoMode { get; set; } = false;
+
         public ObservableCollection<MidiDb.SoundFontDesc> SoundFonts
         {
             get => new ObservableCollection<MidiDb.SoundFontDesc>(db.AllSoundFonts);
@@ -175,7 +177,7 @@ namespace PlayerWPF
         }
         void PlaySong(MidiDb.Fi midiFI)
         {
-            player.PlaySong(midiFI);
+            player.PlaySong(midiFI, PianoMode);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSong"));
 
         }

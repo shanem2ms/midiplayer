@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MeltySynth;
+using NAudio.Midi;
+using System;
 using System.IO;
-using System.Net.Http;
 using System.Linq;
 using System.Threading.Tasks;
-using NAudio.Midi;
-using System.Xml;
-using MeltySynth;
 
 namespace midilib
 {
@@ -77,7 +74,7 @@ namespace midilib
             userSettings.Persist();
             if (currentPlayingSong != null)
             {
-                PlaySong(currentPlayingSong);
+                PlaySong(currentPlayingSong, false);
                 Seek(prevSongTime);
             }
             return true;
@@ -97,7 +94,6 @@ namespace midilib
             midiFile = midiFile });
         }
 
-
         private void Sequencer_OnPlaybackComplete(object sender, bool e)
         {
             OnPlaybackComplete?.Invoke(sender, e);
@@ -116,7 +112,7 @@ namespace midilib
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
-                this.PlaySong(db.GetSongByName(userSettings.PlayHistory.Last()));
+                this.PlaySong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
             }
             return true;
         }
@@ -129,7 +125,7 @@ namespace midilib
         {
             sampleProvider.SetVolume(volume);
         }
-        public async void PlaySong(MidiDb.Fi mfi)
+        public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
@@ -137,7 +133,8 @@ namespace midilib
             userSettings.Persist();
             try
             {
-                MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
+                MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
+                    MeltySynth.MidiFile.InstrumentType.Original);
                 ChordAnalyzer ca = new ChordAnalyzer(midiFile);
                 sampleProvider.Play(midiFile);
             }
@@ -156,6 +153,7 @@ namespace midilib
             OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, command = command,
                 data1 = data1, data2 = data2});
             OnProcessMidiMessage?.Invoke(channel, command, data1, data2);
+            
         }
 
     }

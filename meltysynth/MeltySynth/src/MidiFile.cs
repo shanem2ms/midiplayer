@@ -16,6 +16,13 @@ namespace MeltySynth
         //private TimeSpan[] times;
         private Meta[] metas;
 
+
+        public enum InstrumentType
+        {
+            Original,
+            Piano
+        }
+
         /// <summary>
         /// Loads a MIDI file from the stream.
         /// </summary>
@@ -27,7 +34,7 @@ namespace MeltySynth
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            Load(stream, 0, MidiFileLoopType.None);
+            Load(stream, 0, MidiFileLoopType.None, InstrumentType.Original);
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
@@ -50,7 +57,7 @@ namespace MeltySynth
                 throw new ArgumentException("The loop point must be a non-negative value.", nameof(loopPoint));
             }
 
-            Load(stream, loopPoint, MidiFileLoopType.None);
+            Load(stream, loopPoint, MidiFileLoopType.None, InstrumentType.Original);
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
@@ -68,7 +75,7 @@ namespace MeltySynth
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            Load(stream, 0, loopType);
+            Load(stream, 0, loopType, InstrumentType.Original);
 
             // Workaround for nullable warnings in .NET Standard 2.1.
             Debug.Assert(messages != null);
@@ -78,7 +85,7 @@ namespace MeltySynth
         /// Loads a MIDI file from the file.
         /// </summary>
         /// <param name="path">The MIDI file name and path.</param>
-        public MidiFile(string path)
+        public MidiFile(string path, InstrumentType itype)
         {
             if (path == null)
             {
@@ -87,7 +94,7 @@ namespace MeltySynth
 
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                Load(stream, 0, MidiFileLoopType.None);
+                Load(stream, 0, MidiFileLoopType.None, itype);
             }
 
             // Workaround for nullable warnings in .NET Standard 2.1.
@@ -113,7 +120,7 @@ namespace MeltySynth
 
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                Load(stream, loopPoint, MidiFileLoopType.None);
+                Load(stream, loopPoint, MidiFileLoopType.None, InstrumentType.Original);
             }
 
             // Workaround for nullable warnings in .NET Standard 2.1.
@@ -134,7 +141,7 @@ namespace MeltySynth
 
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                Load(stream, 0, loopType);
+                Load(stream, 0, loopType, InstrumentType.Original);
             }
 
             // Workaround for nullable warnings in .NET Standard 2.1.
@@ -149,7 +156,7 @@ namespace MeltySynth
             return new TimeSpan((long)(TimeSpan.TicksPerSecond * value));
         }
 
-        private void Load(Stream stream, int loopPoint, MidiFileLoopType loopType)
+        private void Load(Stream stream, int loopPoint, MidiFileLoopType loopType, InstrumentType instrumentType)
         {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
@@ -206,7 +213,7 @@ namespace MeltySynth
                     }
                 }
 
-                messages = MergeTracks(messageLists, tickLists, resolution);
+                messages = MergeTracks(messageLists, tickLists, resolution, instrumentType);
                 metas = metasList.SelectMany(x => x).ToArray();
             }
         }
@@ -315,7 +322,7 @@ namespace MeltySynth
             }
         }
 
-        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution)
+        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution, InstrumentType instrumentType)
         {
             var mergedMessages = new List<Message>();
 
@@ -359,6 +366,32 @@ namespace MeltySynth
                 if (message.Type == MessageType.TempoChange)
                 {
                     tempo = message.Tempo;
+                }
+                else if (instrumentType == InstrumentType.Piano)
+                {
+                    if ((message.Command & 0xF0) == 0xC0)
+                        message.Data1 = 0;
+
+                    bool skip = false;
+                    if ((message.Command & 0xF0) == 0xB0)
+                    {
+                        if (!(message.Data1 == 7 || // volume 
+                            message.Data1 == 4 || // foot pedal
+                            message.Data1 == 36 || // foot pedal (fine) 
+                             message.Data1 == 39 || // volume (fine) 
+                            (message.Data1 >= 64 && message.Data1 <= 69))) //pedals
+                            skip = true;
+                    }
+                    if ((message.Command & 0xF0) == 0xE0 ||                        
+                        message.Channel == 9)
+                        skip = true;
+                    if (!skip)
+                    {
+                        message.Channel = 0;
+                        message.Time = currentTime;
+                        message.Ticks = currentTick;
+                        mergedMessages.Add(message);
+                    }
                 }
                 else
                 {
@@ -569,10 +602,10 @@ namespace MeltySynth
                 }
             }
 
-            public byte Channel => channel;
+            public byte Channel { get => channel; set => channel = value; }
             public byte Command => command;
-            public byte Data1 => data1;
-            public byte Data2 => data2;            
+            public byte Data1 { get => data1; set => data1 = value; }
+            public byte Data2 { get => data2; set => data2 = value; }
             public TimeSpan Time { get => time; set => time = value; }
             public int Ticks { get => ticks; set => ticks = value; }
 

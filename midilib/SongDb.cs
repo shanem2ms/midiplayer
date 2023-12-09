@@ -88,7 +88,7 @@ namespace midilib
                     if (path == null) return;
                     try
                     {
-                        MidiFile midiFile = new MidiFile(path);
+                        MidiFile midiFile = new MidiFile(path, MeltySynth.MidiFile.InstrumentType.Original);
                         MidiFile.Message[] messages = midiFile.Messages;
                         ChordAnalyzer chordAnalyzer = new ChordAnalyzer(midiFile);
                         var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
