@@ -79,6 +79,7 @@ namespace PlayerWPF
             player.OnPlaybackTime += Player_OnPlaybackTime;
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackComplete += Player_OnPlaybackComplete;
+            
             await player.Initialize(OnEngineCreate);
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
@@ -151,12 +152,21 @@ namespace PlayerWPF
         {
             PlayingCtrl.Visibility = Visibility.Visible;
             SongsLb.Visibility = Visibility.Collapsed;
+            SequencerCtrl.Visibility = Visibility.Collapsed;
+        }
+
+        private void Sequencer_Click(object sender, RoutedEventArgs e)
+        {
+            SequencerCtrl.Visibility = Visibility.Visible;
+            PlayingCtrl.Visibility = Visibility.Collapsed;
+            SongsLb.Visibility = Visibility.Collapsed;
         }
 
         private void Songs_Click(object sender, RoutedEventArgs e)
         {
             PlayingCtrl.Visibility = Visibility.Collapsed;
             SongsLb.Visibility = Visibility.Visible;
+            SequencerCtrl.Visibility = Visibility.Collapsed;
         }
 
         void NextSong()

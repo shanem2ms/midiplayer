@@ -69,7 +69,7 @@ namespace midilib
             cmd.ExecuteNonQuery();
 
             int rowcnt = 0;
-            List<MidiDb.Fi> allfiles = db.FilteredMidiFiles.ToList();
+            List<MidiDb.Fi> allfiles = db.AllMidiFiles.ToList();
             for (int idx = 0; idx < allfiles.Count;)
             {
                 int batchSize = Math.Min(allfiles.Count() - idx, 10000);
@@ -90,6 +90,7 @@ namespace midilib
                     {
                         MidiFile midiFile = new MidiFile(path);
                         MidiFile.Message[] messages = midiFile.Messages;
+                        ChordAnalyzer chordAnalyzer = new ChordAnalyzer(midiFile);
                         var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
                         int ms = midiFile.Length.Milliseconds;
                         int channels = channelMessages.Keys.Count - 1;

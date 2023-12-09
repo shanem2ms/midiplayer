@@ -46,6 +46,7 @@ namespace midilib
         public MappingsFile Mappings { get; private set; }
         HttpClient httpClient = new HttpClient();
         Fi[] midiFiles;
+        public Fi[] AllMidiFiles => midiFiles;
         public string searchStr;
         string homedir;
         string midiCacheDir;

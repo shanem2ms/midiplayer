@@ -173,6 +173,7 @@ namespace MeltySynth
 
                 var trackCount = reader.ReadInt16BigEndian();
                 var resolution = reader.ReadInt16BigEndian();
+                Resolution = resolution;
 
                 var messageLists = new List<Message>[trackCount];
                 var tickLists = new List<int>[trackCount];
@@ -401,6 +402,8 @@ namespace MeltySynth
         public Message[] Messages => messages;
         public TimeSpan[] Times => messages.Select(m => m.Time).ToArray();
         public Meta[] Metas => metas;
+
+        public int Resolution;
 
 
         public struct Meta

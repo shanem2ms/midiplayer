@@ -138,6 +138,7 @@ namespace midilib
             try
             {
                 MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile);
+                ChordAnalyzer ca = new ChordAnalyzer(midiFile);
                 sampleProvider.Play(midiFile);
             }
             catch (Exception e)

@@ -27,10 +27,12 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Songs" Click="Songs_Click" />
             <Button Grid.Column="1" Content="Playing" Click="Playing_Click" />
-            <Label Grid.Column="2" Content="{Binding Path=CurrentSong}" />
+            <Button Grid.Column="2" Content="Sequencer" Click="Sequencer_Click" />
+            <Label Grid.Column="3" Content="{Binding Path=CurrentSong}" />
         </Grid>
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Value, ElementName=VolumeSlider, StringFormat=N0}" />
         <Slider x:Name="VolumeSlider" Grid.Row="2" Grid.Column="1"
@@ -48,7 +50,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <local:Playing x:Name="PlayingCtrl"  Grid.Row="2" Grid.Column="2" Visibility="Collapsed"/>
-
+        <local:Sequencer x:Name="SequencerCtrl" Grid.Row="2" Grid.Column="2" Visibility="Collapsed"/>
         <Label Grid.Row="3" Grid.Column="1" Content="Volume"/>
         <Slider x:Name="CurrentPosSlider" Grid.Row="3" Grid.Column="2" />
         <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" >
