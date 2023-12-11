@@ -136,6 +136,7 @@ namespace midilib
                 MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
                 ChordAnalyzer ca = new ChordAnalyzer(midiFile);
+                ca.Analyze();
                 sampleProvider.Play(midiFile);
             }
             catch (Exception e)

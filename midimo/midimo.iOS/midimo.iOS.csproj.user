@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <SelectedDevice>shanem’s iPhone</SelectedDevice>
+    <SelectedDevice>Remote Device</SelectedDevice>
     <SelectedPlatformGroup>RemoteDevice</SelectedPlatformGroup>
-    <ActiveDebugProfile>shanem’s iPhone</ActiveDebugProfile>
+    <ActiveDebugProfile>Remote Device</ActiveDebugProfile>
     <DeveloperId>3F8768EX62</DeveloperId>
     <DevelopmentTeamId>73CP3TPHE9</DevelopmentTeamId>
     <DefaultDevice>iPhone 15 iOS 17.0</DefaultDevice>
