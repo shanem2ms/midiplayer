@@ -1,6 +1,7 @@
 ﻿using midilib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using static MeltySynth.MidiFileSequencer;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
@@ -23,18 +25,35 @@ namespace PlayerWPF
     /// <summary>
     /// Interaction logic for Sequencer.xaml
     /// </summary>
-    public partial class Sequencer : UserControl
+    public partial class Sequencer : UserControl, INotifyPropertyChanged
     {
         MidiPlayer player = App.Player;
         MeltySynth.MidiFile midiFile;
         const int pixelsPerSixteenth = 10;
         double pixelsPerTick;
+        DispatcherTimer dispatcherTimer;
+        double CursorPosX { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public Sequencer()
         {
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackTime += Player_OnPlaybackTime;
+
+            //  DispatcherTimer setup
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += DispatcherTimer_Tick;
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(100);
+            dispatcherTimer.Start();
+
+            this.DataContext = this;
             InitializeComponent();
+        }
+
+        private void DispatcherTimer_Tick(object? sender, EventArgs e)
+        {
+            currentPosLine.X1 = currentPosLine.X2 = CursorPosX;
         }
 
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
@@ -44,19 +63,15 @@ namespace PlayerWPF
         }
         private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
         {
-            Dispatcher.Invoke((Action)(() =>
-            {
-                double pixels = pixelsPerTick * e.ticks;
-                currentPosLine.X1 = pixels;
-                currentPosLine.X2 = pixels;
-            }));
+            double pixels = pixelsPerTick * e.ticks;
+            CursorPosX = pixels;
         }
 
         void Relayout()
         {
             Channels.Children.Clear();
             TimeStep.Children.Clear();
-            
+
             int sixteenthRes = midiFile.Resolution / 4;
             pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
             int lastTick = midiFile.Messages.Last().Ticks;
@@ -126,7 +141,7 @@ namespace PlayerWPF
                         if (startTicks >= 0 && msg.Data1 >= GMInstruments.MidiStartIdx &&
                             msg.Data1 < GMInstruments.MidiEndIdx)
                         {
-                            double Y = (msg.Data1 - GMInstruments.MidiStartIdx) / (double)gmNoteRange * channelHeight;
+                            double Y = (GMInstruments.MidiEndIdx - msg.Data1 - 1) / (double)gmNoteRange * channelHeight;
 
                             Line l = new Line();
                             l.X1 = startTicks * pixelsPerTick;
@@ -139,10 +154,6 @@ namespace PlayerWPF
                         }
                     }
                 }
-                currentPosLine.X1 = 0;
-                currentPosLine.X2 = 0;
-                currentPosLine.Y1 = 0;
-                currentPosLine.Y2 = 0;
                 Channels.Children.Add(channelCanvas);
             }
         }
