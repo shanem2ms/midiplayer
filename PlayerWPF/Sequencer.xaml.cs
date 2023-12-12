@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static MeltySynth.MidiFileSequencer;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace PlayerWPF
 {
@@ -25,9 +27,13 @@ namespace PlayerWPF
     {
         MidiPlayer player = App.Player;
         MeltySynth.MidiFile midiFile;
+        const int pixelsPerSixteenth = 10;
+        double pixelsPerTick;
+
         public Sequencer()
         {
             player.OnPlaybackStart += Player_OnPlaybackStart;
+            player.OnPlaybackTime += Player_OnPlaybackTime;
             InitializeComponent();
         }
 
@@ -36,15 +42,23 @@ namespace PlayerWPF
             midiFile = e.midiFile;
             Relayout();
         }
+        private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                double pixels = pixelsPerTick * e.ticks;
+                currentPosLine.X1 = pixels;
+                currentPosLine.X2 = pixels;
+            }));
+        }
 
         void Relayout()
         {
             Channels.Children.Clear();
             TimeStep.Children.Clear();
-
-            int pixelsPerSixteenth = 10;
+            
             int sixteenthRes = midiFile.Resolution / 4;
-            double pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
+            pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
             int lastTick = midiFile.Messages.Last().Ticks;
             long lengthSixteenths = lastTick / sixteenthRes;
             int height = (int)TimeStep.Height;
@@ -125,6 +139,10 @@ namespace PlayerWPF
                         }
                     }
                 }
+                currentPosLine.X1 = 0;
+                currentPosLine.X2 = 0;
+                currentPosLine.Y1 = 0;
+                currentPosLine.Y2 = 0;
                 Channels.Children.Add(channelCanvas);
             }
         }

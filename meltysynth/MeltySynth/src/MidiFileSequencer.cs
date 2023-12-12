@@ -22,10 +22,16 @@ namespace MeltySynth
         private int blockWrote;
 
         private TimeSpan currentTime;
+        int currentTicks;
         private int msgIndex;
         private int loopIndex;
         private bool justSeeked;
-        public event EventHandler<TimeSpan> OnPlaybackTime;
+        public struct PlaybackTimeArgs
+        {
+            public TimeSpan timeSpan;
+            public int ticks;
+        }
+        public event EventHandler<PlaybackTimeArgs> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
         public event EventHandler<MidiFile> OnPlaybackStart;
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
@@ -69,6 +75,7 @@ namespace MeltySynth
             blockWrote = synthesizer.BlockSize;
 
             currentTime = TimeSpan.Zero;
+            currentTicks = 0;
             msgIndex = 0;
             loopIndex = 0;
 
@@ -163,6 +170,7 @@ namespace MeltySynth
 
                 var time = midiFile.Messages[msgIndex].Time;
                 var msg = midiFile.Messages[msgIndex];
+                currentTicks = msg.Ticks;
                 if (time <= currentTime)
                 {
                     if (msg.Type == MidiFile.MessageType.Normal)
@@ -180,6 +188,7 @@ namespace MeltySynth
                         else if (msg.Type == MidiFile.MessageType.LoopEnd)
                         {
                             currentTime = midiFile.Messages[loopIndex].Time;
+                            currentTicks = midiFile.Messages[loopIndex].Ticks;
                             msgIndex = loopIndex;
                             synthesizer.NoteOffAll(false);
                         }                        
@@ -198,6 +207,7 @@ namespace MeltySynth
                 if (loop)
                 {
                     currentTime = midiFile.Messages[loopIndex].Time;
+                    currentTicks = midiFile.Messages[loopIndex].Ticks;
                     msgIndex = loopIndex;
                 }
                 else
@@ -206,7 +216,7 @@ namespace MeltySynth
                 }
             }
 
-            OnPlaybackTime?.Invoke(this, currentTime);
+            OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });
         }
 
         /// <summary>

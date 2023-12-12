@@ -8,6 +8,21 @@ namespace midilib
 {
     public class ChordAnalyzer
     {
+       static int[] ChordWeights = new int[12]
+        {
+                    6, // C
+                    -5, // C#
+                    2,  // D
+                    -5, // D#
+                    2,  // E
+                    3, // F
+                    -1,  // F#
+                    5,  // G
+                    -5, // G#
+                    3,  // A
+                    0,  // A#
+                    1 // B
+        };
 
         MeltySynth.MidiFile midiFile;
         int resolution;
@@ -32,6 +47,7 @@ namespace midilib
 
             Random r = new Random();
             int numSixteenths = (lastTick +1)/ sixteenthRes;
+            int[] noteCounts = new int[12];
             for (int i = 0; i < numChannels; i++)
             {
                 int[] noteOnTick = new int[127];
@@ -39,6 +55,8 @@ namespace midilib
                     noteOnTick[j] = -1;
 
                 var grp = channelGroups.ElementAt(i);
+                if (grp.Key == 9)
+                    continue;
                 int msgIdx = 0;
                 int msgLength = grp.Count();
                 for (int sixteenthIdx = 0; sixteenthIdx < numSixteenths; sixteenthIdx++)
@@ -68,13 +86,14 @@ namespace midilib
                         msgIdx++;
                     }
 
-                    int[] noteCnts = new int[12];
+                    int[] chordNotes = new int[12];
                     int chordCount = 0;
                     for (int noteIdx = 0; noteIdx < noteOnTick.Length; noteIdx++)
                     {
                         if (noteOnTick[noteIdx] >= 0)
                         {
-                            if (noteCnts[noteIdx%12]++ == 0)
+                            noteCounts[noteIdx % 12]++;
+                            if (chordNotes[noteIdx%12]++ == 0)
                                 chordCount++;
                         }
                     }
@@ -83,8 +102,21 @@ namespace midilib
                     {
                     }
                 }
-
             }
+            CalculateKey(noteCounts);
+        }
+
+        int CalculateKey(int[]noteOccurences)
+        {
+            int[]keyWeights = new int[12];
+            for (int i = 0; i < 12; ++i)
+            {
+                for (int j = 0; j < 12; ++j)
+                {
+                    keyWeights[i] = noteOccurences[(j + i) % 12] * ChordWeights[j];
+                }
+            }
+            return 0;
         }
     }
 }

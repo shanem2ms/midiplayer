@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static MeltySynth.MidiFileSequencer;
 
 namespace PlayerWPF
 {
@@ -108,11 +109,11 @@ namespace PlayerWPF
 
 
         bool isChanging = false;
-        private void Player_OnPlaybackTime(object? sender, TimeSpan e)
+        private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
         {
             Dispatcher.BeginInvoke(() =>
             {
-                double lerp = e.TotalMilliseconds / currentSongTime.TotalMilliseconds;
+                double lerp = e.timeSpan.TotalMilliseconds / currentSongTime.TotalMilliseconds;
                 isChanging = true;
                 CurrentPosSlider.Value =
                     (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum) * lerp +

@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static MeltySynth.MidiFileSequencer;
 
 namespace midilib
 {
@@ -43,7 +44,7 @@ namespace midilib
             public int data2;
         }
         public event EventHandler<ChannelEvent> OnChannelEvent;
-        public event EventHandler<TimeSpan> OnPlaybackTime;
+        public event EventHandler<PlaybackTimeArgs> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
         public struct PlaybackStartArgs
         {
@@ -99,7 +100,7 @@ namespace midilib
             OnPlaybackComplete?.Invoke(sender, e);
         }
 
-        private void Sequencer_OnPlaybackTime(object sender, TimeSpan e)
+        private void Sequencer_OnPlaybackTime(object sender, PlaybackTimeArgs e)
         {
             OnPlaybackTime?.Invoke(sender, e);
         }
