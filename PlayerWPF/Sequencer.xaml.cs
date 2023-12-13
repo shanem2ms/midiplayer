@@ -33,7 +33,8 @@ namespace PlayerWPF
         double pixelsPerTick;
         DispatcherTimer dispatcherTimer;
         double CursorPosX { get; set; }
-
+        public string SongKey { get; set; }
+        ChordAnalyzer chordAnalyzer;
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public Sequencer()
@@ -59,6 +60,10 @@ namespace PlayerWPF
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             midiFile = e.midiFile;
+            chordAnalyzer = new ChordAnalyzer(midiFile);
+            chordAnalyzer.Analyze();
+            SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             Relayout();
         }
         private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
@@ -78,7 +83,7 @@ namespace PlayerWPF
             long lengthSixteenths = lastTick / sixteenthRes;
             int height = (int)TimeStep.Height;
 
-            int channelHeight = 500;
+            int channelHeight = 200;
             for (int i = 0; i < lengthSixteenths; i += 4)
             {
                 Line l = new Line();

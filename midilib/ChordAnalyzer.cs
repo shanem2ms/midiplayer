@@ -31,6 +31,24 @@ namespace midilib
             midiFile = _midiFile;
         }
 
+        int songKey = 0;
+        public int SongKey => songKey;
+        public static string[] KeyNames = new string[12]
+        {
+            "C-maj",
+            "C#-maj",
+            "D-maj",
+            "Eb-maj",
+            "E-maj",
+            "F-maj",
+            "F#-maj",
+            "G-maj",
+            "Ab-maj",
+            "A-maj",
+            "Bb-maj",
+            "B-maj"
+        };
+
         public void Analyze()
         {
             int pixelsPerSixteenth = 10;
@@ -103,7 +121,7 @@ namespace midilib
                     }
                 }
             }
-            CalculateKey(noteCounts);
+            songKey = CalculateKey(noteCounts);
         }
 
         int CalculateKey(int[]noteOccurences)
@@ -116,7 +134,7 @@ namespace midilib
                     keyWeights[i] = noteOccurences[(j + i) % 12] * ChordWeights[j];
                 }
             }
-            return 0;
+            return keyWeights.ToList().IndexOf(keyWeights.Max());
         }
     }
 }

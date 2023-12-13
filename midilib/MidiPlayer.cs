@@ -1,6 +1,7 @@
 ﻿using MeltySynth;
 using NAudio.Midi;
 using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,8 +20,10 @@ namespace midilib
         MidiDb db;
         public MidiDb Db => db;
         MidiDb.Fi currentPlayingSong;
+        MeltySynth.MidiFile currentPlayerMidifile;
         UserSettings userSettings;
-
+        public bool IsPaused { get; set; }
+        TimeSpan currentPauseTime = TimeSpan.Zero;
 
         public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
 
@@ -134,14 +137,28 @@ namespace midilib
             userSettings.Persist();
             try
             {
-                MeltySynth.MidiFile midiFile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
+                currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
-                ChordAnalyzer ca = new ChordAnalyzer(midiFile);
-                ca.Analyze();
-                sampleProvider.Play(midiFile);
+                sampleProvider.Play(currentPlayerMidifile);
+                IsPaused = false;
             }
             catch (Exception e)
             {
+            }
+        }
+
+        public void PauseOrUnPause(bool pause)
+        {
+            IsPaused = pause;
+            if (pause)
+            {
+                sampleProvider.Stop();
+                currentPauseTime = sampleProvider.Sequencer.CurrentTime;
+            }
+            else
+            {                
+                sampleProvider.Play(currentPlayerMidifile);
+                sampleProvider.Sequencer.SeekTo(currentPauseTime);
             }
         }
 

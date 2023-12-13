@@ -186,6 +186,10 @@ namespace PlayerWPF
         {
             NextSong();
         }
+        private void PausePlay_Click(object sender, RoutedEventArgs e)
+        {
+            player.PauseOrUnPause(!player.IsPaused);
+        }
 
     }
 }
