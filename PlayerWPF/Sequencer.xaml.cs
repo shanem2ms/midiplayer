@@ -107,59 +107,17 @@ namespace PlayerWPF
                 OrderBy(g => g.Key);
             int numChannels = channelGroups.Count();
 
-            int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
-            double YnoteSizePixels = (1.0) / (double)gmNoteRange * channelHeight;
-
             Random r = new Random();
             for (int i = 0; i < numChannels; i++)
             {
-                Canvas channelCanvas = new Canvas();
-                channelCanvas.Height = channelHeight;
-                channelCanvas.Width = lengthSixteenths * pixelsPerSixteenth;
-                int rsub = ((i + 1) & 1) != 0 ? 25 : 0;
-                int gsub = (((i + 1) >> 1) & 1) != 0 ? 25 : 0;
-                int bsub = (((i + 1) >> 2) & 1) != 0 ? 25 : 0;
-                channelCanvas.Background = new SolidColorBrush(
-                    Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
-
-                var grp = channelGroups.ElementAt(i);
-                int[] noteOnTick = new int[127];
-                for (int j = 0; j < noteOnTick.Length; j++)
-                    noteOnTick[j] = -1;
-
-                foreach (var msg in grp)
-                {
-                    if ((msg.Command & 0xF0) == 0x90 &&
-                        msg.Data2 > 0)
-                    {
-                        if (noteOnTick[msg.Data1] == -1)
-                            noteOnTick[msg.Data1] = msg.Ticks;
-                    }
-                    else if ((msg.Command & 0xF0) == 0x80 ||
-                        ((msg.Command & 0xF0) == 0x90 &&
-                        msg.Data2 == 0))
-                    {
-                        int startTicks = noteOnTick[msg.Data1];
-                        int endTicks = msg.Ticks;
-                        noteOnTick[msg.Data1] = -1;
-
-                        if (startTicks >= 0 && msg.Data1 >= GMInstruments.MidiStartIdx &&
-                            msg.Data1 < GMInstruments.MidiEndIdx)
-                        {
-                            double Y = (GMInstruments.MidiEndIdx - msg.Data1 - 1) / (double)gmNoteRange * channelHeight;
-
-                            Line l = new Line();
-                            l.X1 = startTicks * pixelsPerTick;
-                            l.X2 = endTicks * pixelsPerTick;
-                            l.Y1 = Y;
-                            l.Y2 = Y;
-                            l.StrokeThickness = YnoteSizePixels;
-                            l.Stroke = Brushes.Blue;
-                            channelCanvas.Children.Add(l);
-                        }
-                    }
-                }
-                Channels.Children.Add(channelCanvas);
+                SequencerChannel sequencerChannel = new SequencerChannel();
+                sequencerChannel.Layout(i,
+                    channelGroups.ElementAt(i),
+                    midiFile.Resolution,
+                    pixelsPerSixteenth,
+                    lastTick
+                    );
+                Channels.Children.Add(sequencerChannel);
             }
         }
     }

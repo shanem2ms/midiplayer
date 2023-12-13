@@ -8,12 +8,18 @@
     <Compile Update="Sequencer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="SequencerChannel.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Mixer.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Sequencer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SequencerChannel.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
