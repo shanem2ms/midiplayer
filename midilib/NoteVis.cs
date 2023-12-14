@@ -119,11 +119,12 @@ namespace midilib
     {
         List<NoteBlock> noteBlocks;
         static public Vector4[] ChannelColors;
+        Piano piano = new Piano(true);
 
         public NoteVis(MeltySynth.MidiFile _midiFile)
             : base(_midiFile)
         {
-            BuildPianoKeys();
+            
         }
 
         static NoteVis()
@@ -166,7 +167,7 @@ namespace midilib
         }
         void UpdatePianoKeys()
         {
-            foreach (var key in PianoKeys)
+            foreach (var key in piano.PianoKeys)
             {
                 key.channelsOn = 0;
             }
@@ -180,7 +181,7 @@ namespace midilib
                     int noteIdx = MidiToPiano(note);
                     if (noteIdx >= 0)
                     {
-                        PianoKeys[noteIdx].channelsOn |= (uint)(1 << channel);
+                        piano.PianoKeys[noteIdx].channelsOn |= (uint)(1 << channel);
                     }
                 }
             }
@@ -192,7 +193,7 @@ namespace midilib
             float blockLength = (float)visTimeSpan.TotalMilliseconds;
             TimeSpan t = player.CurrentSongTime;
             Update(t, visTimeSpan);
-            float noteYScale = this.PianoTopY;
+            float noteYScale = piano.PianoTopY;
             foreach (var nb in noteBlocks)
             {
                 if (nb.Length < 0)
@@ -201,9 +202,9 @@ namespace midilib
                     continue;
 
                 int pianoKeyIdx = nb.Note - 21;
-                NoteVis.PianoKey pianoKey = this.PianoKeys[pianoKeyIdx];
+                Piano.PianoKey pianoKey = piano.PianoKeys[pianoKeyIdx];
                 float x0 = pianoKey.x;
-                float xs = pianoKey.isBlack ? this.PianoBlackXs : this.PianoWhiteXs * 0.75f;
+                float xs = pianoKey.isBlack ? piano.PianoBlackXs : piano.PianoWhiteXs * 0.75f;
                 float ys = nb.Length / blockLength;
                 float y0 = (nb.Start + nb.Length * 0.5f) / blockLength;
                 ys *= noteYScale;
@@ -219,17 +220,17 @@ namespace midilib
             Vector4 pianoBlackColor = new Vector4(0, 0, 0, 1);
             Vector4 pianoPlayingColor = new Vector4(0, 0.5f, 1, 1);
             Vector4 pianoBlackPlayingColor = new Vector4(0.35f, 0.75f, 1, 1);
-            foreach (var key in this.PianoKeys)
+            foreach (var key in piano.PianoKeys)
             {
                 if (key.isBlack) continue;
-                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoWhiteXs, key.ys, 0.003f)) *
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(piano.PianoWhiteXs, key.ys, 0.003f)) *
                     Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
                 outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoPlayingColor : pianoWhiteColor });
             }
-            foreach (var key in this.PianoKeys)
+            foreach (var key in piano.PianoKeys)
             {
                 if (!key.isBlack) continue;
-                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(this.PianoBlackXs, key.ys, 0.003f)) *
+                Matrix4x4 mat = Matrix4x4.CreateScale(new Vector3(piano.PianoBlackXs, key.ys, 0.003f)) *
                     Matrix4x4.CreateTranslation(new Vector3(key.x, key.y, -2));
 
                 outCubes.Add(new Cube() { mat = mat, color = key.channelsOn > 0 ? pianoBlackPlayingColor : pianoBlackColor });
@@ -290,54 +291,7 @@ namespace midilib
             return noteBlocks;
         }
 
-        public class PianoKey
-        {
-            public float x;
-            public float y;
-            public float ys;
-            public bool isBlack;
-            public uint channelsOn = 0;
-        }
-
-        public PianoKey[] PianoKeys = new PianoKey[88];
-        public float PianoTopY = 0;
-        public float PianoWhiteXs = 0;
-        public float PianoBlackXs = 0;
-        void BuildPianoKeys()
-        {
-            int nWhiteKeys = 52;
-            float xscale = 1.0f / (float)(nWhiteKeys + 1);
-            float xleft = 0;
-            bool[] hasBlackKey = { true, false, true, true, false, true, true };
-
-            PianoWhiteXs = xscale * 0.8f;
-            PianoBlackXs = PianoWhiteXs * 0.75f;
-
-            int keyIdx = 0;
-            for (int i = 0; i < nWhiteKeys; i++)
-            {
-                float xval = xleft + (i + 0.5f) * xscale;
-
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1 };
-
-                int note = i % 7;
-                if (!hasBlackKey[note] || keyIdx >= 88)
-                    continue;
-
-                xval = xleft + (i + 1) * xscale;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f };
-            }
-
-            float yscale = 0.1f;
-            this.PianoTopY = 1 - yscale;
-            for (int i = 0; i < PianoKeys.Length; ++i)
-            {
-                PianoKeys[i].y = 1 - PianoKeys[i].y;
-                PianoKeys[i].y *= yscale;
-                PianoKeys[i].ys *= yscale;
-                PianoKeys[i].y = 1 - PianoKeys[i].y;
-            }
-        }
+       
 
     }
 }

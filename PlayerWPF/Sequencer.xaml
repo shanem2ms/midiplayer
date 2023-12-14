@@ -16,23 +16,32 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
         </Grid>
-        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Canvas x:Name="TimeStep" Height="25" Background="AliceBlue" HorizontalAlignment="Left">
-                </Canvas>
-                <Canvas Height="25">
-                    <Line x:Name="currentPosLine" Stroke="Blue" StrokeThickness="5"  
+        <Grid  Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Canvas x:Name="TimeStep" Height="25" Background="AliceBlue" HorizontalAlignment="Left">
+                    </Canvas>
+                    <Canvas Height="25">
+                        <Line x:Name="currentPosLine" Stroke="Blue" StrokeThickness="5"  
                   Y2="{Binding RelativeSource={RelativeSource FindAncestor, 
                 AncestorType={x:Type Canvas}},Path=ActualHeight}"
                       Panel.ZIndex="2"/>
-                </Canvas>
-                <StackPanel Orientation="Vertical" x:Name="Channels" Grid.Row="1"/>
-            </Grid>
-        </ScrollViewer>
-        <TextBlock Text="{Binding Path=SongKey}" />
+                    </Canvas>
+                    <StackPanel Orientation="Vertical" x:Name="Channels" Grid.Row="1"/>
+                </Grid>
+            </ScrollViewer>
+            <Canvas x:Name="PianoCanvas" Height="100" Grid.Row="1" SizeChanged="PianoCanvas_SizeChanged" />
+        </Grid>
+        <StackPanel Orientation="Vertical" >
+            <Button Content="{Binding Path=SongKey}" />
+        </StackPanel>
     </Grid>
 </UserControl>

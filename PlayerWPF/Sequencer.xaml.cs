@@ -50,6 +50,7 @@ namespace PlayerWPF
 
             this.DataContext = this;
             InitializeComponent();
+            //BuildPiano();
         }
 
         private void DispatcherTimer_Tick(object? sender, EventArgs e)
@@ -71,7 +72,7 @@ namespace PlayerWPF
             double pixels = pixelsPerTick * e.ticks;
             CursorPosX = pixels;
         }
-
+       
         void Relayout()
         {
             Channels.Children.Clear();
@@ -119,6 +120,53 @@ namespace PlayerWPF
                     );
                 Channels.Children.Add(sequencerChannel);
             }
+        }
+
+        void BuildPiano()
+        {
+            PianoCanvas.Children.Clear();
+            double len = PianoCanvas.ActualWidth;
+            double h = PianoCanvas.ActualHeight;
+            Piano piano = new Piano(false);
+            for (int i = 0; i < piano.PianoKeys.Length; i++)
+            {
+                bool isBlack = piano.PianoKeys[i].isBlack;
+
+                Rectangle r = new Rectangle();
+                r.Width = piano.PianoWhiteXs * len;
+                r.Height = isBlack ? h / 2 : h;
+                r.Stroke = Brushes.DarkBlue;
+                r.StrokeThickness = 2;
+                r.Fill = isBlack ? Brushes.Black : Brushes.White;
+                Canvas.SetLeft(r, piano.PianoKeys[i].x * len);
+                Canvas.SetTop(r, 0);
+                r.MouseDown += R_MouseDown;
+                r.MouseUp += R_MouseUp;
+                r.Tag = i;
+                PianoCanvas.Children.Add(r);
+            }
+        }
+
+        Brush prevBrush = null;
+        private void R_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Rectangle r = sender as Rectangle;
+            r.Fill = prevBrush;
+            prevBrush = null;
+            Mouse.Capture(null);
+        }
+
+        private void R_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Rectangle r = sender as Rectangle;
+            prevBrush = r.Fill;
+            r.Fill = Brushes.Red;
+            Mouse.Capture(r);
+        }
+
+        private void PianoCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            BuildPiano();
         }
     }
 }
