@@ -9,10 +9,6 @@
     <Grid x:Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <ToggleButton Content="{Binding InstrumentName}" 
-                      Unchecked="ToggleButton_Unchecked"
-                      Checked="ToggleButton_Checked"/>
     </Grid>
 </UserControl>

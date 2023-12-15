@@ -27,7 +27,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Canvas x:Name="TimeStep" Height="25" Background="AliceBlue" HorizontalAlignment="Left">
+                    <Canvas x:Name="TimeStep" MouseDown="TimeStep_MouseDown"
+                            Height="25" Background="AliceBlue" HorizontalAlignment="Left">
                     </Canvas>
                     <Canvas Height="25">
                         <Line x:Name="currentPosLine" Stroke="Blue" StrokeThickness="5"  

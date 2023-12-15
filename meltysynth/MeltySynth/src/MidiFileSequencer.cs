@@ -26,6 +26,7 @@ namespace MeltySynth
         private int msgIndex;
         private int loopIndex;
         private bool justSeeked;
+        public bool IsPaused = false;
         public struct PlaybackTimeArgs
         {
             public TimeSpan timeSpan;
@@ -57,6 +58,7 @@ namespace MeltySynth
             speed = 1F;
         }
 
+       
         /// <summary>
         /// Plays the MIDI file.
         /// </summary>
@@ -83,6 +85,17 @@ namespace MeltySynth
             synthesizer.Reset();
         }
 
+        public TimeSpan TicksToTime(int ticks)
+        {
+            int index = Array.BinarySearch(midiFile.Ticks, ticks);
+            if (index < 0)
+            {
+                index = ~index;
+            }
+            TimeSpan time = midiFile.Times[index];
+            return time;
+        }
+
         public void SeekTo(TimeSpan time)
         {
             if (midiFile == null)
@@ -98,15 +111,19 @@ namespace MeltySynth
             msgIndex = index;
             justSeeked = true;
         }
-
+     
         /// <summary>
         /// Stop playing.
         /// </summary>
         public void Stop()
         {
             midiFile = null;
-
             synthesizer.Reset();
+        }
+
+        public void Pause(bool pause)
+        {
+            IsPaused = pause;
         }
 
         /// <inheritdoc/>
@@ -116,6 +133,9 @@ namespace MeltySynth
             {
                 throw new ArgumentException("The output buffers for the left and right must be the same length.");
             }
+
+            if (IsPaused)
+                return;
 
             var wrote = 0;
             while (wrote < left.Length)

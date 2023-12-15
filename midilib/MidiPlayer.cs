@@ -1,5 +1,6 @@
 ﻿using MeltySynth;
 using NAudio.Midi;
+using NAudio.Wave;
 using System;
 using System.Data.SQLite;
 using System.IO;
@@ -152,19 +153,30 @@ namespace midilib
             IsPaused = pause;
             if (pause)
             {
-                sampleProvider.Stop();
-                currentPauseTime = sampleProvider.Sequencer.CurrentTime;
+                //sampleProvider.Stop();
+                sampleProvider.Sequencer.Pause(true);
+                //currentPauseTime = sampleProvider.Sequencer.CurrentTime;
             }
             else
-            {                
-                sampleProvider.Play(currentPlayerMidifile);
-                sampleProvider.Sequencer.SeekTo(currentPauseTime);
+            {
+                sampleProvider.Sequencer.Pause(false);
+                //sampleProvider.Play(currentPlayerMidifile);
+                //sampleProvider.Sequencer.SeekTo(currentPauseTime);
             }
         }
 
         public void Seek(TimeSpan time)
         {
-            sampleProvider.Sequencer.SeekTo(time);
+            if (IsPaused)
+                currentPauseTime = time;
+            else
+                sampleProvider.Sequencer.SeekTo(time);
+        }
+
+        public void Seek(int ticks)
+        {
+            TimeSpan time = sampleProvider.Sequencer.TicksToTime(ticks);
+            Seek(time);
         }
 
         void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)

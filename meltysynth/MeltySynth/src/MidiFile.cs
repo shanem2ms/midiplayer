@@ -434,6 +434,7 @@ namespace MeltySynth
 
         public Message[] Messages => messages;
         public TimeSpan[] Times => messages.Select(m => m.Time).ToArray();
+        public int []Ticks => messages.Select(m => m.Ticks).ToArray();
         public Meta[] Metas => metas;
 
         public int Resolution;

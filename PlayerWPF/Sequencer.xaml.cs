@@ -168,5 +168,12 @@ namespace PlayerWPF
         {
             BuildPiano();
         }
+
+        private void TimeStep_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Point p = e.GetPosition(TimeStep);
+            int ticks = (int)(p.X / pixelsPerTick);
+            player.Seek(ticks);
+        }
     }
 }
