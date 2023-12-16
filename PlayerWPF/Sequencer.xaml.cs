@@ -84,7 +84,6 @@ namespace PlayerWPF
             long lengthSixteenths = lastTick / sixteenthRes;
             int height = (int)TimeStep.Height;
 
-            int channelHeight = 200;
             for (int i = 0; i < lengthSixteenths; i += 4)
             {
                 Line l = new Line();
@@ -112,12 +111,17 @@ namespace PlayerWPF
             for (int i = 0; i < numChannels; i++)
             {
                 SequencerChannel sequencerChannel = new SequencerChannel();
+                sequencerChannel.Height = 50;
                 sequencerChannel.Layout(i,
                     channelGroups.ElementAt(i),
                     midiFile.Resolution,
                     pixelsPerSixteenth,
                     lastTick
                     );
+                Button btn = new Button();
+                btn.Content = $"Channel{i+1}";
+                btn.Height = 50;
+                ChannelNames.Children.Add( btn );   
                 Channels.Children.Add(sequencerChannel);
             }
         }
@@ -142,16 +146,19 @@ namespace PlayerWPF
                 Canvas.SetTop(r, 0);
                 r.MouseDown += R_MouseDown;
                 r.MouseUp += R_MouseUp;
-                r.Tag = i;
+                r.Tag = i + GMInstruments.MidiStartIdx;
                 PianoCanvas.Children.Add(r);
             }
         }
 
         Brush prevBrush = null;
+        int curNoteDown = -1;
         private void R_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Rectangle r = sender as Rectangle;
             r.Fill = prevBrush;
+            player.SynthEngine.NoteOff(curNoteDown);
+            curNoteDown = 0;
             prevBrush = null;
             Mouse.Capture(null);
         }
@@ -159,6 +166,8 @@ namespace PlayerWPF
         private void R_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Rectangle r = sender as Rectangle;
+            curNoteDown = (int)r.Tag;
+            player.SynthEngine.NoteOn(curNoteDown, 100);
             prevBrush = r.Fill;
             r.Fill = Brushes.Red;
             Mouse.Capture(r);

@@ -96,7 +96,7 @@ namespace PlayerWPF
             currentSongTime = e.midiFile.Length;
         }
 
-        void OnEngineCreate(MidiSampleProvider midiSampleProvider)
+        void OnEngineCreate(MidiSynthEngine midiSampleProvider)
         {
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(midiSampleProvider);

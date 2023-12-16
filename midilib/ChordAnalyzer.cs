@@ -131,7 +131,7 @@ namespace midilib
             {
                 for (int j = 0; j < 12; ++j)
                 {
-                    keyWeights[i] = noteOccurences[(j + i) % 12] * ChordWeights[j];
+                    keyWeights[i] += noteOccurences[(j + i) % 12] * ChordWeights[j];
                 }
             }
             return keyWeights.ToList().IndexOf(keyWeights.Max());

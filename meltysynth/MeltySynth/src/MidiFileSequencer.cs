@@ -135,7 +135,11 @@ namespace MeltySynth
             }
 
             if (IsPaused)
+            {
+                left.Fill(0);
+                right.Fill(0);
                 return;
+            }
 
             var wrote = 0;
             while (wrote < left.Length)

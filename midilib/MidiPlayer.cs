@@ -14,7 +14,7 @@ namespace midilib
     {
         string CacheDir => Path.Combine(homedir, "cache");
 
-        MidiSampleProvider sampleProvider;
+        MidiSynthEngine synthEngine;
 
         MidiOut midiOut;
         string homedir;
@@ -24,13 +24,14 @@ namespace midilib
         MeltySynth.MidiFile currentPlayerMidifile;
         UserSettings userSettings;
         public bool IsPaused { get; set; }
-        TimeSpan currentPauseTime = TimeSpan.Zero;
 
         public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
 
-        public delegate void OnAudioEngineCreateDel(MidiSampleProvider midiSampleProvider);
+        public delegate void OnAudioEngineCreateDel(MidiSynthEngine midisynthEngine);
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
         public OnProcessMidiMessageDel OnProcessMidiMessage;
+
+        public MidiSynthEngine SynthEngine => synthEngine;
 
         int volume = 100;
         public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
@@ -58,23 +59,23 @@ namespace midilib
         }
         public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
 
-        public TimeSpan CurrentSongTime => sampleProvider.Sequencer?.CurrentTime ?? new TimeSpan();
+        public TimeSpan CurrentSongTime => synthEngine.Sequencer?.CurrentTime ?? new TimeSpan();
 
         public MidiPlayer(MidiDb dbin)
         {
             db = dbin;
             homedir = db.HomeDir;
-            sampleProvider = new MidiSampleProvider();
+            synthEngine = new MidiSynthEngine();
             userSettings = UserSettings.FromFile(Path.Combine(homedir, "usersettings.json"));
         } 
 
         public async Task<bool> ChangeSoundFont(MidiDb.SoundFontDesc soundFont)
         {
             TimeSpan prevSongTime = CurrentSongTime;
-            sampleProvider.Stop();
+            synthEngine.Stop();
             string soundFontCacheFile = await db.InstallSoundFont(soundFont);
-            await sampleProvider.Initialize(soundFontCacheFile);
-            SetSequencer(sampleProvider.Sequencer);
+            await synthEngine.Initialize(soundFontCacheFile);
+            SetSequencer(synthEngine.Sequencer);
             userSettings.CurrentSoundFont = soundFont.Name;
             userSettings.Persist();
             if (currentPlayingSong != null)
@@ -90,7 +91,7 @@ namespace midilib
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
             sequencer.OnPlaybackStart += Sequencer_OnPlaybackStart;
-            sampleProvider.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
+            synthEngine.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
         }
 
         private void Sequencer_OnPlaybackStart(object sender, MeltySynth.MidiFile midiFile)
@@ -113,7 +114,7 @@ namespace midilib
         {
             await ChangeSoundFont(
                 db.SFDescFromName(userSettings.CurrentSoundFont));
-            OnAudioEngineCreate(sampleProvider);
+            OnAudioEngineCreate(synthEngine);
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
@@ -128,7 +129,7 @@ namespace midilib
         }
         public void SetVolume(int volume)
         {
-            sampleProvider.SetVolume(volume);
+            synthEngine.SetVolume(volume);
         }
         public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
         {
@@ -140,7 +141,7 @@ namespace midilib
             {
                 currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
-                sampleProvider.Play(currentPlayerMidifile);
+                synthEngine.Play(currentPlayerMidifile);
                 IsPaused = false;
             }
             catch (Exception e)
@@ -153,29 +154,22 @@ namespace midilib
             IsPaused = pause;
             if (pause)
             {
-                //sampleProvider.Stop();
-                sampleProvider.Sequencer.Pause(true);
-                //currentPauseTime = sampleProvider.Sequencer.CurrentTime;
+                synthEngine.Sequencer.Pause(true);
             }
             else
             {
-                sampleProvider.Sequencer.Pause(false);
-                //sampleProvider.Play(currentPlayerMidifile);
-                //sampleProvider.Sequencer.SeekTo(currentPauseTime);
+                synthEngine.Sequencer.Pause(false);
             }
         }
 
         public void Seek(TimeSpan time)
         {
-            if (IsPaused)
-                currentPauseTime = time;
-            else
-                sampleProvider.Sequencer.SeekTo(time);
+            synthEngine.Sequencer.SeekTo(time);
         }
 
         public void Seek(int ticks)
         {
-            TimeSpan time = sampleProvider.Sequencer.TicksToTime(ticks);
+            TimeSpan time = synthEngine.Sequencer.TicksToTime(ticks);
             Seek(time);
         }
 

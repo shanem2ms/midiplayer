@@ -25,14 +25,17 @@ namespace PlayerWPF
         public SequencerChannel()
         {
             this.DataContext = this;
+            this.SizeChanged += SequencerChannel_SizeChanged;
             InitializeComponent();
         }
 
+        private void SequencerChannel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Relayout();
+        }
 
         public string InstrumentName { get; set; } = "GM Inst";
-        int channelHeight = 50;
         int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
-        Canvas channelCanvas = null;
         IGrouping<byte, MeltySynth.MidiFile.Message> messages;
         
         int midiFileRes;
@@ -55,24 +58,22 @@ namespace PlayerWPF
 
         void Relayout()
         {
-            if (channelCanvas != null)
-                mainGrid.Children.Remove(channelCanvas);
-
+            mainCanvas.Children.Clear();
             int sixteenthRes = midiFileRes / 4;
             double pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
             int lastTick = numTicks;
             long lengthSixteenths = lastTick / sixteenthRes;
+            int channelHeight = (int)mainCanvas.ActualHeight;
+            if (channelHeight <= 0)
+                return;
             double YnoteSizePixels = (1.0) / (double)gmNoteRange * channelHeight;
 
-            channelCanvas = new Canvas();
-            channelCanvas.Height = channelHeight;
-            channelCanvas.Width = lengthSixteenths * pixelsPerSixteenth;
+            mainCanvas.Width = lengthSixteenths * pixelsPerSixteenth;
             int rsub = ((channelIdx + 1) & 1) != 0 ? 25 : 0;
             int gsub = (((channelIdx + 1) >> 1) & 1) != 0 ? 25 : 0;
             int bsub = (((channelIdx + 1) >> 2) & 1) != 0 ? 25 : 0;
-            channelCanvas.Background = new SolidColorBrush(
+            mainCanvas.Background = new SolidColorBrush(
                 Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
-            Grid.SetColumn(channelCanvas, 1);
 
             int[] noteOnTick = new int[127];
             for (int j = 0; j < noteOnTick.Length; j++)
@@ -106,23 +107,10 @@ namespace PlayerWPF
                         l.Y2 = Y;
                         l.StrokeThickness = YnoteSizePixels;
                         l.Stroke = Brushes.Blue;
-                        channelCanvas.Children.Add(l);
+                        mainCanvas.Children.Add(l);
                     }
                 }
             }
-            mainGrid.Children.Add(channelCanvas);
-        }
-
-        private void ToggleButton_Checked(object sender, RoutedEventArgs e)
-        {
-            channelHeight = 500;
-            Relayout();
-        }
-
-        private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
-        {
-            channelHeight = 50;
-            Relayout();
         }
     }
 }
