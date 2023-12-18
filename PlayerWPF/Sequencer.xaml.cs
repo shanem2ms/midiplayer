@@ -37,6 +37,33 @@ namespace PlayerWPF
         ChordAnalyzer chordAnalyzer;
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        class ChannelCtrl
+        {
+            bool expanded = false;
+            public ChannelCtrl(Button channelBtn,
+                SequencerChannel seq)
+            {
+                ChannelBtn = channelBtn;
+                Seq = seq;
+                ChannelBtn.Click += ChannelBtn_Click;
+            }
+
+            private void ChannelBtn_Click(object sender, RoutedEventArgs e)
+            {
+                if (!expanded)
+                    ChannelBtn.Height = Seq.Height = 500;
+                else
+                    ChannelBtn.Height = Seq.Height = 50;
+
+                expanded = !expanded;
+            }
+
+            public Button ChannelBtn;
+            public SequencerChannel Seq;
+        }
+
+        List<ChannelCtrl> channelCtrls = new List<ChannelCtrl>();
+
         public Sequencer()
         {
             player.OnPlaybackStart += Player_OnPlaybackStart;
@@ -75,7 +102,9 @@ namespace PlayerWPF
        
         void Relayout()
         {
+            channelCtrls.Clear();
             Channels.Children.Clear();
+            ChannelNames.Children.Clear();
             TimeStep.Children.Clear();
 
             int sixteenthRes = midiFile.Resolution / 4;
@@ -119,10 +148,12 @@ namespace PlayerWPF
                     lastTick
                     );
                 Button btn = new Button();
-                btn.Content = $"Channel{i+1}";
+                btn.Content = $"Channel{i + 1}";
                 btn.Height = 50;
-                ChannelNames.Children.Add( btn );   
+                ChannelNames.Children.Add(btn);
                 Channels.Children.Add(sequencerChannel);
+                channelCtrls.Add(
+                    new ChannelCtrl(btn, sequencerChannel));
             }
         }
 
