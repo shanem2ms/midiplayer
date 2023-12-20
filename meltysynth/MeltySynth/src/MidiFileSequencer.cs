@@ -64,7 +64,7 @@ namespace MeltySynth
         /// </summary>
         /// <param name="midiFile">The MIDI file to be played.</param>
         /// <param name="loop">If <c>true</c>, the MIDI file loops after reaching the end.</param>
-        public void Play(MidiFile midiFile, bool loop)
+        public void Play(MidiFile midiFile, bool startPaused)
         {
             if (midiFile == null)
             {
@@ -72,7 +72,8 @@ namespace MeltySynth
             }
 
             this.midiFile = midiFile;
-            this.loop = loop;
+            this.loop = false;
+            IsPaused = startPaused;
 
             blockWrote = synthesizer.BlockSize;
 
@@ -100,18 +101,19 @@ namespace MeltySynth
         {
             if (midiFile == null)
                 return;
-
             int index = Array.BinarySearch(midiFile.Times, time);
             if (index < 0)
             {
                 index = ~index;                
             }
 
+            currentTicks = midiFile.Messages[index].Ticks;
             currentTime = time;
             msgIndex = index;
             justSeeked = true;
+            OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });
         }
-     
+
         /// <summary>
         /// Stop playing.
         /// </summary>

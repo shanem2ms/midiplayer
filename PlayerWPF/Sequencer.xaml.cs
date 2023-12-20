@@ -68,6 +68,7 @@ namespace PlayerWPF
         {
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackTime += Player_OnPlaybackTime;
+            player.OnSongLoaded += Player_OnSongLoaded;
 
             //  DispatcherTimer setup
             dispatcherTimer = new DispatcherTimer();
@@ -80,12 +81,7 @@ namespace PlayerWPF
             //BuildPiano();
         }
 
-        private void DispatcherTimer_Tick(object? sender, EventArgs e)
-        {
-            currentPosLine.X1 = currentPosLine.X2 = CursorPosX;
-        }
-
-        private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
+        private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             midiFile = e.midiFile;
             chordAnalyzer = new ChordAnalyzer(midiFile);
@@ -93,6 +89,15 @@ namespace PlayerWPF
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             Relayout();
+        }
+
+        private void DispatcherTimer_Tick(object? sender, EventArgs e)
+        {
+            currentPosLine.X1 = currentPosLine.X2 = CursorPosX;
+        }
+
+        private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
+        {
         }
         private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
         {

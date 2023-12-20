@@ -43,11 +43,11 @@ namespace midilib
             userSynthesizer.MasterVolume = 1.0f;
             return true;
         }
-        public void Play(MeltySynth.MidiFile midiFile)
+        public void Play(MeltySynth.MidiFile midiFile, bool startPaused)
         {
             lock (mutex)
             {
-                sequencer.Play(midiFile, false);
+                sequencer.Play(midiFile, startPaused);
             }
         }
 

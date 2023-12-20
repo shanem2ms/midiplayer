@@ -58,6 +58,7 @@ namespace midilib
 
         }
         public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
+        public event EventHandler<PlaybackStartArgs> OnSongLoaded;
 
         public TimeSpan CurrentSongTime => synthEngine.Sequencer?.CurrentTime ?? new TimeSpan();
 
@@ -118,7 +119,7 @@ namespace midilib
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
-                this.PlaySong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
+                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
             }
             return true;
         }
@@ -131,7 +132,7 @@ namespace midilib
         {
             synthEngine.SetVolume(volume);
         }
-        public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
+        public async void LoadSong(MidiDb.Fi mfi, bool pianoMode)
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
@@ -141,12 +142,18 @@ namespace midilib
             {
                 currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
-                synthEngine.Play(currentPlayerMidifile);
-                IsPaused = false;
+                OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
+                synthEngine.Play(currentPlayerMidifile, true);
+                IsPaused = true;
             }
             catch (Exception e)
             {
             }
+        }
+        public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
+        {
+            LoadSong(mfi, pianoMode);
+            synthEngine.Play(currentPlayerMidifile, false);
         }
 
         public void PauseOrUnPause(bool pause)
