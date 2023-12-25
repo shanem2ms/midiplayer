@@ -213,11 +213,77 @@ namespace MeltySynth
                     }
                 }
 
-                messages = MergeTracks(messageLists, tickLists, resolution, instrumentType);
+                double tempo;
+                messages = MergeTracks(messageLists, tickLists, resolution, instrumentType, out tempo);
+                if (instrumentType == InstrumentType.Piano)
+                {
+                    messages = RemoveOverlappingNotes(messages, resolution, tempo);
+                }
                 metas = metasList.SelectMany(x => x).ToArray();
             }
         }
 
+        class Note
+        {
+            public int noteOn = -1;
+            public byte volume;
+        }
+        Message[] RemoveOverlappingNotes(Message[]messages, short resolution, double tempo)
+        {
+            List<Message> outMessages = new List<Message>();
+
+            Note[] noteOnTick = new Note[127];
+            for (int i = 0;i < noteOnTick.Length;i++)
+            {
+                noteOnTick[i] = new Note();
+            }
+
+            foreach (var msg in messages)
+            {
+                if ((msg.Command & 0xF0) == 0x90 &&
+                     msg.Data2 > 0)
+                {
+                    if (noteOnTick[msg.Data1].noteOn == -1)
+                    {
+                        noteOnTick[msg.Data1].noteOn = msg.Ticks;
+                        noteOnTick[msg.Data1].volume = msg.Data2;
+                    }
+                }
+                else if ((msg.Command & 0xF0) == 0x80 ||
+                    ((msg.Command & 0xF0) == 0x90 &&
+                    msg.Data2 == 0))
+                {
+                    int startTicks = noteOnTick[msg.Data1].noteOn;
+                    if (startTicks >= 0)
+                    {
+                        byte volume = noteOnTick[msg.Data1].volume;
+                        int endTicks = msg.Ticks;
+                        outMessages.Add(new Message()
+                        {
+                            Channel = 0,
+                            Command = 0x90,
+                            Data1 = msg.Data1,
+                            Data2 = volume,
+                            Ticks = startTicks,
+                            Time = GetTimeSpanFromSeconds(60.0 / (resolution * tempo) * startTicks)
+                        });
+                        outMessages.Add(new Message()
+                        {
+                            Channel = 0,
+                            Command = 0x80,
+                            Data1 = msg.Data1,
+                            Data2 = 0,
+                            Ticks = endTicks,
+                            Time = GetTimeSpanFromSeconds(60.0 / (resolution * tempo) * endTicks)
+                    });
+                    }
+                    noteOnTick[msg.Data1].noteOn = -1;
+                }
+
+            }
+            outMessages.Sort((m1, m2) => m1.Ticks - m2.Ticks);  
+            return outMessages.ToArray();
+        }
         private static (List<Message>, List<int>, List<Meta>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType, int trackIdx)
         {
             var chunkType = reader.ReadFourCC();
@@ -322,7 +388,8 @@ namespace MeltySynth
             }
         }
 
-        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution, InstrumentType instrumentType)
+        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution, InstrumentType instrumentType,
+            out double outTempo)
         {
             var mergedMessages = new List<Message>();
 
@@ -403,6 +470,7 @@ namespace MeltySynth
                 indices[minIndex]++;
             }
 
+            outTempo = tempo;
             return mergedMessages.ToArray();
         }
 
@@ -604,7 +672,7 @@ namespace MeltySynth
             }
 
             public byte Channel { get => channel; set => channel = value; }
-            public byte Command => command;
+            public byte Command {get => command; set => command = value; }  
             public byte Data1 { get => data1; set => data1 = value; }
             public byte Data2 { get => data2; set => data2 = value; }
             public TimeSpan Time { get => time; set => time = value; }

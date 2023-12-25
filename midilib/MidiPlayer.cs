@@ -119,7 +119,7 @@ namespace midilib
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
-                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
+                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), true);
             }
             return true;
         }
@@ -132,7 +132,7 @@ namespace midilib
         {
             synthEngine.SetVolume(volume);
         }
-        public async void LoadSong(MidiDb.Fi mfi, bool pianoMode)
+        public async Task<bool> LoadSong(MidiDb.Fi mfi, bool pianoMode)
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
@@ -149,10 +149,11 @@ namespace midilib
             catch (Exception e)
             {
             }
+            return true;
         }
         public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
         {
-            LoadSong(mfi, pianoMode);
+            await LoadSong(mfi, pianoMode);
             synthEngine.Play(currentPlayerMidifile, false);
         }
 
