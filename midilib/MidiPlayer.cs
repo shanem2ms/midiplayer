@@ -183,9 +183,10 @@ namespace midilib
 
         void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)
         {
+            if (OnProcessMidiMessage != null)
+                OnProcessMidiMessage(channel, command, data1, data2);
             OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, command = command,
                 data1 = data1, data2 = data2});
-            OnProcessMidiMessage?.Invoke(channel, command, data1, data2);
             
         }
 

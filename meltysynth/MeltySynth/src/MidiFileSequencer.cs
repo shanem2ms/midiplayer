@@ -178,6 +178,7 @@ namespace MeltySynth
             }
         
         }
+        TimeSpan largestDelta = TimeSpan.Zero;
         private void ProcessEvents()
         {
             if (midiFile == null)
@@ -185,6 +186,7 @@ namespace MeltySynth
                 return;
             }
 
+            int numnotes = 0;
             while (msgIndex < midiFile.Messages.Length)
             {
                 if (justSeeked)
@@ -199,27 +201,17 @@ namespace MeltySynth
                 currentTicks = msg.Ticks;
                 if (time <= currentTime)
                 {
+                    TimeSpan delta = currentTime - time;
+                    if (delta > largestDelta)
+                        largestDelta = delta;
                     if (msg.Type == MidiFile.MessageType.Normal)
                     {
                         if (OnProcessMidiMessage != null)
                             OnProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                         synthesizer.ProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                     }
-                    else if (loop)
-                    {
-                        if (msg.Type == MidiFile.MessageType.LoopStart)
-                        {
-                            loopIndex = msgIndex;
-                        }
-                        else if (msg.Type == MidiFile.MessageType.LoopEnd)
-                        {
-                            currentTime = midiFile.Messages[loopIndex].Time;
-                            currentTicks = midiFile.Messages[loopIndex].Ticks;
-                            msgIndex = loopIndex;
-                            synthesizer.NoteOffAll(false);
-                        }                        
-                    }
                     msgIndex++;
+                    numnotes++;
                 }
                 else
                 {

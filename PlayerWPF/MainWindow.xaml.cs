@@ -1,5 +1,6 @@
 ﻿using midilib;
 using NAudio.Wave;
+using NAudio.Midi;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,6 +33,7 @@ namespace PlayerWPF
         MidiDb db = App.Db;
         MidiPlayer player = App.Player;
         WaveOut waveOut;
+        MidiOut midiOut;
         TimeSpan currentSongTime;
 
         public bool PianoMode { get; set; } = false;
@@ -98,6 +100,11 @@ namespace PlayerWPF
 
         void OnEngineCreate(MidiSynthEngine midiSampleProvider)
         {
+            if (MidiOut.NumberOfDevices > 0)
+            {
+                player.OnProcessMidiMessage = OnProcessMidiMessage;
+                midiOut = new MidiOut(0);
+            }
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(midiSampleProvider);
             waveOut.Play();
@@ -122,6 +129,35 @@ namespace PlayerWPF
             });
         }
 
+        void OnProcessMidiMessage(int channel, int command, int data1, int data2)
+        {
+            //var channelInfo = channels[channel];
+            switch (command)
+            {
+                case 0x80: // Note Off
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        midiOut.Send(cmd);
+                        //midiOut?.Send(cmd);
+                    }
+                    break;
+
+                case 0x90: // Note On
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        midiOut.Send(cmd);
+                        //OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, data = data1 });
+                        break;
+                    }
+                default:
+                    {
+                        int cmd = channel | command | (data1 << 8) | (data2 << 16);
+                        midiOut.Send(cmd);
+                    }
+                    break;
+
+            }
+        }
         private void CurrentPosSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (isChanging)
