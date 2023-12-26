@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace MeltySynth
 {
@@ -27,6 +28,8 @@ namespace MeltySynth
         private int loopIndex;
         private bool justSeeked;
         public bool IsPaused = false;
+        System.Threading.Thread processThread;
+        bool terminateThread = false;
         public struct PlaybackTimeArgs
         {
             public TimeSpan timeSpan;
@@ -81,11 +84,23 @@ namespace MeltySynth
             currentTicks = 0;
             msgIndex = 0;
             loopIndex = 0;
-
+            
             OnPlaybackStart?.Invoke(this, this.midiFile);
-            synthesizer.Reset();
+            synthesizer.Reset();            
+            if (processThread != null)
+            {
+                terminateThread = true;
+                processThread.Join();
+            }
+            terminateThread = false;
+            processThread = new System.Threading.Thread(() =>
+            {
+                ProcessThread();
+            });
+            processThread.Start();
         }
 
+       
         public TimeSpan TicksToTime(int ticks)
         {
             int index = Array.BinarySearch(midiFile.Ticks, ticks);
@@ -148,9 +163,9 @@ namespace MeltySynth
             {
                 if (blockWrote == synthesizer.BlockSize)
                 {
-                    ProcessEvents();
+                    //ProcessEvents();
                     blockWrote = 0;
-                    currentTime += MidiFile.GetTimeSpanFromSeconds((double)speed * synthesizer.BlockSize / synthesizer.SampleRate);
+                    //currentTime += MidiFile.GetTimeSpanFromSeconds((double)speed * synthesizer.BlockSize / synthesizer.SampleRate);
                 }
 
                 var srcRem = synthesizer.BlockSize - blockWrote;
@@ -178,12 +193,31 @@ namespace MeltySynth
             }
         
         }
+
+        void ProcessThread()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            currentTime = TimeSpan.Zero;
+            TimeSpan nextEventSpan = TimeSpan.Zero;
+            while (!terminateThread)
+            {
+                while (sw.Elapsed < nextEventSpan) { }
+                nextEventSpan = ProcessEvents();
+                OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });
+                TimeSpan waitTime = (nextEventSpan - sw.Elapsed);
+                if (waitTime.TotalMilliseconds > 10)
+                {
+                    System.Threading.Thread.Sleep((((int)waitTime.TotalMilliseconds) / 10) *  10);
+                }
+                currentTime = sw.Elapsed;
+            }
+        }
         TimeSpan largestDelta = TimeSpan.Zero;
-        private void ProcessEvents()
+        private TimeSpan ProcessEvents()
         {
             if (midiFile == null)
             {
-                return;
+                return TimeSpan.FromSeconds(1);
             }
 
             int numnotes = 0;
@@ -215,7 +249,7 @@ namespace MeltySynth
                 }
                 else
                 {
-                    break;
+                    return time;
                 }
             }
 
@@ -234,7 +268,7 @@ namespace MeltySynth
                 }
             }
 
-            OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });
+            return TimeSpan.FromSeconds(1);
         }
 
         /// <summary>

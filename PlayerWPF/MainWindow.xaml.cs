@@ -103,7 +103,7 @@ namespace PlayerWPF
             if (MidiOut.NumberOfDevices > 0)
             {
                 player.OnProcessMidiMessage = OnProcessMidiMessage;
-                midiOut = new MidiOut(0);
+                midiOut = new MidiOut(MidiOut.NumberOfDevices-1);
             }
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
             waveOut.Init(midiSampleProvider);
