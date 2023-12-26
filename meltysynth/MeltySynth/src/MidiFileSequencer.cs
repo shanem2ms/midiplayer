@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MeltySynth
@@ -22,6 +23,7 @@ namespace MeltySynth
 
         private int blockWrote;
 
+        PlayTimer sw = new PlayTimer(TimeSpan.Zero);
         private TimeSpan currentTime;
         int currentTicks;
         private int msgIndex;
@@ -151,13 +153,6 @@ namespace MeltySynth
                 throw new ArgumentException("The output buffers for the left and right must be the same length.");
             }
 
-            if (IsPaused)
-            {
-                left.Fill(0);
-                right.Fill(0);
-                return;
-            }
-
             var wrote = 0;
             while (wrote < left.Length)
             {
@@ -194,21 +189,23 @@ namespace MeltySynth
         
         }
 
+        List<double> timeSpans = new List<double>();
         void ProcessThread()
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            currentTime = TimeSpan.Zero;
+            sw.Start();
+            currentTime = sw.Elapsed;
             TimeSpan nextEventSpan = TimeSpan.Zero;
             while (!terminateThread)
             {
-                while (sw.Elapsed < nextEventSpan) { }
+                System.Threading.Thread.Sleep(1);
+
+                if (IsPaused)
+                { continue;
+                }
+
                 nextEventSpan = ProcessEvents();
                 OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });
-                TimeSpan waitTime = (nextEventSpan - sw.Elapsed);
-                if (waitTime.TotalMilliseconds > 10)
-                {
-                    System.Threading.Thread.Sleep((((int)waitTime.TotalMilliseconds) / 10) *  10);
-                }
+                timeSpans.Add((sw.Elapsed - currentTime).Milliseconds);
                 currentTime = sw.Elapsed;
             }
         }
@@ -321,5 +318,17 @@ namespace MeltySynth
                 }
             }
         }
+    }
+
+    class PlayTimer : Stopwatch
+    {
+        TimeSpan startTime;
+
+        public PlayTimer(TimeSpan startTime)
+        {
+            this.startTime = startTime;
+        }
+
+        public new TimeSpan Elapsed { get => (TimeSpan)base.Elapsed + startTime; } 
     }
 }
