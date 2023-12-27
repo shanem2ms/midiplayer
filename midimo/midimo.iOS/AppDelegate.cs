@@ -44,12 +44,12 @@ namespace midimo.iOS
             await db.InitializeMappings();
             db.InitSongList(false);
             await player.Initialize(OnEngineCreate);
-            midiOut = new MidiOut();
             return true;
         }
 
         void OnEngineCreate(MidiSynthEngine midiSynthEngine)
         {
+            midiOut = new MidiOut(midiSynthEngine);
             aVAudioEngineOut = new NAudio.Wave.AVAudioEngineOut();
             aVAudioEngineOut.Init(midiSynthEngine);
             aVAudioEngineOut.Play();

@@ -1,5 +1,4 @@
-﻿using Haukcode.HighResolutionTimer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -54,6 +53,7 @@ namespace MeltySynth
             onProcessMidiMessage = del;
 
             midioutThread = new Thread(MidiOutThread);
+            midioutThread.Priority = ThreadPriority.Highest;
             midioutThread.Start();
             speed = 1F;
         }
@@ -65,13 +65,10 @@ namespace MeltySynth
         void MidiOutThread()
         {
             sw.Start();
-            HighResolutionTimer timer = new HighResolutionTimer();
-            timer.SetPeriod(1);
-            timer.Start();
             while(threadRunning)
             {
+                Thread.Sleep(1);
                 lock (mutex)
-                timer.WaitForTrigger();
                 {
                     currentTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds - startPlayMs);
                     ProcessEvents();

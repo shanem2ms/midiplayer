@@ -9,18 +9,16 @@ namespace midimo.iOS
         MidiClient client;
         MidiEndpoint midiOut;
         MidiPort outputPort;
-		MidiPlayer player;
         int volume = 50;
 
-        public MidiOut()
+        public MidiOut(MidiSynthEngine engine)
 		{
-            player = App.Instance.player;
             if (Midi.DestinationCount > 0)
-            {
+            {                
                 client = new MidiClient("Midimouse Client");
                 midiOut = MidiEndpoint.GetDestination(Midi.DestinationCount - 1);
                 outputPort = client.CreateOutputPort("Midimouse Output Port");
-                player.SynthEngine.SetMidiOut(OnProcessMidiMessage);
+                engine.SetMidiOut(OnProcessMidiMessage);
             }
         }
 
