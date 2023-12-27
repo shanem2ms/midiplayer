@@ -40,9 +40,9 @@ namespace midimo
         }
 
         bool noValChangeEvent = false;
-        private void Player_OnPlaybackTime(object sender, TimeSpan e)
+        private void Player_OnPlaybackTime(object sender, MeltySynth.MidiSynthSequencer.PlaybackTimeArgs e)
         {
-            double lerp = ((double)e.Ticks / (double)songLength.Ticks);
+            double lerp = ((double)e.timeSpan.Ticks / (double)songLength.Ticks);
             Dispatcher.BeginInvokeOnMainThread(() =>
             {
                 noValChangeEvent = true;

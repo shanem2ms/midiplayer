@@ -20,7 +20,7 @@ namespace midimo.iOS
                 client = new MidiClient("Midimouse Client");
                 midiOut = MidiEndpoint.GetDestination(Midi.DestinationCount - 1);
                 outputPort = client.CreateOutputPort("Midimouse Output Port");
-                player.OnProcessMidiMessage = OnProcessMidiMessage;
+                player.SynthEngine.SetMidiOut(OnProcessMidiMessage);
             }
         }
 

@@ -48,10 +48,10 @@ namespace midimo.iOS
             return true;
         }
 
-        void OnEngineCreate(MidiSampleProvider midiSampleProvider)
+        void OnEngineCreate(MidiSynthEngine midiSynthEngine)
         {
             aVAudioEngineOut = new NAudio.Wave.AVAudioEngineOut();
-            aVAudioEngineOut.Init(midiSampleProvider);
+            aVAudioEngineOut.Init(midiSynthEngine);
             aVAudioEngineOut.Play();
         }
 

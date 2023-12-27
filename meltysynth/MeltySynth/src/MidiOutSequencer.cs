@@ -70,8 +70,8 @@ namespace MeltySynth
             timer.Start();
             while(threadRunning)
             {
-                timer.WaitForTrigger();
                 lock (mutex)
+                timer.WaitForTrigger();
                 {
                     currentTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds - startPlayMs);
                     ProcessEvents();
