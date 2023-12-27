@@ -17,7 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using static MeltySynth.MidiFileSequencer;
+using static MeltySynth.MidiSynthSequencer;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace PlayerWPF

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using static MeltySynth.MidiFileSequencer;
+using static MeltySynth.MidiSynthSequencer;
 
 namespace PlayerWPF
 {
@@ -26,7 +26,7 @@ namespace PlayerWPF
         WaveOut waveOut;
         MidiOut midiOut;
         TimeSpan currentSongTime;
-        bool enableMidi = false;
+        bool enableMidi = true;
 
         public bool PianoMode { get; set; } = false;
 

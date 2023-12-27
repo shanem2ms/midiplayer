@@ -6,7 +6,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static MeltySynth.MidiFileSequencer;
+using static MeltySynth.MidiSynthSequencer;
 
 namespace midilib
 {
@@ -87,7 +87,7 @@ namespace midilib
             return true;
         }
 
-        void SetSequencer(MidiFileSequencer sequencer)
+        void SetSequencer(MidiSynthSequencer sequencer)
         {
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
@@ -143,7 +143,7 @@ namespace midilib
                 currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
                 OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
-                synthEngine.Play(currentPlayerMidifile, true);
+                synthEngine.Play(currentPlayerMidifile, false);
                 IsPaused = true;
             }
             catch (Exception e)

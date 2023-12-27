@@ -11,9 +11,9 @@ namespace midilib
 
         private Synthesizer midiFileSynthesizer;
         private Synthesizer userSynthesizer;
-        private MidiFileSequencer sequencer;
+        private MidiSynthSequencer sequencer;
 
-        public MidiFileSequencer Sequencer => sequencer;
+        public MidiSynthSequencer Sequencer => sequencer;
         private float rms = 0;
         public float RMS => rms;
 
@@ -37,8 +37,8 @@ namespace midilib
             SynthesizerSettings settings = new SynthesizerSettings(format.SampleRate);
             //settings.EnableReverbAndChorus = false;
             midiFileSynthesizer = new Synthesizer(sf, settings);
-            midiFileSynthesizer.MasterVolume = 1.0f;
-            sequencer = new MidiFileSequencer(midiFileSynthesizer);
+            midiFileSynthesizer.MasterVolume = 0.0f;
+            sequencer = new MidiSynthSequencer(midiFileSynthesizer);
             userSynthesizer = new Synthesizer(sf, settings);
             userSynthesizer.MasterVolume = 1.0f;
             return true;
