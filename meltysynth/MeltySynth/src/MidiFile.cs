@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace MeltySynth
@@ -214,11 +215,9 @@ namespace MeltySynth
                 }
 
                 double tempo;
-                messages = MergeTracks(messageLists, tickLists, resolution, instrumentType, out tempo);
-                if (instrumentType == InstrumentType.Piano)
-                {
-                    messages = RemoveOverlappingNotes(messages, resolution, tempo);
-                }
+                messages = instrumentType == InstrumentType.Piano ?
+                    MergeToPiano(messageLists, tickLists, resolution, out tempo) :
+                    MergeTracks(messageLists, tickLists, resolution, out tempo);
                 metas = metasList.SelectMany(x => x).ToArray();
             }
         }
@@ -228,7 +227,34 @@ namespace MeltySynth
             public int noteOn = -1;
             public byte volume;
         }
-        Message[] RemoveOverlappingNotes(Message[]messages, short resolution, double tempo)
+
+        static Message[] NormalizeVolume(Message[] messages)
+        {
+            byte maxvol = 0;
+            foreach (var msg in messages)
+            {
+                if ((msg.Command & 0xF0) == 0x90)
+                {
+                    maxvol = Math.Max(msg.Data2, maxvol);
+                }
+            }
+            List<Message> outMessage = new List<Message>();
+            int mul = 127 * 0xFFFF / maxvol;
+            foreach (var msg in messages)
+            {
+                Message newmsg = new Message();
+                newmsg = msg;
+                if ((msg.Command & 0xF0) == 0x90)
+                {
+                    int nv = (newmsg.Data2 * mul) / 0xFFFF;
+                    newmsg.Data2 = (byte)nv;
+                }
+                outMessage.Add(newmsg);
+            }
+            return outMessage.ToArray();
+        }
+        
+        static Message[] RemoveOverlappingNotes(Message[]messages, int resolution, double tempo)
         {
             List<Message> outMessages = new List<Message>();
 
@@ -388,8 +414,7 @@ namespace MeltySynth
             }
         }
 
-        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution, InstrumentType instrumentType,
-            out double outTempo)
+        private static Message[] MergeTracks(List<Message>[] messageLists, List<int>[] tickLists, int resolution, out double outTempo)
         {
             var mergedMessages = new List<Message>();
 
@@ -434,32 +459,6 @@ namespace MeltySynth
                 {
                     tempo = message.Tempo;
                 }
-                else if (instrumentType == InstrumentType.Piano)
-                {
-                    if ((message.Command & 0xF0) == 0xC0)
-                        message.Data1 = 0;
-
-                    bool skip = false;
-                    if ((message.Command & 0xF0) == 0xB0)
-                    {
-                        if (!(message.Data1 == 7 || // volume 
-                            message.Data1 == 4 || // foot pedal
-                            message.Data1 == 36 || // foot pedal (fine) 
-                             message.Data1 == 39 || // volume (fine) 
-                            (message.Data1 >= 64 && message.Data1 <= 69))) //pedals
-                            skip = true;
-                    }
-                    if ((message.Command & 0xF0) == 0xE0 ||                        
-                        message.Channel == 9)
-                        skip = true;
-                    if (!skip)
-                    {
-                        message.Channel = 0;
-                        message.Time = currentTime;
-                        message.Ticks = currentTick;
-                        mergedMessages.Add(message);
-                    }
-                }
                 else
                 {
                     message.Time = currentTime;
@@ -472,6 +471,105 @@ namespace MeltySynth
 
             outTempo = tempo;
             return mergedMessages.ToArray();
+        }
+
+        private static Message[] MergeToPiano(List<Message>[] messageLists, List<int>[] tickLists, int resolution,
+            out double outTempo)
+        {
+            var mergedMessages = new List<Message>();
+
+            var indices = new int[messageLists.Length];
+
+            var currentTick = 0;
+            var currentTime = TimeSpan.Zero;
+
+            var tempo = 120.0;
+            int []trackVolume = new int[16];
+            for (int i = 0; i < trackVolume.Length; i++)
+            {
+                trackVolume[i] = 0xFFFF;
+            }
+
+            while (true)
+            {
+                var minTick = int.MaxValue;
+                var minIndex = -1;
+                for (var ch = 0; ch < tickLists.Length; ch++)
+                {
+                    if (indices[ch] < tickLists[ch].Count)
+                    {
+                        var tick = tickLists[ch][indices[ch]];
+                        if (tick < minTick)
+                        {
+                            minTick = tick;
+                            minIndex = ch;
+                        }
+                    }
+                }
+
+                if (minIndex == -1)
+                {
+                    break;
+                }
+
+                var nextTick = tickLists[minIndex][indices[minIndex]];
+                var deltaTick = nextTick - currentTick;
+                var deltaTime = GetTimeSpanFromSeconds(60.0 / (resolution * tempo) * deltaTick);
+
+                currentTick += deltaTick;
+                currentTime += deltaTime;
+
+                var message = messageLists[minIndex][indices[minIndex]];
+                if (message.Type == MessageType.TempoChange)
+                {
+                    tempo = message.Tempo;
+                }
+                else 
+                {
+                    if ((message.Command & 0xF0) == 0xC0)
+                        message.Data1 = 0;
+
+                    bool skip = false;
+                    if ((message.Command & 0xF0) == 0xB0)
+                    {
+                        skip = true;
+                        if (message.Data1 == 7)
+                        {
+                            int coarseVol = message.Data2 << 8;
+                            trackVolume[message.Channel] = coarseVol | (trackVolume[message.Channel] & 0xFF);
+                        }
+                        else if (message.Data1 == 39)
+                        {
+                            int fineVol = message.Data2;
+                            trackVolume[message.Channel] = fineVol | (trackVolume[message.Channel] & 0xFF00);
+                        }
+                        if (message.Data1 == 4 || // foot pedal
+                            message.Data1 == 36 || // foot pedal (fine)                              
+                            (message.Data1 >= 64 && message.Data1 <= 69)) //pedals
+                            skip = false;
+                    }
+                    if ((message.Command & 0xF0) == 0xE0 ||
+                        message.Channel == 9)
+                        skip = true;
+                    if (!skip)
+                    {
+                        message.Time = currentTime;
+                        message.Ticks = currentTick;
+                        if ((message.Command & 0xF0) == 0x90)
+                        {
+                            int newVolume = ((int)message.Data2 * trackVolume[message.Channel]) / 0xFFFF;
+                            message.Data2 = (byte)newVolume;
+                        }
+                        message.Channel = 0;
+                        mergedMessages.Add(message);
+                    }
+                }
+
+                indices[minIndex]++;
+            }
+
+            outTempo = tempo;
+            return NormalizeVolume(RemoveOverlappingNotes(mergedMessages.ToArray(), resolution, tempo));
         }
 
         private static int ReadTempo(BinaryReader reader)
