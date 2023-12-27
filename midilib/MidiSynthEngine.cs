@@ -48,7 +48,7 @@ namespace midilib
             SynthesizerSettings settings = new SynthesizerSettings(format.SampleRate);
             //settings.EnableReverbAndChorus = false;
             midiFileSynthesizer = new Synthesizer(sf, settings);
-            midiFileSynthesizer.MasterVolume = 0.0f;
+            midiFileSynthesizer.MasterVolume = 1.0f;
             sequencer = new MidiSynthSequencer(midiFileSynthesizer);
             userSynthesizer = new Synthesizer(sf, settings);
             userSynthesizer.MasterVolume = 1.0f;
