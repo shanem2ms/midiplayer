@@ -90,15 +90,15 @@ namespace PlayerWPF
             currentSongTime = e.midiFile.Length;
         }
 
-        void OnEngineCreate(MidiSynthEngine midiSampleProvider)
+        void OnEngineCreate(MidiSynthEngine midiSynthEngine)
         {
             if (enableMidi && MidiOut.NumberOfDevices > 0)
             {
-                player.OnProcessMidiMessage = OnProcessMidiMessage;
                 midiOut = new MidiOut(MidiOut.NumberOfDevices-1);
+                midiSynthEngine.SetMidiOut(OnProcessMidiMessage);
             }
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
-            waveOut.Init(midiSampleProvider);
+            waveOut.Init(midiSynthEngine);
             waveOut.Play();
         }
         private void Player_OnPlaybackComplete(object? sender, bool e)
@@ -217,6 +217,12 @@ namespace PlayerWPF
         private void PausePlay_Click(object sender, RoutedEventArgs e)
         {
             player.PauseOrUnPause(!player.IsPaused);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            player.Dispose();
+            base.OnClosed(e);
         }
 
     }

@@ -28,8 +28,6 @@ namespace midilib
         public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
 
         public delegate void OnAudioEngineCreateDel(MidiSynthEngine midisynthEngine);
-        public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
-        public OnProcessMidiMessageDel OnProcessMidiMessage;
 
         public MidiSynthEngine SynthEngine => synthEngine;
 
@@ -86,13 +84,12 @@ namespace midilib
             }
             return true;
         }
-
+     
         void SetSequencer(MidiSynthSequencer sequencer)
         {
             sequencer.OnPlaybackTime += Sequencer_OnPlaybackTime;
             sequencer.OnPlaybackComplete += Sequencer_OnPlaybackComplete;
             sequencer.OnPlaybackStart += Sequencer_OnPlaybackStart;
-            synthEngine.Sequencer.OnProcessMidiMessage = OnProcessMidiMessageHandler;
         }
 
         private void Sequencer_OnPlaybackStart(object sender, MeltySynth.MidiFile midiFile)
@@ -181,15 +178,11 @@ namespace midilib
             Seek(time);
         }
 
-        void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)
+     
+        public void Dispose()
         {
-            if (OnProcessMidiMessage != null)
-                OnProcessMidiMessage(channel, command, data1, data2);
-            OnChannelEvent?.Invoke(this, new ChannelEvent() { channel = channel, command = command,
-                data1 = data1, data2 = data2});
-            
+            synthEngine.Dispose();
         }
-
     }
 
     public static class MidiSpec

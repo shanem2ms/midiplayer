@@ -29,4 +29,8 @@
     <PlatformTarget>anycpu</PlatformTarget>
     <Nullable></Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Haukcode.HighResolutionTimer" Version="1.1.0" />
+  </ItemGroup>
 </Project>

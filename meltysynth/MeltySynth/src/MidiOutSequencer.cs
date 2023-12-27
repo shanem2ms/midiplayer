@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Haukcode.HighResolutionTimer;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace MeltySynth
 {
@@ -12,17 +14,11 @@ namespace MeltySynth
     /// If you want to do playback control and render the waveform in separate threads,
     /// you must ensure that the methods will not be called simultaneously.
     /// </remarks>
-    public sealed class MidiSynthSequencer : IAudioRenderer
+    public sealed class MidiOutSequencer
     {
-        private readonly Synthesizer synthesizer;
-
         private float speed;
 
         private MidiFile? midiFile;
-        private bool loop;
-
-        private int blockWrote;
-
         private TimeSpan currentTime;
         int currentTicks;
         private int msgIndex;
@@ -37,6 +33,13 @@ namespace MeltySynth
         public event EventHandler<PlaybackTimeArgs> OnPlaybackTime;
         public event EventHandler<bool> OnPlaybackComplete;
         public event EventHandler<MidiFile> OnPlaybackStart;
+        public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
+        OnProcessMidiMessageDel onProcessMidiMessage;
+        Stopwatch sw = new Stopwatch();
+        Thread midioutThread;
+        bool threadRunning = true;
+        long startPlayMs;
+        private object mutex = new object();
 
         public TimeSpan CurrentTime => currentTime;
         public MidiFile? CurrentMidiFile => midiFile;
@@ -46,19 +49,41 @@ namespace MeltySynth
         /// Initializes a new instance of the sequencer.
         /// </summary>
         /// <param name="synthesizer">The synthesizer to be handled by the sequencer.</param>
-        public MidiSynthSequencer(Synthesizer synthesizer)
+        public MidiOutSequencer(OnProcessMidiMessageDel del)
         {
-            if (synthesizer == null)
-            {
-                throw new ArgumentNullException(nameof(synthesizer));
-            }
+            onProcessMidiMessage = del;
 
-            this.synthesizer = synthesizer;
-
+            midioutThread = new Thread(MidiOutThread);
+            midioutThread.Start();
             speed = 1F;
         }
 
 
+        List<long> msElapsed = new List<long>();
+        long lastTimer = 0;
+        int tickCnt = 0;
+        void MidiOutThread()
+        {
+            sw.Start();
+            HighResolutionTimer timer = new HighResolutionTimer();
+            timer.SetPeriod(1);
+            timer.Start();
+            while(threadRunning)
+            {
+                timer.WaitForTrigger();
+                lock (mutex)
+                {
+                    currentTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds - startPlayMs);
+                    ProcessEvents();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            threadRunning = false;
+            midioutThread.Join();
+        }
         /// <summary>
         /// Plays the MIDI file.
         /// </summary>
@@ -71,19 +96,18 @@ namespace MeltySynth
                 throw new ArgumentNullException(nameof(midiFile));
             }
 
-            this.midiFile = midiFile;
-            this.loop = false;
-            IsPaused = startPaused;
+            lock (mutex)
+            {
+                this.midiFile = midiFile;
+                IsPaused = startPaused;
 
-            blockWrote = synthesizer.BlockSize;
-
-            currentTime = TimeSpan.Zero;
-            currentTicks = 0;
-            msgIndex = 0;
-            loopIndex = 0;
-
+                currentTime = TimeSpan.Zero;
+                currentTicks = 0;
+                msgIndex = 0;
+                loopIndex = 0;
+                startPlayMs = sw.ElapsedMilliseconds;
+            }
             OnPlaybackStart?.Invoke(this, this.midiFile);
-            synthesizer.Reset();
         }
 
         public TimeSpan TicksToTime(int ticks)
@@ -120,7 +144,6 @@ namespace MeltySynth
         public void Stop()
         {
             midiFile = null;
-            synthesizer.Reset();
         }
 
         public void Pause(bool pause)
@@ -129,40 +152,6 @@ namespace MeltySynth
         }
 
         /// <inheritdoc/>
-        public void Render(Span<float> left, Span<float> right)
-        {
-            if (left.Length != right.Length)
-            {
-                throw new ArgumentException("The output buffers for the left and right must be the same length.");
-            }
-
-            if (IsPaused)
-            {
-                left.Fill(0);
-                right.Fill(0);
-                return;
-            }
-
-            var wrote = 0;
-            while (wrote < left.Length)
-            {
-                if (blockWrote == synthesizer.BlockSize)
-                {
-                    ProcessEvents();
-                    blockWrote = 0;
-                    currentTime += MidiFile.GetTimeSpanFromSeconds((double)speed * synthesizer.BlockSize / synthesizer.SampleRate);
-                }
-
-                var srcRem = synthesizer.BlockSize - blockWrote;
-                var dstRem = left.Length - wrote;
-                var rem = Math.Min(srcRem, dstRem);
-
-                synthesizer.Render(left.Slice(wrote, rem), right.Slice(wrote, rem));
-
-                blockWrote += rem;
-                wrote += rem;
-            }
-        }
 
         void ProcessToIndex(int endIdx)
         {
@@ -173,7 +162,7 @@ namespace MeltySynth
                 if (msg.Command == 0xB0 ||
                     msg.Command == 0xC0)
                 {
-                    synthesizer.ProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
+                    onProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                 }
             }
 
@@ -189,7 +178,6 @@ namespace MeltySynth
             {
                 if (justSeeked)
                 {
-                    synthesizer.NoteOffAll(false);
                     ProcessToIndex(msgIndex);
                     justSeeked = false;
                 }
@@ -201,21 +189,7 @@ namespace MeltySynth
                 {
                     if (msg.Type == MidiFile.MessageType.Normal)
                     {
-                        synthesizer.ProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
-                    }
-                    else if (loop)
-                    {
-                        if (msg.Type == MidiFile.MessageType.LoopStart)
-                        {
-                            loopIndex = msgIndex;
-                        }
-                        else if (msg.Type == MidiFile.MessageType.LoopEnd)
-                        {
-                            currentTime = midiFile.Messages[loopIndex].Time;
-                            currentTicks = midiFile.Messages[loopIndex].Ticks;
-                            msgIndex = loopIndex;
-                            synthesizer.NoteOffAll(false);
-                        }
+                        onProcessMidiMessage(msg.Channel, msg.Command, msg.Data1, msg.Data2);
                     }
                     msgIndex++;
                 }
@@ -227,17 +201,7 @@ namespace MeltySynth
 
             if (msgIndex == midiFile.Messages.Length)
             {
-                synthesizer.NoteOffAll(false);
-                if (loop)
-                {
-                    currentTime = midiFile.Messages[loopIndex].Time;
-                    currentTicks = midiFile.Messages[loopIndex].Ticks;
-                    msgIndex = loopIndex;
-                }
-                else
-                {
-                    OnPlaybackComplete?.Invoke(this, loop);
-                }
+                OnPlaybackComplete?.Invoke(this, false);
             }
 
             OnPlaybackTime?.Invoke(this, new PlaybackTimeArgs() { timeSpan = currentTime, ticks = currentTicks });

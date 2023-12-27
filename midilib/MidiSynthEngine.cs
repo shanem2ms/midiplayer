@@ -2,6 +2,7 @@
 using NAudio.Wave;
 using System;
 using System.Threading.Tasks;
+using static midilib.MidiPlayer;
 
 namespace midilib
 {
@@ -12,6 +13,9 @@ namespace midilib
         private Synthesizer midiFileSynthesizer;
         private Synthesizer userSynthesizer;
         private MidiSynthSequencer sequencer;
+        MidiOutSequencer midiOutSequencer;
+        public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
+        OnProcessMidiMessageDel onProcessMidiMessage;
 
         public MidiSynthSequencer Sequencer => sequencer;
         private float rms = 0;
@@ -31,6 +35,13 @@ namespace midilib
             mutex = new object();
         }
 
+        public void Dispose()
+        {
+            if (midiOutSequencer != null)
+            {
+                midiOutSequencer.Dispose();
+            }
+        }
         public async Task<bool> Initialize(string cacheFile)
         {                        
             SoundFont sf = new SoundFont(cacheFile);
@@ -48,6 +59,10 @@ namespace midilib
             lock (mutex)
             {
                 sequencer.Play(midiFile, startPaused);
+                if (midiOutSequencer != null)
+                {
+                    midiOutSequencer.Play(midiFile, startPaused);
+                }
             }
         }
 
@@ -57,6 +72,27 @@ namespace midilib
             {
                 sequencer?.Stop();
             }
+        }
+
+        public void SetMidiOut(OnProcessMidiMessageDel del)
+        {
+            onProcessMidiMessage = del;
+            midiOutSequencer = new MidiOutSequencer(OnProcessMidiMessageHandler);
+        }
+
+        void OnProcessMidiMessageHandler(int channel, int command, int data1, int data2)
+        {
+            if (onProcessMidiMessage != null)
+                onProcessMidiMessage(channel, command, data1, data2);
+            /*
+            OnChannelEvent?.Invoke(this, new ChannelEvent()
+            {
+                channel = channel,
+                command = command,
+                data1 = data1,
+                data2 = data2
+            });*/
+
         }
 
         float maxval = 0;
