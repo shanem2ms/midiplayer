@@ -7,6 +7,8 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Text;
+using System.Data.SQLite;
+using System.Security.Cryptography;
 
 namespace ArtistTool
 {
@@ -15,7 +17,7 @@ namespace ArtistTool
         public string Name { get; set; }
         public long Votes { get; set; }
         public string Id { get; set; }
-        
+
         [Newtonsoft.Json.JsonIgnore]
         public string namelwr;
         int IComparable<MbArtist>.CompareTo(MbArtist? other)
@@ -39,9 +41,9 @@ namespace ArtistTool
         public class Rating
         {
             public object value { get; set; }
-            
+
             [JsonProperty("votes-count")]
-            public int votes_count {get;set;}
+            public int votes_count { get; set; }
         }
 
         List<MbArtist> artists = new List<MbArtist>();
@@ -110,9 +112,24 @@ namespace ArtistTool
             return "";
         }
 
+        public string ReadTracks(Stream str)
+        {
+            ParseType[] parsestr = new ParseType[]
+            {
+                new ParseType() { ptype = PType.Property, idx = 0, name = "media" },
+                new ParseType() { ptype = PType.ArrayIdx, idx = 0, name = "" },
+                new ParseType() { ptype = PType.Property, idx = 0, name = "tracks" },
+            };
+
+            object? val = ReadJSON(str, parsestr);
+            if (val != null)
+                return (string)val;
+            return "";
+        }
+
         public void LoadArtists()
         {
-            string []allwords = File.ReadAllLines("20kwords.txt");
+            string[] allwords = File.ReadAllLines("20kwords.txt");
             wordHash = allwords.ToHashSet();
             StreamReader fileStream = File.OpenText("artists.json");
             JsonSerializer serializer = new JsonSerializer();
@@ -123,10 +140,10 @@ namespace ArtistTool
             }
             artists.Sort();
 
-            foreach (MbArtist artist in artists) 
+            foreach (MbArtist artist in artists)
             {
-                string []words = artist.Name.Split(' ');
-                foreach (string wrd in words) 
+                string[] words = artist.Name.Split(' ');
+                foreach (string wrd in words)
                 {
                     string word = wrd.ToLower();
                     if (wordHash.Contains(word))
@@ -147,7 +164,26 @@ namespace ArtistTool
 
         public void LoadReleaseFromDatabase(string jsonfile)
         {
-            string artistid = @"f27ec8db-af05-4f36-916e-3d57f91ecf5e";
+            bool dosql = false;
+
+            SQLiteConnection sqlite_conn = null;
+            // Create a new database connection:
+            if (dosql)
+            {
+                if (File.Exists("database.db"))
+                    File.Delete("database.db");
+                sqlite_conn = new SQLiteConnection("Data Source=database.db; Version = 3; New=True; Compress = True; ");
+                sqlite_conn.Open();
+                {
+                    SQLiteCommand sqlite_cmd;
+                    string Createsql = "CREATE TABLE Titles(artistKey TEXT, title TEXT)";
+                    sqlite_cmd = sqlite_conn.CreateCommand();
+                    sqlite_cmd.CommandText = Createsql;
+                    sqlite_cmd.ExecuteNonQuery();
+                }
+            }
+            Stopwatch sw = new Stopwatch();
+            string artistid = @"7c7f9c94-dee8-4903-892b-6cf44652e2de";
             int artistsVisited = 0;
             MemoryStream stream = new MemoryStream();
             StreamWriter writer = new StreamWriter(stream);
@@ -157,6 +193,139 @@ namespace ArtistTool
             using (StreamReader sr = new StreamReader(s))
             {
                 long fileSize = s.Length;
+                int nBrackets = 0;
+                bool inDblQuotes = false;
+                long linesRead = 0;
+                bool escapeNext = false;
+                int lastQuote = 0;
+                bool complete = false;
+                sw.Start();
+                if (dosql)
+                {
+                    SQLiteCommand sqlite_cmd;
+                    sqlite_cmd = sqlite_conn.CreateCommand();
+                    sqlite_cmd.CommandText = $"BEGIN TRANSACTION; ";
+                    sqlite_cmd.ExecuteNonQuery();
+                }
+
+                while (!complete)
+                {
+                    int charsRead = sr.ReadBlock(blockdata, 0, blockdata.Length);
+                    if (charsRead != blockdata.Length)
+                        break;
+                    int startWriteIdx = 0;
+                    for (int idx = 0; idx < charsRead; idx++)
+                    {
+                        bool escapeThis = escapeNext;
+                        switch (blockdata[idx])
+                        {
+                            case '"':
+                                if (!escapeThis)
+                                    inDblQuotes = !inDblQuotes;
+                                break;
+                            //case '\'':
+                            //    if (inDblQuotes  == 0 && !escapeThis)
+                            //        nSingleQuotes = 1 - nSingleQuotes;
+                            //    break;
+                            case '{':
+                                if (!inDblQuotes)
+                                {
+                                    nBrackets++;
+                                }
+                                break;
+                            case '}':
+                                {
+                                    if (!inDblQuotes)
+                                    {
+                                        nBrackets--;
+                                        if (nBrackets == 0)
+                                        {
+                                            writer.Write(blockdata, startWriteIdx, (idx + 1 - startWriteIdx));
+                                            startWriteIdx = idx + 1;
+                                            writer.Flush();
+                                            stream.Position = 0;
+                                            string aid = ReadArtistId(stream);
+                                            stream.Position = 0;
+                                            string tracks = ReadTracks(stream);
+                                            if (aid == artistid)
+                                            {
+                                                stream.Position = 0;
+                                                string title = ReadTitle(stream);
+
+                                                if (dosql)
+                                                {
+                                                    title = title.Replace("'", "''");
+                                                    SQLiteCommand sqlite_cmd;
+                                                    sqlite_cmd = sqlite_conn.CreateCommand();
+                                                    sqlite_cmd.CommandText = $"INSERT INTO Titles (artistKey, title) VALUES('{aid}', '{title}'); ";
+                                                    sqlite_cmd.ExecuteNonQuery();
+                                                }
+                                                stream.Position = 0;
+                                                FileStream of = File.Open($"{artistsVisited}.json", FileMode.Create, FileAccess.Write);
+                                                stream.WriteTo(of);
+                                                of.Close();
+                                            }
+                                            stream = new MemoryStream();
+                                            writer = new StreamWriter(stream);
+                                            if (artistsVisited % 1000 == 0)
+                                            {
+                                                if (dosql)
+                                                {
+                                                    SQLiteCommand sqlite_cmd;
+                                                    sqlite_cmd = sqlite_conn.CreateCommand();
+                                                    sqlite_cmd.CommandText = $"COMMIT; ";
+                                                    sqlite_cmd.ExecuteNonQuery();
+                                                    sqlite_cmd = sqlite_conn.CreateCommand();
+                                                    sqlite_cmd.CommandText = $"BEGIN TRANSACTION; ";
+                                                    sqlite_cmd.ExecuteNonQuery();
+                                                }
+
+                                                float percent = (float)(s.Position) / s.Length;
+                                                long ms = sw.ElapsedMilliseconds;
+                                                float totalMs = ms / percent;
+                                                float remainMs = totalMs - ms;
+                                                int minutes = (int)(remainMs / (1000 * 60));
+                                                int hours = minutes / 60;
+                                                minutes = minutes % 60;
+                                                Trace.WriteLine($"{artistsVisited} {percent * 100}: Remaining {hours}:{minutes}");
+                                            }
+                                            artistsVisited++;
+                                        }
+                                        else if (nBrackets < 0)
+                                            Debugger.Break();
+                                    }
+                                }
+                                break;
+                            case '\\':
+                                if (!inDblQuotes)
+                                    Debugger.Break();
+                                escapeNext = true;
+                                break;
+                        }
+                        if (escapeThis) escapeNext = false;
+                    }
+                    writer.Write(blockdata, startWriteIdx, charsRead - startWriteIdx);
+                    linesRead += charsRead;
+                }
+            }
+            if (dosql)
+            {
+                SQLiteCommand sqlite_cmd;
+                sqlite_cmd = sqlite_conn.CreateCommand();
+                sqlite_cmd.CommandText = $"COMMIT; ";
+                sqlite_cmd.ExecuteNonQuery();
+                sqlite_conn.Close();
+            }
+        }
+        public void LoadFromDatabase(string jsonfile)
+        {
+            int artistsVisited = 0;
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            char[] blockdata = new char[1 << 16];
+            using (FileStream s = File.Open(jsonfile, FileMode.Open))
+            using (StreamReader sr = new StreamReader(s))
+            {
                 int nBrackets = 0;
                 bool inDblQuotes = false;
                 long linesRead = 0;
@@ -198,97 +367,9 @@ namespace ArtistTool
                                             startWriteIdx = idx + 1;
                                             writer.Flush();
                                             stream.Position = 0;
-                                            string aid = ReadArtistId(stream);
-                                            if (aid == artistid)
-                                            {
-                                                stream.Position = 0;
-                                                string title = ReadTitle(stream);
-                                                Trace.WriteLine(title);
-                                            }
-                                            stream = new MemoryStream();
-                                            writer = new StreamWriter(stream);
-                                            if (artistsVisited % 1000 == 0)
-                                            {
-                                                Trace.WriteLine($"{artistsVisited} {(s.Position * 100) / s.Length}");
-                                            }
-                                            artistsVisited++;
-                                        }
-                                        else if (nBrackets < 0)
-                                            Debugger.Break();
-                                    }
-                                }
-                                break;
-                            case '\\':
-                                if (!inDblQuotes)
-                                    Debugger.Break();
-                                escapeNext = true;
-                                break;
-                        }
-                        if (escapeThis) escapeNext = false;
-                    }
-                    writer.Write(blockdata, startWriteIdx, charsRead - startWriteIdx);
-                    linesRead += charsRead;
-                }
-            }
-
-            FileStream outfile = File.Open(@"artists.json", FileMode.Create, FileAccess.Write);
-            StreamWriter artistwriter = new StreamWriter(outfile);
-            serializer.Serialize(artistwriter, artists);
-            artistwriter.Flush();
-        }
-        public void LoadFromDatabase(string jsonfile)
-        {
-            int artistsVisited = 0;
-            MemoryStream stream = new MemoryStream();
-            StreamWriter writer = new StreamWriter(stream);
-            char[] blockdata = new char[1 << 16];
-            using (FileStream s = File.Open(jsonfile, FileMode.Open))
-            using (StreamReader sr = new StreamReader(s))
-            {
-                int nBrackets = 0;
-                bool inDblQuotes  = false;
-                long linesRead = 0;
-                bool escapeNext = false;
-                int lastQuote = 0;
-                while (true)
-                {
-                    int charsRead = sr.ReadBlock(blockdata, 0, blockdata.Length);
-                    if (charsRead != blockdata.Length)
-                        break;
-                    int startWriteIdx = 0;
-                    for (int idx = 0; idx < charsRead; idx++)
-                    {
-                        bool escapeThis = escapeNext;
-                        switch (blockdata[idx])
-                        {
-                            case '"':
-                                if (!escapeThis)
-                                    inDblQuotes  = !inDblQuotes;
-                                break;
-                            //case '\'':
-                            //    if (inDblQuotes  == 0 && !escapeThis)
-                            //        nSingleQuotes = 1 - nSingleQuotes;
-                            //    break;
-                            case '{':
-                                if (!inDblQuotes )
-                                {
-                                    nBrackets++;
-                                }
-                                break;
-                            case '}':
-                                {
-                                    if (!inDblQuotes )
-                                    {
-                                        nBrackets--;
-                                        if (nBrackets == 0)
-                                        {
-                                            writer.Write(blockdata, startWriteIdx, (idx + 1 - startWriteIdx));
-                                            startWriteIdx = idx + 1;
-                                            writer.Flush();
-                                            stream.Position = 0;
                                             if (!LoadJSON(stream))
                                                 return;
-                                            //WriteStream(stream);
+                                            //ofwrite.Write(.Position)
                                             stream = new MemoryStream();
                                             writer = new StreamWriter(stream);
                                             if (artistsVisited % 1000 == 0)
@@ -331,18 +412,18 @@ namespace ArtistTool
             fs.Flush();
             fs.Close();
         }
-       
+
         object? ReadUntil(JsonTextReader reader, JsonToken type, int depth, ParseType[] parse, bool hotpath)
         {
             string propsearch = string.Empty;
             int arrayidx = -1;
-            if (hotpath && parse[depth].ptype == PType.Property)
+            if (hotpath && depth < parse.Length && parse[depth].ptype == PType.Property)
                 propsearch = parse[depth].name;
-            if (hotpath && parse[depth].ptype == PType.ArrayIdx)
+            if (hotpath && depth < parse.Length && parse[depth].ptype == PType.ArrayIdx)
                 arrayidx = parse[depth].idx;
             bool isHotProp = false;
             int curidx = 0;
-            object ?obj = null;
+            object? obj = null;
             while (reader.Read() &&
                 reader.TokenType != type)
             {
@@ -374,7 +455,7 @@ namespace ArtistTool
             return obj;
         }
 
-        object ?ReadJSON(Stream stream, ParseType[] parse)
+        object? ReadJSON(Stream stream, ParseType[] parse)
         {
             FileStreamOptions fso = new FileStreamOptions();
             using (StreamReader sr = new StreamReader(stream, null, true, -1, true))
@@ -387,7 +468,7 @@ namespace ArtistTool
                     reader.Read();
                     if (reader.TokenType == JsonToken.StartArray)
                     {
-                        obj =ReadUntil(reader, JsonToken.EndArray, 0, parse, true);
+                        obj = ReadUntil(reader, JsonToken.EndArray, 0, parse, true);
                     }
                     else if (reader.TokenType == JsonToken.StartObject)
                     {
@@ -396,7 +477,7 @@ namespace ArtistTool
                     else
                         throw new Exception();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
 
                 }
@@ -493,14 +574,14 @@ namespace ArtistTool
 
             //using (BufferedStream bufStream = new BufferedStream(stream, byteSequence.Length))
             //{
-                int i;
-                while ((i = stream.Read(buffer, 0, byteSequence.Length)) == byteSequence.Length)
-                {
-                    if (byteSequence.SequenceEqual(buffer))
-                        return stream.Position - byteSequence.Length;
-                    else
-                        stream.Position -= byteSequence.Length - PadLeftSequence(buffer, byteSequence);
-                }
+            int i;
+            while ((i = stream.Read(buffer, 0, byteSequence.Length)) == byteSequence.Length)
+            {
+                if (byteSequence.SequenceEqual(buffer))
+                    return stream.Position - byteSequence.Length;
+                else
+                    stream.Position -= byteSequence.Length - PadLeftSequence(buffer, byteSequence);
+            }
             //}
 
             return -1;
