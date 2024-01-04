@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Amazon.Runtime;
+using Amazon.S3;
 
 namespace midilib
 {
@@ -201,6 +203,19 @@ namespace midilib
             return true;
         }
 
+        public async Task<bool> UploadAWS()
+        {
+            var awsCredentials = new BasicAWSCredentials("AKIAXPMVBCNZ2HLG3TT7", "c0VaKXZRbipD2Q9wVRKK/yQIKvvI2F+WbLlHaihy");
+            var s3client = new AmazonS3Client(awsCredentials, Amazon.RegionEndpoint.USEast2);
+            var resp = await s3client.PutObjectAsync(new Amazon.S3.Model.PutObjectRequest()
+            {
+                BucketName = "midisongs",
+                Key = "Item1",
+                ContentBody = "This is sample content..."
+            });
+            //GET https://midisongs.s3.us-east-2.amazonaws.com/?list-type=2&continuation-token=1MViLVlE8aZXKtCsefawsDGNG9iW16FlBgq4/5ESHtbw8Pks9sU4PPw==
+            return true;
+        }
         TaskCompletionSource<bool> isSonglistInitialized = new TaskCompletionSource<bool>();
 
         public Task<bool> Initialized => isSonglistInitialized.Task;
