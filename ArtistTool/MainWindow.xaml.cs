@@ -26,7 +26,7 @@ namespace ArtistTool
             this.DataContext = this;
             InitializeComponent();
             MusicBrainz mb = new MusicBrainz();
-            mb.LoadReleaseFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\release");
+           // mb.LoadReleaseFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\release");
             //mb.LoadFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\artist");
             Task.Run(Startup);
         }

@@ -116,7 +116,7 @@ namespace midilib
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
-                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), true);
+                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
             }
             return true;
         }
