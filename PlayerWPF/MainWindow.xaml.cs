@@ -26,7 +26,7 @@ namespace PlayerWPF
         WaveOut waveOut;
         MidiOut midiOut;
         TimeSpan currentSongTime;
-        bool enableMidi = true;
+        bool enableMidi = false;
 
         public bool PianoMode { get; set; } = false;
 
