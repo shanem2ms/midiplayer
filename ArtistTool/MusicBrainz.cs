@@ -10,6 +10,7 @@ using System.Text;
 using System.Data.SQLite;
 using System.Security.Cryptography;
 using System.Windows.Controls.Primitives;
+using System.Runtime.Intrinsics.X86;
 
 namespace ArtistTool
 {
@@ -137,9 +138,26 @@ namespace ArtistTool
         {
             string[] allwords = File.ReadAllLines("20kwords.txt");
             wordHash = allwords.ToHashSet();
-            StreamReader fileStream = File.OpenText("artists.json");
-            JsonSerializer serializer = new JsonSerializer();
-            artists = (List<MbArtist>)serializer.Deserialize(fileStream, typeof(List<MbArtist>));
+
+            SQLiteConnection sqlite_conn = null;
+            // Create a new database connection:
+            sqlite_conn = new SQLiteConnection("Data Source=database.db; Version = 3; Read Only=True;");
+            sqlite_conn.Open();
+            SQLiteCommand sqlite_cmd;
+            string Createsql = "SELECT * FROM ARTISTS WHERE VOTES > 2";
+            sqlite_cmd = sqlite_conn.CreateCommand();
+            sqlite_cmd.CommandText = Createsql;
+            SQLiteDataReader r = sqlite_cmd.ExecuteReader();
+            List<MbArtist> artists = new List<MbArtist>();
+            while (r.Read())
+            {
+                var artist = new MbArtist();
+                artist.Id = Convert.ToString(r["artistKey"]);
+                artist.Name = Convert.ToString(r["name"]);
+                artist.namelwr = artist.Name.ToLower();
+                artists.Add(artist);
+            }
+
             foreach (var artist in artists)
             {
                 artist.namelwr = artist.Name.ToLower();

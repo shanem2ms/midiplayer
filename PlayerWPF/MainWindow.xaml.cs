@@ -71,7 +71,7 @@ namespace PlayerWPF
 
         private async Task<bool> Initialize()
         {
-            await db.UploadAWS();
+            //await db.UploadAWS();
             await db.InitializeMappings();
             db.InitSongList(false);
             player.OnPlaybackTime += Player_OnPlaybackTime;
