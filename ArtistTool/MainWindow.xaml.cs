@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using System.Diagnostics;
+using Amazon.Runtime;
 
 namespace ArtistTool
 {
@@ -18,8 +19,8 @@ namespace ArtistTool
     {
         public ArtistDb ArtistDb { get; set; }
         MidiDb midiDb;
-        MusicBrainz mb = new MusicBrainz();
-        public MusicBrainz Mb => mb;
+        MbDb mb = new MbDb();
+        public MbDb Mb => mb;
         public event PropertyChangedEventHandler? PropertyChanged;
         public MainWindow()
         {
@@ -29,13 +30,12 @@ namespace ArtistTool
             //MusicBrainz mb = new MusicBrainz();
             //mb.LoadReleaseFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\release");
             //mb.LoadArtistsFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\artist");
-            //mb.LoadFromDatabase(@"C:\Users\shane\Documents\20230603-001001\mbdump\artist");
             Task.Run(Startup);
         }
 
         async Task<bool> Startup()
         {
-            mb.LoadArtists();            
+            mb.LoadArtists();
 
             MidiDb db = new MidiDb();
             await db.InitializeMappings();
@@ -43,34 +43,46 @@ namespace ArtistTool
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
             //await sdb.Md5();
-            this.ArtistDb.BuildArtists();
+            this.ArtistDb.BuildSongWords();
             var artistWords = mb.ArtistWords;
             HashSet<Artist> artistsHash = new HashSet<Artist>();
-            foreach (var aw in this.ArtistDb.Words)
+            foreach (var songw in this.ArtistDb.Words)
             {
                 List<MbArtist> arts;
-                if (artistWords.TryGetValue(aw.word, out arts))
+                if (artistWords.TryGetValue(songw.word, out arts))
                 {
                     Artist newartist;
-                    if (arts.Count == 1)
+                    foreach (var aaw in arts)
                     {
-                        if (!artistsHash.TryGetValue(new Artist() { Name = arts[0].Name }, out newartist))
+                        string []awords = aaw.words;
+                        foreach (var song in songw.songs)
                         {
-                            newartist = new Artist() { Name = arts[0].Name, songs = aw.songs.ToList(),
-                                votes = (int)arts[0].Votes };
-                            artistsHash.Add(newartist);
-                        }
-                        else
-                        {
-                            newartist.songs.AddRange(aw.songs);
+                            if (awords.All(w => song.Words.Contains(w)))
+                            {
+                                if (!artistsHash.TryGetValue(new Artist() { Name = aaw.Name }, out newartist))
+                                {
+                                    newartist = new Artist()
+                                    {
+                                        Name = aaw.Name,
+                                        songs = new List<Song>() { song },
+                                        votes = (int)aaw.Votes
+                                    };
+                                    artistsHash.Add(newartist);
+                                }
+                                else
+                                {
+                                    newartist.songs.Add(song);
+                                }
+                                song.Artist = newartist;
+                            }
                         }
                     }
                 }
 
             }
 
+            ArtistDb.BuildSongWords();
             ArtistDb.Artists.AddRange(artistsHash);
-
             ArtistDb.Artists.Sort((a, b) => b.votes.CompareTo(a.votes));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mb)));
@@ -86,12 +98,12 @@ namespace ArtistTool
             {
                 WordsLB.SelectedItem = w;
                 WordsLB.ScrollIntoView(w);
-            }            
+            }
         }
 
         private void NewArtistBtn_Click(object sender, RoutedEventArgs e)
         {
-            ArtistDb.Artists.Add(new Artist() { Name = "The Various Artists"});
+            ArtistDb.Artists.Add(new Artist() { Name = "The Various Artists" });
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
         }
 
@@ -99,7 +111,7 @@ namespace ArtistTool
         {
             TextBox tb = sender as TextBox;
             if (tb.Text.Length > 3)
-            { 
+            {
                 ArtistDb.SetArtistFilter(tb.Text);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
             }

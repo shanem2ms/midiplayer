@@ -63,6 +63,8 @@ namespace midilib
         public string Name => Fi.Name;
         public Artist Artist { get; set; }
         public MidiDb.Fi Fi { get; set; }
+
+        public HashSet<string> Words { get; set; }
     }
     public class ArtistsFile
     {
@@ -95,15 +97,16 @@ namespace midilib
 
         public void SetArtistFilter(string filter)
         {
-            filteredArtists = Artists.Where(a => a.Name.Contains(filter)).ToList();
+            string flower = filter.ToLower();
+            filteredArtists = Artists.Where(a => a.Name.ToLower().Contains(flower)).ToList();
         }
-        List<string> GetAllWords(string name)
+        HashSet<string> GetAllWords(string name)
         {
             name = Path.GetFileNameWithoutExtension(name);
             Regex r = new Regex(@"[^a-zA-Z]*([a-zA-Z]+)[^a-zA-Z]*");
             bool keepgoing = true;
             int index = 0;
-            List<string> strs = new List<string>();
+            HashSet<string> strs = new HashSet<string>();
             while (keepgoing)
             {
                 var match = r.Match(name, index);
@@ -116,13 +119,15 @@ namespace midilib
             }
             return strs;
         }
-        public bool BuildArtists()
+        public bool BuildSongWords()
         {
             Dictionary<string, Word> allWords = new Dictionary<string, Word>();
             foreach (var song in songs)
             {
-                List<string> words = GetAllWords(song.Name);
-                foreach (var word in words)
+                if (song.Artist != null)
+                    continue;
+                song.Words = GetAllWords(song.Name);
+                foreach (var word in song.Words)
                 {
                     int count = 0;
                     Word word1 = null;
