@@ -48,6 +48,8 @@ namespace ArtistTool
             HashSet<Artist> artistsHash = new HashSet<Artist>();
             foreach (var songw in this.ArtistDb.Words)
             {
+                if (songw.word == "blink")
+                    Debugger.Break();
                 List<MbArtist> arts;
                 if (artistWords.TryGetValue(songw.word, out arts))
                 {
@@ -86,6 +88,12 @@ namespace ArtistTool
             ArtistDb.Artists.Sort((a, b) => b.votes.CompareTo(a.votes));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mb)));
+            
+            int assignedSongs = ArtistDb.Songs.Where(s => s.Artist != null).Count();
+            Dispatcher.BeginInvoke(() =>
+            {
+                StatusTb.Text = $"Assigned = {assignedSongs}.   Unassigned = {ArtistDb.Songs.Count() - assignedSongs}";
+            });
             return true;
         }
 

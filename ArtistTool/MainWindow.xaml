@@ -38,52 +38,56 @@
     <TabControl>
         <TabItem Header="ArtistDb">
             <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBox x:Name="searchTb" TextChanged="searchTb_TextChanged"  />
-                <ListBox x:Name="WordsLB" Grid.Row="1" ItemsSource="{Binding ArtistDb.Words}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBox x:Name="searchTb" TextChanged="searchTb_TextChanged"  />
+                        <ListBox x:Name="WordsLB" Grid.Row="1" ItemsSource="{Binding ArtistDb.Words}"/>
+                    </Grid>
+                    <ListView Grid.Column="1" ItemsSource="{Binding Path=SelectedItem.Names, ElementName=WordsLB}" />
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="NewArtistBtn" Content="New Artist" Click="NewArtistBtn_Click"/>
+                        <Rectangle Width="20" Visibility="Hidden" />
+                        <TextBox x:Name="ArtistSearchTb" Width="200" TextChanged="ArtistSearchTb_TextChanged"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="7*"/>
+                            <ColumnDefinition Width="10*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox Name="ArtistsLB" ItemsSource="{Binding ArtistDb.FilteredArtists}" Grid.ColumnSpan="2">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="midilib:Artist">
+                                    <Button Content="{Binding Path=Name}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <ListView Grid.Column="2" ItemsSource="{Binding Path=SelectedItem.Songs, ElementName=ArtistsLB}" />
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <TextBlock x:Name="StatusTb" />
+                </Grid>
             </Grid>
-            <ListView Grid.Column="1" ItemsSource="{Binding Path=SelectedItem.Names, ElementName=WordsLB}" />
-        </Grid>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="NewArtistBtn" Content="New Artist" Click="NewArtistBtn_Click"/>
-                <Rectangle Width="20" Visibility="Hidden" />
-                <TextBox x:Name="ArtistSearchTb" Width="200" TextChanged="ArtistSearchTb_TextChanged"/>
-            </StackPanel>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="10*"/>
-                </Grid.ColumnDefinitions>
-                <ListBox Name="ArtistsLB" ItemsSource="{Binding ArtistDb.FilteredArtists}" Grid.ColumnSpan="2">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="midilib:Artist">
-                            <Button Content="{Binding Path=Name}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <ListView Grid.Column="2" ItemsSource="{Binding Path=SelectedItem.Songs, ElementName=ArtistsLB}" />
-            </Grid>
-        </Grid>
-    </Grid>
         </TabItem>
         <TabItem Header="MusicBrainz">
             <Grid>

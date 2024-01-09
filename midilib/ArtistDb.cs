@@ -119,6 +119,27 @@ namespace midilib
             }
             return strs;
         }
+
+        HashSet<string> GetNumbers(string name)
+        {
+            name = Path.GetFileNameWithoutExtension(name);
+            Regex r = new Regex(@"[^0-9]*([0-9]+)[^0-9]*");
+            bool keepgoing = true;
+            int index = 0;
+            HashSet<string> strs = new HashSet<string>();
+            while (keepgoing)
+            {
+                var match = r.Match(name, index);
+                if (match.Success)
+                {
+                    index = match.Captures[0].Index + match.Captures[0].Length;
+                    strs.Add(match.Groups[1].Value.ToLower());
+                }
+                keepgoing = match.Success;
+            }
+            return strs;
+        }
+
         public bool BuildSongWords()
         {
             Dictionary<string, Word> allWords = new Dictionary<string, Word>();
@@ -137,6 +158,12 @@ namespace midilib
                         allWords[word] = word1;
                     }
                     word1.songs.Add(song);
+                }
+
+                HashSet<string> numbers = GetNumbers(song.Name);
+                foreach (var number in numbers)
+                {
+                    song.Words.Add(number);
                 }
             }
 

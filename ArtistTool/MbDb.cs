@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -82,7 +83,7 @@ namespace ArtistTool
 
             foreach (MbArtist artist in artists)
             {
-                string[] words = artist.Name.Split(' ');
+                string[] words = artist.Name.Split(new char[] { ' ', '-', '_', '.', '\x2010' });
                 List<string> artWds = new List<string>();
                 foreach (string wrd in words)
                 {
