@@ -35,28 +35,52 @@ namespace ArtistTool
 
         async Task<bool> Startup()
         {
-            mb.LoadArtists();
-
             MidiDb db = new MidiDb();
             await db.InitializeMappings();
             await db.InitSongList(false);
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
             //await sdb.Md5();
+            //BuildFromDb();
+
+            this.ArtistDb.Load("Artists.json");
+            ArtistDb.BuildSongWords();
+            mb.LoadTitles();
+
+            var titleWords = mb.TitleWords;
+            foreach (var song in this.ArtistDb.Songs)
+            {
+                if (song.Words == null || song.Words.Any(w => char.IsDigit(w[0])))
+                    continue;
+                var allTitles = song.Words.Select(w => titleWords[w]);
+                //song.Words
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mb)));
+            int assignedSongs = ArtistDb.Songs.Where(s => s.Artist != null).Count();
+            Dispatcher.BeginInvoke(() =>
+            {
+                StatusTb.Text = $"Assigned = {assignedSongs}.   Unassigned = {ArtistDb.Songs.Count() - assignedSongs}";
+            });
+            return true;
+        }
+
+        void BuildFromDb()
+        {
+            mb.LoadArtists();
             this.ArtistDb.BuildSongWords();
             var artistWords = mb.ArtistWords;
             HashSet<Artist> artistsHash = new HashSet<Artist>();
             foreach (var songw in this.ArtistDb.Words)
             {
-                if (songw.word == "blink")
-                    Debugger.Break();
                 List<MbArtist> arts;
                 if (artistWords.TryGetValue(songw.word, out arts))
                 {
                     Artist newartist;
                     foreach (var aaw in arts)
                     {
-                        string []awords = aaw.words;
+                        string[] awords = aaw.words;
                         foreach (var song in songw.songs)
                         {
                             if (awords.All(w => song.Words.Contains(w)))
@@ -66,16 +90,11 @@ namespace ArtistTool
                                     newartist = new Artist()
                                     {
                                         Name = aaw.Name,
-                                        songs = new List<Song>() { song },
-                                        votes = (int)aaw.Votes
                                     };
                                     artistsHash.Add(newartist);
                                 }
-                                else
-                                {
-                                    newartist.songs.Add(song);
-                                }
-                                song.Artist = newartist;
+                                if (song.Artist == null || song.Artist.Name.Length < newartist.Name.Length)
+                                    song.Artist = newartist;
                             }
                         }
                     }
@@ -83,20 +102,19 @@ namespace ArtistTool
 
             }
 
+            foreach (var song in ArtistDb.Songs)
+            {
+                if (song.Artist != null)
+                {
+                    song.Artist.Songs.Add(song);
+                }
+            }
+
+            artistsHash.RemoveWhere(a => a.Songs.Count() == 0);
             ArtistDb.BuildSongWords();
             ArtistDb.Artists.AddRange(artistsHash);
-            ArtistDb.Artists.Sort((a, b) => b.votes.CompareTo(a.votes));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mb)));
-            
-            int assignedSongs = ArtistDb.Songs.Where(s => s.Artist != null).Count();
-            Dispatcher.BeginInvoke(() =>
-            {
-                StatusTb.Text = $"Assigned = {assignedSongs}.   Unassigned = {ArtistDb.Songs.Count() - assignedSongs}";
-            });
-            return true;
+            ArtistDb.Save("Artists.json");
         }
-
         private void searchTb_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox tb = (TextBox)sender;

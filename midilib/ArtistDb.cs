@@ -9,6 +9,7 @@ using System.Threading;
 using System.Diagnostics;
 using static midilib.MidiDb;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace midilib
 {
@@ -28,8 +29,8 @@ namespace midilib
     public class Artist
     {
         public string Name { get; set; }
-        public int votes;
-        public List<Song> songs = new List<Song>();
+        
+        List<Song> songs = new List<Song>();
         public List<Song> Songs => songs;
 
         public override string ToString()
@@ -61,9 +62,13 @@ namespace midilib
             Fi = fi;
         }
         public string Name => Fi.Name;
+
+        [JsonIgnore]
         public Artist Artist { get; set; }
+        [JsonIgnore]
         public MidiDb.Fi Fi { get; set; }
 
+        [JsonIgnore]
         public HashSet<string> Words { get; set; }
     }
     public class ArtistsFile
@@ -93,6 +98,41 @@ namespace midilib
         {
             db = _db;
             songs = db.FilteredMidiFiles.Select(fi => new Song(fi)).ToList();
+        }
+
+
+        class ArtistDef
+        {
+            public ArtistDef()
+            { }
+            public ArtistDef(Artist a)
+            {
+                Name = a.Name;
+                Songs = a.Songs.Select(s => s.Name).ToList();
+            }
+            public string Name { get; set; }
+            public List<string> Songs { get; set; }
+        }
+
+        public void Load(string filename)
+        {
+            Dictionary<string, Song> songDic = Songs.ToDictionary(s => s.Name);
+            string jsontext = File.ReadAllText(filename);
+            List<ArtistDef> artists = JsonConvert.DeserializeObject<List<ArtistDef>>(jsontext);
+            foreach (ArtistDef artistDef in artists)
+            {
+                Artist artist = new Artist();
+                artist.Name = artistDef.Name;
+                artist.Songs.AddRange(artistDef.Songs.Select((s) => { var sng = songDic[s]; sng.Artist = artist; return sng; } ));;
+                Artists.Add(artist);
+            }
+        }
+
+        public void Save(string filename)
+        {
+            List<ArtistDef> adefs = Artists.Select(a => new ArtistDef(a)).ToList();
+            string jsonstr = JsonConvert.SerializeObject(adefs);
+            File.WriteAllText(filename, jsonstr);
         }
 
         public void SetArtistFilter(string filter)
@@ -139,6 +179,7 @@ namespace midilib
             }
             return strs;
         }
+
 
         public bool BuildSongWords()
         {

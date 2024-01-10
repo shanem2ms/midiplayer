@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
+using System.Windows.Input;
 
 namespace ArtistTool
 {
@@ -23,11 +26,24 @@ namespace ArtistTool
         }
     }
 
+    public class MbTitle
+    {
+        public string Song { get; set; }
+        public string ArtistKey { get; set; }
+        public string Title { get; set; }
+
+        public string[] words;
+        public int idx;
+    }
     public class MbDb
     {
         List<MbArtist> artists = new List<MbArtist>();
         Dictionary<string, List<MbArtist>> artistWords = new Dictionary<string, List<MbArtist>>();
 
+        List<MbTitle> titles = new List<MbTitle>();
+        Dictionary<string, HashSet<int>> titleWords = new Dictionary<string, HashSet<int>>();
+
+        public Dictionary<string, HashSet<int>> TitleWords => titleWords;
         public Dictionary<string, List<MbArtist>> ArtistWords => artistWords;
 
         public List<MbArtist> filteredArtists;
@@ -108,5 +124,80 @@ namespace ArtistTool
             filteredArtists = Artists.ToList();
         }
 
+        public void LoadTitles()
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            string[] allwords = File.ReadAllLines("20kwords.txt");
+            wordHash = allwords.Take(100).ToHashSet();
+
+            SQLiteConnection sqlite_conn = null;
+            // Create a new database connection:
+            sqlite_conn = new SQLiteConnection("Data Source=database.db; Version = 3; Read Only=True;");
+            sqlite_conn.Open();
+            SQLiteCommand sqlite_cmd;
+            string Createsql = "SELECT song FROM TITLES";
+            sqlite_cmd = sqlite_conn.CreateCommand();
+            sqlite_cmd.CommandText = Createsql;
+            SQLiteDataReader r = sqlite_cmd.ExecuteReader();
+            titles = new List<MbTitle>();
+            int idx = 0;
+            while (r.Read())
+            {
+                var title = new MbTitle();
+                //title.ArtistKey = Convert.ToString(r["artistKey"]);
+                title.Song = Convert.ToString(r["song"]);
+                //title.Title = Convert.ToString(r["title"]);
+                title.idx = idx++;
+                titles.Add(title);
+            }
+
+
+            string titleJson = @"titlewords.json";
+            if (File.Exists(titleJson))
+            {
+                using (StreamReader file = File.OpenText(titleJson))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    titleWords = (Dictionary<string, HashSet<int>>)serializer.Deserialize(file, typeof(Dictionary<string, HashSet<int>>));
+                }
+            }
+            else
+            {
+                idx = 0;
+                foreach (MbTitle title in titles)
+                {
+                    string[] words = title.Song.Split(new char[] { ' ', '-', '_', '.', '\x2010' });
+                    List<string> artWds = new List<string>();
+                    foreach (string wrd in words)
+                    {
+                        string word = wrd.ToLower();
+                        if (wordHash.Contains(word))
+                            continue;
+                        if (word.EndsWith('s') && wordHash.Contains(word.Substring(0, word.Length - 1)))
+                            continue;
+                        HashSet<int> titlew;
+                        if (!titleWords.TryGetValue(word, out titlew))
+                        {
+                            titlew = new HashSet<int>();
+                            titleWords.Add(word, titlew);
+                        }
+
+                        titlew.Add(title.idx);
+                        artWds.Add(word);
+                    }
+                    title.words = artWds.ToArray();
+                    idx++;
+                }
+
+                using (StreamWriter file = File.CreateText(titleJson))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, titleWords);
+                }
+            }
+            long seconds = sw.ElapsedMilliseconds / 1000;
+            Trace.WriteLine($"Time {seconds}s");
+        }
     }
 }
