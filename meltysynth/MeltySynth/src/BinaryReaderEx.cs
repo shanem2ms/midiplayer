@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -71,6 +72,8 @@ namespace MeltySynth
                 count++;
                 if (count == 4)
                 {
+
+                    //Debug.WriteLine("The length of the value must be equal to or less than 4.");
                     throw new InvalidDataException("The length of the value must be equal to or less than 4.");
                 }
             }

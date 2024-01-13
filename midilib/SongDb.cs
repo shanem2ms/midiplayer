@@ -9,6 +9,7 @@ using System.Threading;
 using System.Diagnostics;
 using static midilib.MidiDb;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace midilib
 {
@@ -70,6 +71,8 @@ namespace midilib
 
             int rowcnt = 0;
             List<MidiDb.Fi> allfiles = db.AllMidiFiles.ToList();
+            int failedCnt = 0;
+            List<string> badMidiNames = new List<string>();
             for (int idx = 0; idx < allfiles.Count;)
             {
                 int batchSize = Math.Min(allfiles.Count() - idx, 10000);
@@ -79,7 +82,8 @@ namespace midilib
                 sw.Start();
                 cmd.CommandText = "BEGIN";
                 await cmd.ExecuteNonQueryAsync();
-
+                MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid", MeltySynth.MidiFile.InstrumentType.Original);
+                
                 Parallel.ForEach(batch, fi =>
                 {
                     var cmdf = con.CreateCommand();
@@ -123,6 +127,8 @@ namespace midilib
                     catch
                     {
                         //Console.WriteLine($"FAILED {path}");
+                        badMidiNames.Add(path);
+                        Interlocked.Add(ref failedCnt, 1);
                     }
                     return;
 
@@ -132,8 +138,10 @@ namespace midilib
 
                 sw.Stop();                
                 idx += batchSize;
-                Console.WriteLine($"Complete {idx} of {allfiles.Count}. {sw.ElapsedMilliseconds / 1000} seconds");
+                Console.WriteLine($"Complete {idx} of {allfiles.Count}. Failed {failedCnt}.  {sw.ElapsedMilliseconds / 1000} seconds");
             }
+
+            File.WriteAllText("badmidis.json", JsonConvert.SerializeObject(badMidiNames));
             con.Close();
             return true;
         }
