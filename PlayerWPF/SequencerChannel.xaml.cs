@@ -51,7 +51,7 @@ namespace PlayerWPF
             midiFileRes = _midiFileRes;
             messages = _messages;
             numTicks = _numTicks;
-            channelIdx = _channelIdx;
+            channelIdx = _messages.Key;
             pixelsPerSixteenth = _pixelsPerSixteenth;
             Relayout();
         }

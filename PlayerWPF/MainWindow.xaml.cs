@@ -65,6 +65,10 @@ namespace PlayerWPF
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
             CurrentPosSlider.ValueChanged += CurrentPosSlider_ValueChanged;
 
+            SequencerCtrl.Visibility = Visibility.Visible;
+            PlayingCtrl.Visibility = Visibility.Collapsed;
+            SongsLb.Visibility = Visibility.Collapsed;
+
             //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             Initialize();            
         }

@@ -35,6 +35,7 @@ namespace PlayerWPF
         double CursorPosX { get; set; }
         public string SongKey { get; set; }
         ChordAnalyzer chordAnalyzer;
+        MidiSong midiSong;
         public event PropertyChangedEventHandler? PropertyChanged;
 
         class ChannelCtrl
@@ -84,6 +85,7 @@ namespace PlayerWPF
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             midiFile = e.midiFile;
+            midiSong = new MidiSong(midiFile);
             chordAnalyzer = new ChordAnalyzer(midiFile);
             chordAnalyzer.Analyze();
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
@@ -144,16 +146,19 @@ namespace PlayerWPF
             Random r = new Random();
             for (int i = 0; i < numChannels; i++)
             {
+                var kv = channelGroups.ElementAt(i);
+                byte num = GetProgramNumber(kv);
                 SequencerChannel sequencerChannel = new SequencerChannel();
                 sequencerChannel.Height = 50;
                 sequencerChannel.Layout(i,
-                    channelGroups.ElementAt(i),
+                    kv,
                     midiFile.Resolution,
                     pixelsPerSixteenth,
                     lastTick
                     );
                 Button btn = new Button();
-                btn.Content = $"Channel{i + 1}";
+                string instrument = kv.Key == 9 ? GMInstruments.DrumKits[num] : GMInstruments.Names[num];
+                btn.Content = $"C{kv.Key + 1} {instrument}";
                 btn.Height = 50;
                 ChannelNames.Children.Add(btn);
                 Channels.Children.Add(sequencerChannel);
@@ -162,6 +167,12 @@ namespace PlayerWPF
             }
         }
 
+        byte GetProgramNumber(IEnumerable<MeltySynth.MidiFile.Message> _messages)
+        {
+            MeltySynth.MidiFile.Message var = 
+                _messages.FirstOrDefault((msg) => { return msg.Command == 0xC0; });
+            return var.Data1;
+        }
         void BuildPiano()
         {
             PianoCanvas.Children.Clear();
@@ -219,6 +230,18 @@ namespace PlayerWPF
             Point p = e.GetPosition(TimeStep);
             int ticks = (int)(p.X / pixelsPerTick);
             player.Seek(ticks);
+        }
+
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (e.HorizontalChange != 0)
+            {
+                TopScrollViewer.ScrollToHorizontalOffset(e.HorizontalOffset);
+            }
+            if (e.VerticalChange != 0)
+            {
+                LeftScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+            }
         }
     }
 }

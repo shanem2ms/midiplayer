@@ -22,26 +22,33 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Button Content="{Binding Path=SongKey}" Height="25" />
-                <StackPanel x:Name="ChannelNames" Grid.Row="1" Orientation="Vertical" >
-                </StackPanel>
+                <ScrollViewer x:Name="LeftScrollViewer"
+                    Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                    <StackPanel x:Name="ChannelNames" Orientation="Vertical" />
+                </ScrollViewer>
             </Grid>
-            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Canvas x:Name="TimeStep" MouseDown="TimeStep_MouseDown"
+            <Grid Grid.Column="1" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                    <Grid>
+                        <Canvas x:Name="TimeStep" MouseDown="TimeStep_MouseDown"
                             Height="25" Background="AliceBlue" HorizontalAlignment="Left">
-                    </Canvas>
-                    <Canvas Height="25">
-                        <Line x:Name="currentPosLine" Stroke="Blue" StrokeThickness="5"  
+                        </Canvas>
+                        <Canvas Height="25">
+                            <Line x:Name="currentPosLine" Stroke="Blue" StrokeThickness="5"  
                   Y2="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}},Path=ActualHeight}"
                       Panel.ZIndex="2"/>
-                    </Canvas>
-                    <StackPanel Orientation="Vertical" x:Name="Channels" Grid.Row="1"/>
-                </Grid>
-            </ScrollViewer>
+                        </Canvas>
+                    </Grid>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible"
+                               ScrollChanged="ScrollViewer_ScrollChanged">
+                    <StackPanel Orientation="Vertical" x:Name="Channels" />
+                </ScrollViewer>
+            </Grid>
         </Grid>
         <Canvas x:Name="PianoCanvas" Height="100" Grid.Row="1" SizeChanged="PianoCanvas_SizeChanged" />
     </Grid>

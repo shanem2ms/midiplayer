@@ -10,6 +10,8 @@ using System.Diagnostics;
 using static midilib.MidiDb;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Amazon.S3.Model;
+using SQLitePCL;
 
 namespace midilib
 {
@@ -83,7 +85,7 @@ namespace midilib
                 cmd.CommandText = "BEGIN";
                 await cmd.ExecuteNonQueryAsync();
                 MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid", MeltySynth.MidiFile.InstrumentType.Original);
-                
+
                 Parallel.ForEach(batch, fi =>
                 {
                     var cmdf = con.CreateCommand();
@@ -132,11 +134,11 @@ namespace midilib
                     }
                     return;
 
-                });                
+                });
                 cmd.CommandText = "COMMIT";
                 await cmd.ExecuteNonQueryAsync();
 
-                sw.Stop();                
+                sw.Stop();
                 idx += batchSize;
                 Console.WriteLine($"Complete {idx} of {allfiles.Count}. Failed {failedCnt}.  {sw.ElapsedMilliseconds / 1000} seconds");
             }
@@ -283,6 +285,18 @@ namespace midilib
             "Applause",
             "Gunshot"
         };
+
+        public static Dictionary<int, string> DrumKits =
+            new Dictionary<int, string>()
+            { {  0, "Standard Drum Kit" },
+                {  8, "Room Drum Kit" },
+                {  16, "Power Drum Kit" },
+                {  24, "Electric Drum Kit" },
+                {  25, "Rap TR808 Drums" },
+                {  32, "Jazz Drum Kit" },
+                {  40, "Brush Kit" },
+            };
+
         public static string[] Drums =
         {
             "Acoustic Bass Drum",
