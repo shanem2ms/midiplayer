@@ -8,21 +8,19 @@
         Title="MainWindow" Height="850" Width="1200">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="2" >
+        <Grid Grid.Column="1" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -34,32 +32,45 @@
             <Button Grid.Column="2" Content="Sequencer" Click="Sequencer_Click" />
             <Label Grid.Column="3" Content="{Binding Path=CurrentSong}" />
         </Grid>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Value, ElementName=VolumeSlider, StringFormat=N0}" />
-        <Slider x:Name="VolumeSlider" Grid.Row="2" Grid.Column="1"
-				Orientation="Vertical" Value="100" Minimum="0" Maximum="100">
-        </Slider>
 
-        <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=SearchStr, Mode=TwoWay}" />
-        <ListBox x:Name="SongsLb" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding Path=MidiFiles}"
+        <Grid x:Name="SongsGrid" Grid.Row="1" Grid.Column="1"  >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Path=Value, ElementName=VolumeSlider, StringFormat=N0}" />
+            <Slider x:Name="VolumeSlider" Grid.Row="1" Grid.Column="0"
+				Orientation="Vertical" Value="100" Minimum="0" Maximum="100">
+            </Slider>
+            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=SearchStr, Mode=TwoWay}" />
+            <ListBox Grid.Column="1" Grid.Row="1" x:Name="SongsLb" ItemsSource="{Binding Path=MidiFiles}"
 				 SelectionChanged="Midi_SelectedItemsChanged"
 				 SelectionMode="Single">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <local:Playing x:Name="PlayingCtrl"  Grid.Row="2" Grid.Column="2" Visibility="Collapsed"/>
-        <local:Sequencer x:Name="SequencerCtrl" Grid.Row="2" Grid.Column="2" Visibility="Collapsed"/>
-        <Label Grid.Row="3" Grid.Column="1" Content="Volume"/>
-        <Slider x:Name="CurrentPosSlider" Grid.Row="3" Grid.Column="2" />
-        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" >
-            <Label Content="{Binding CurrentSong}" />
-            <Button Content="&lt;" Width="30" Height="30" Margin="5" Click="Prev_Click" />
-            <Button Content="&gt;" Width="30" Height="30" Margin="5" Click="Next_Click" />
-            <Button Content="P" Width="30" Height="30" Margin="5" Click="PausePlay_Click" />
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                <Label Content="{Binding CurrentSong}" />
+                <Button Content="&lt;" Width="30" Height="30" Margin="5" Click="Prev_Click" />
+                <Button Content="&gt;" Width="30" Height="30" Margin="5" Click="Next_Click" />
+                <Button Content="P" Width="30" Height="30" Margin="5" Click="PausePlay_Click" />
+            </StackPanel>
+        </Grid>
+        <local:Playing x:Name="PlayingCtrl"  Grid.Row="1" Grid.Column="1" Visibility="Collapsed"/>
+        <local:Sequencer x:Name="SequencerCtrl" Grid.Row="1" Grid.Column="1" Visibility="Collapsed"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="Volume"/>
+        <Slider x:Name="CurrentPosSlider" Grid.Row="2" Grid.Column="1" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" >
         </StackPanel>
-        <StackPanel Height="30" Grid.Row="6" Grid.Column="2" Margin="0,10" Orientation="Horizontal">
+        <StackPanel Height="30" Grid.Row="5" Grid.Column="1" Margin="0,10" Orientation="Horizontal">
             <ComboBox ItemsSource="{Binding Path=SoundFonts}"
 					  SelectedItem="{Binding Path=CurrentSoundFont, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>

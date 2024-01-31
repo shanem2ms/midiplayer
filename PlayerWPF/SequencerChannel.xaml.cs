@@ -36,7 +36,7 @@ namespace PlayerWPF
 
         public string InstrumentName { get; set; } = "GM Inst";
         int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
-        IGrouping<byte, MeltySynth.MidiFile.Message> messages;
+        IEnumerable<MeltySynth.MidiFile.Message> messages;
         
         int midiFileRes;
         int pixelsPerSixteenth;
@@ -44,14 +44,14 @@ namespace PlayerWPF
         int channelIdx;
 
         public void Layout(int _channelIdx,
-            IGrouping<byte, MeltySynth.MidiFile.Message> _messages,
+            IEnumerable<MeltySynth.MidiFile.Message> _messages,
             int _midiFileRes, int _pixelsPerSixteenth,
                 int _numTicks)
         {
             midiFileRes = _midiFileRes;
             messages = _messages;
             numTicks = _numTicks;
-            channelIdx = _messages.Key;
+            channelIdx = _channelIdx;
             pixelsPerSixteenth = _pixelsPerSixteenth;
             Relayout();
         }

@@ -67,7 +67,7 @@ namespace PlayerWPF
 
             SequencerCtrl.Visibility = Visibility.Visible;
             PlayingCtrl.Visibility = Visibility.Collapsed;
-            SongsLb.Visibility = Visibility.Collapsed;
+            SongsGrid.Visibility = Visibility.Collapsed;
 
             //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             Initialize();            
@@ -187,7 +187,7 @@ namespace PlayerWPF
         private void Playing_Click(object sender, RoutedEventArgs e)
         {
             PlayingCtrl.Visibility = Visibility.Visible;
-            SongsLb.Visibility = Visibility.Collapsed;
+            SongsGrid.Visibility = Visibility.Collapsed;
             SequencerCtrl.Visibility = Visibility.Collapsed;
         }
 
@@ -195,13 +195,13 @@ namespace PlayerWPF
         {
             SequencerCtrl.Visibility = Visibility.Visible;
             PlayingCtrl.Visibility = Visibility.Collapsed;
-            SongsLb.Visibility = Visibility.Collapsed;
+            SongsGrid.Visibility = Visibility.Collapsed;
         }
 
         private void Songs_Click(object sender, RoutedEventArgs e)
         {
             PlayingCtrl.Visibility = Visibility.Collapsed;
-            SongsLb.Visibility = Visibility.Visible;
+            SongsGrid.Visibility = Visibility.Visible;
             SequencerCtrl.Visibility = Visibility.Collapsed;
         }
 

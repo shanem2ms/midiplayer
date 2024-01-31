@@ -140,8 +140,9 @@ namespace midilib
                 currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
                     MeltySynth.MidiFile.InstrumentType.Original);
                 OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
-                synthEngine.Play(currentPlayerMidifile, false);
+               // synthEngine.Play(currentPlayerMidifile, false);
                 IsPaused = true;
+                synthEngine.Sequencer.Pause(IsPaused);
             }
             catch (Exception e)
             {
@@ -151,7 +152,7 @@ namespace midilib
         public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
         {
             await LoadSong(mfi, pianoMode);
-            synthEngine.Play(currentPlayerMidifile, false);
+            //synthEngine.Play(currentPlayerMidifile, false);
         }
 
         public void PauseOrUnPause(bool pause)

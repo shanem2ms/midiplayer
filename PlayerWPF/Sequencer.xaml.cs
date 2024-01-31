@@ -28,7 +28,6 @@ namespace PlayerWPF
     public partial class Sequencer : UserControl, INotifyPropertyChanged
     {
         MidiPlayer player = App.Player;
-        MeltySynth.MidiFile midiFile;
         const int pixelsPerSixteenth = 10;
         double pixelsPerTick;
         DispatcherTimer dispatcherTimer;
@@ -84,9 +83,8 @@ namespace PlayerWPF
 
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
-            midiFile = e.midiFile;
-            midiSong = new MidiSong(midiFile);
-            chordAnalyzer = new ChordAnalyzer(midiFile);
+            midiSong = new MidiSong(e.midiFile);
+            chordAnalyzer = new ChordAnalyzer(e.midiFile);
             chordAnalyzer.Analyze();
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
@@ -114,13 +112,11 @@ namespace PlayerWPF
             ChannelNames.Children.Clear();
             TimeStep.Children.Clear();
 
-            int sixteenthRes = midiFile.Resolution / 4;
+            int sixteenthRes = midiSong.Resolution / 4;
             pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
-            int lastTick = midiFile.Messages.Last().Ticks;
-            long lengthSixteenths = lastTick / sixteenthRes;
             int height = (int)TimeStep.Height;
 
-            for (int i = 0; i < lengthSixteenths; i += 4)
+            for (int i = 0; i < midiSong.LengthSixteenths; i += 4)
             {
                 Line l = new Line();
                 l.X1 = i * pixelsPerSixteenth - 1;
@@ -130,35 +126,30 @@ namespace PlayerWPF
                 l.Stroke = Brushes.Black;
                 TimeStep.Children.Add(l);
             }
-            for (int i = 0; i < lengthSixteenths; i += 16)
+            for (int i = 0; i < midiSong.LengthSixteenths; i += 16)
             {
                 TextBlock textBlock = new TextBlock();
                 textBlock.Text = (i / 16 + 1).ToString();
                 TimeStep.Children.Add(textBlock);
                 Canvas.SetLeft(textBlock, i * pixelsPerSixteenth);
             }
-            TimeStep.Width = lengthSixteenths * pixelsPerSixteenth;
-
-            var channelGroups = midiFile.Messages.Where(m => m.Channel < 16).GroupBy(m => m.Channel).
-                OrderBy(g => g.Key);
-            int numChannels = channelGroups.Count();
-
+            TimeStep.Width = midiSong.LengthSixteenths * pixelsPerSixteenth;
+            
             Random r = new Random();
-            for (int i = 0; i < numChannels; i++)
+            for (int i = 0; i < midiSong.Tracks.Length; i++)
             {
-                var kv = channelGroups.ElementAt(i);
-                byte num = GetProgramNumber(kv);
+                MidiSong.TrackInfo track = midiSong.Tracks[i];
                 SequencerChannel sequencerChannel = new SequencerChannel();
                 sequencerChannel.Height = 50;
                 sequencerChannel.Layout(i,
-                    kv,
-                    midiFile.Resolution,
+                    track.Messages,
+                    midiSong.Resolution,
                     pixelsPerSixteenth,
-                    lastTick
+                    midiSong.LengthTicks
                     );
                 Button btn = new Button();
-                string instrument = kv.Key == 9 ? GMInstruments.DrumKits[num] : GMInstruments.Names[num];
-                btn.Content = $"C{kv.Key + 1} {instrument}";
+                
+                btn.Content = $"C{track.ChannelNum+1} {track.Instrument}";
                 btn.Height = 50;
                 ChannelNames.Children.Add(btn);
                 Channels.Children.Add(sequencerChannel);
@@ -242,6 +233,11 @@ namespace PlayerWPF
             {
                 LeftScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
             }
+        }
+
+        private void PlayBtn_Click(object sender, RoutedEventArgs e)
+        {
+            player.SynthEngine.Play(midiSong.GetMidiFile(), false);
         }
     }
 }

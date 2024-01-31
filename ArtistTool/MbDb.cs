@@ -66,12 +66,12 @@ namespace ArtistTool
             filteredArtists = Artists.Where(a => a.namelwr.Contains(filterlwr)).ToList();
         }
         public List<MbArtist> Artists => artists;
-        HashSet<string> wordHash = null;
+        public HashSet<string> Common100 = null;
 
         public void LoadArtists()
         {
             string[] allwords = File.ReadAllLines("20kwords.txt");
-            wordHash = allwords.Take(100).ToHashSet();
+            Common100 = allwords.Take(100).ToHashSet();
 
             SQLiteConnection sqlite_conn = null;
             // Create a new database connection:
@@ -104,9 +104,9 @@ namespace ArtistTool
                 foreach (string wrd in words)
                 {
                     string word = wrd.ToLower();
-                    if (wordHash.Contains(word))
+                    if (Common100.Contains(word))
                         continue;
-                    if (word.EndsWith('s') && wordHash.Contains(word.Substring(0, word.Length-1)))
+                    if (word.EndsWith('s') && Common100.Contains(word.Substring(0, word.Length-1)))
                         continue;
                     List<MbArtist> artistw;
                     if (!artistWords.TryGetValue(word, out artistw))
@@ -129,7 +129,7 @@ namespace ArtistTool
             Stopwatch sw = new Stopwatch();
             sw.Start();
             string[] allwords = File.ReadAllLines("20kwords.txt");
-            wordHash = allwords.Take(100).ToHashSet();
+            Common100 = allwords.Take(100).ToHashSet();
 
             SQLiteConnection sqlite_conn = null;
             // Create a new database connection:
@@ -172,9 +172,9 @@ namespace ArtistTool
                     foreach (string wrd in words)
                     {
                         string word = wrd.ToLower();
-                        if (wordHash.Contains(word))
+                        if (Common100.Contains(word))
                             continue;
-                        if (word.EndsWith('s') && wordHash.Contains(word.Substring(0, word.Length - 1)))
+                        if (word.EndsWith('s') && Common100.Contains(word.Substring(0, word.Length - 1)))
                             continue;
                         HashSet<int> titlew;
                         if (!titleWords.TryGetValue(word, out titlew))
