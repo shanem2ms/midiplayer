@@ -41,6 +41,12 @@ namespace MeltySynth
             Debug.Assert(messages != null);
         }
 
+
+        public MidiFile(Message[] _msgs, int resolution)
+        {
+            Resolution = resolution;
+            messages = _msgs;
+        }
         /// <summary>
         /// Loads a MIDI file from the stream.
         /// </summary>
@@ -458,6 +464,9 @@ namespace MeltySynth
                 if (message.Type == MessageType.TempoChange)
                 {
                     tempo = message.Tempo;
+                    message.Time = currentTime;
+                    message.Ticks = currentTick;
+                    mergedMessages.Add(message);
                 }
                 else
                 {
