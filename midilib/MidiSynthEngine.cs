@@ -43,7 +43,7 @@ namespace midilib
             }
         }
         public async Task<bool> Initialize(string cacheFile)
-        {                        
+        {
             SoundFont sf = new SoundFont(cacheFile);
             SynthesizerSettings settings = new SynthesizerSettings(format.SampleRate);
             //settings.EnableReverbAndChorus = false;
@@ -54,16 +54,28 @@ namespace midilib
             userSynthesizer.MasterVolume = 1.0f;
             return true;
         }
-        public void Play(MeltySynth.MidiFile midiFile, bool startPaused)
+        public void Play(MeltySynth.MidiFile midiFile, bool startPaused, int currentTicks)
         {
             lock (mutex)
             {
-                sequencer.Play(midiFile, startPaused);
+                sequencer.Play(midiFile, startPaused, currentTicks);
                 if (midiOutSequencer != null)
                 {
                     midiOutSequencer.Play(midiFile, startPaused);
                 }
             }
+        }
+        public bool Pause(bool pause)
+        {
+            bool oldState = sequencer.IsPaused;
+            if (pause != sequencer.IsPaused)
+            {
+                lock (mutex)
+                {
+                    sequencer.Pause(pause);
+                }
+            }
+            return oldState;
         }
 
         public void Stop()
@@ -103,12 +115,12 @@ namespace midilib
             {
                 float v = buffer[i];
                 maxval = MathF.Max(maxval, MathF.Abs(v));
-                total += v * v; 
+                total += v * v;
             }
             return MathF.Sqrt(total /= count);
         }
 
-        float[] tempBuffer = null; 
+        float[] tempBuffer = null;
         public int Read(float[] buffer, int offset, int count)
         {
             if (tempBuffer == null || tempBuffer.Length < count)
@@ -121,7 +133,7 @@ namespace midilib
                 userSynthesizer.RenderInterleaved(tempBuffer);
                 for (int i = 0; i < count; ++i)
                 {
-                    buffer[i+offset] += tempBuffer[i];
+                    buffer[i + offset] += tempBuffer[i];
                 }
             }
 

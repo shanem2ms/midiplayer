@@ -36,6 +36,7 @@ namespace PlayerWPF
         ChordAnalyzer chordAnalyzer;
         MidiSong midiSong;
         public event PropertyChangedEventHandler? PropertyChanged;
+        int currentTicks = 0;
 
         class ChannelCtrl
         {
@@ -101,10 +102,11 @@ namespace PlayerWPF
         }
         private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
         {
+            currentTicks = e.ticks;
             double pixels = pixelsPerTick * e.ticks;
             CursorPosX = pixels;
         }
-       
+
         void Relayout()
         {
             channelCtrls.Clear();
@@ -134,7 +136,7 @@ namespace PlayerWPF
                 Canvas.SetLeft(textBlock, i * pixelsPerSixteenth);
             }
             TimeStep.Width = midiSong.LengthSixteenths * pixelsPerSixteenth;
-            
+
             Random r = new Random();
             for (int i = 0; i < midiSong.Tracks.Length; i++)
             {
@@ -148,8 +150,8 @@ namespace PlayerWPF
                     midiSong.LengthTicks
                     );
                 Button btn = new Button();
-                
-                btn.Content = $"C{track.ChannelNum+1} {track.Instrument}";
+
+                btn.Content = $"C{track.ChannelNum + 1} {track.Instrument}";
                 btn.Height = 50;
                 ChannelNames.Children.Add(btn);
                 Channels.Children.Add(sequencerChannel);
@@ -158,12 +160,6 @@ namespace PlayerWPF
             }
         }
 
-        byte GetProgramNumber(IEnumerable<MeltySynth.MidiFile.Message> _messages)
-        {
-            MeltySynth.MidiFile.Message var = 
-                _messages.FirstOrDefault((msg) => { return msg.Command == 0xC0; });
-            return var.Data1;
-        }
         void BuildPiano()
         {
             PianoCanvas.Children.Clear();
@@ -220,7 +216,9 @@ namespace PlayerWPF
         {
             Point p = e.GetPosition(TimeStep);
             int ticks = (int)(p.X / pixelsPerTick);
-            player.Seek(ticks);
+            currentTicks = ticks;
+            double pixels = pixelsPerTick * ticks;
+            CursorPosX = pixels;
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -237,7 +235,7 @@ namespace PlayerWPF
 
         private void PlayBtn_Click(object sender, RoutedEventArgs e)
         {
-            player.SynthEngine.Play(midiSong.GetMidiFile(), false);
+            player.SynthEngine.Play(midiSong.GetMidiFile(), false, currentTicks);
         }
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
