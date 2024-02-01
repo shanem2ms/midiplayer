@@ -123,7 +123,9 @@ namespace midilib
         {
             var messages = Tracks.SelectMany(t => t.Messages).ToList();
             messages.Sort((a, b) => a.Ticks - b.Ticks);
-            return new MidiFile(messages.ToArray(), Resolution);
+            var msgarray = messages.ToArray();
+            SetMessageTimes(msgarray);
+            return new MidiFile(msgarray, Resolution);
         }
 
         public TrackInfo[] Tracks; 
@@ -168,5 +170,34 @@ namespace midilib
                 _messages.FirstOrDefault((msg) => { return msg.Command == 0xC0; });
             return var.Data1;
         }
+
+        void SetMessageTimes(Message[] messages)
+        {
+            var currentTick = 0;
+            var currentTime = TimeSpan.Zero;
+
+            var tempo = 120.0;
+
+            for (int idx = 0; idx < messages.Length; ++idx)
+            {
+                var prevTick = idx > 0 ? messages[idx - 1].Ticks : 0;
+                var deltaTick = messages[idx].Ticks - prevTick;
+                var deltaTime = GetTimeSpanFromSeconds(60.0 / (Resolution * tempo) * deltaTick);
+
+                currentTick += deltaTick;
+                currentTime += deltaTime;
+
+                if (messages[idx].Type == MessageType.TempoChange)
+                    tempo = messages[idx].Tempo;
+
+                messages[idx].Time = currentTime;
+            }
+        }
+
+        internal static TimeSpan GetTimeSpanFromSeconds(double value)
+        {
+            return new TimeSpan((long)(TimeSpan.TicksPerSecond * value));
+        }
+
     }
 }

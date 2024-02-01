@@ -239,5 +239,10 @@ namespace PlayerWPF
         {
             player.SynthEngine.Play(midiSong.GetMidiFile(), false);
         }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            player.SynthEngine.Stop();
+        }
     }
 }

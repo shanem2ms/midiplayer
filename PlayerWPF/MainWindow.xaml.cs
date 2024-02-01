@@ -89,7 +89,6 @@ namespace PlayerWPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));
             return true;
         }
-
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             currentSongTime = e.midiFile.Length;
