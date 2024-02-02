@@ -4,12 +4,19 @@ using System.Text;
 using System.Linq;
 using MeltySynth;
 using static MeltySynth.MidiFile;
+using System.Diagnostics;
+using System.Net.Http.Headers;
 
 namespace midilib
 {
     public class MidiSong
     {
 
+        public struct PitchBend
+        {
+            public int offsetTicks;
+            public int pitchOffset;
+        }
         public class Note
         {
             public Note(int start, int length, byte not, byte vel)
@@ -23,7 +30,8 @@ namespace midilib
             public int lengthTicks;
             public byte note;
             public byte velocity;
-            
+
+            public List<PitchBend> pitchBends;
         }
         public class TrackInfo
         {
@@ -33,6 +41,19 @@ namespace midilib
 
             MidiFile.Message[] otherMessages;
             public Note[] Notes;
+
+            public enum TrackTypeDef
+            {
+                Drums,
+                Arpeggio,
+                Chords,
+                Vocals,
+                Bass,
+                Empty
+            }
+
+            TrackTypeDef trackType;
+            public TrackTypeDef TrackType => trackType;
 
             public MidiFile.Message[] Messages { get
                 {
@@ -63,47 +84,122 @@ namespace midilib
                 BuildNotes(messages);
             }
 
+            public void AnalyzeForType(int resolution)
+            {
+                if (ChannelNum == 9)
+                    trackType = TrackTypeDef.Drums;
+                else if (Notes.Length > 0)
+                {
+                    double a = Notes.Select(n => (int)n.note).Average();
+                    if (a < 45)
+                        trackType = TrackTypeDef.Bass;
+                    else
+                    {
+                        FindMeasurePatters(resolution);
+                        trackType = TrackTypeDef.Chords;
+                    }
+                }
+                else
+                    trackType = TrackTypeDef.Empty;
+            }
+
+            class Hash
+            {
+                ulong hashedValue = 3074457345618258791ul;
+                public ulong HashVal => hashedValue;
+
+                public void AddVal(int val)
+                {
+                    hashedValue += (ulong)val;
+                    hashedValue *= 3074457345618258799ul;
+                }
+            }
+            void FindMeasurePatters(int resolution)
+            {
+                int measureTicks = resolution * 4;
+
+                var measureNotes = Notes.GroupBy(n => n.startTicks / measureTicks);
+                Dictionary<ulong, int> measureHashes = new Dictionary<ulong, int>();
+                foreach (var measure in measureNotes)
+                {
+                    Hash h = new Hash();
+                    int measureOffsetTicks = measure.Key * measureTicks;
+
+                    foreach (var note in measure)
+                    {
+                        int relativeTick = note.startTicks - measureOffsetTicks;
+                        h.AddVal(relativeTick);
+                        h.AddVal(note.note);
+                        h.AddVal(note.lengthTicks);
+                    }
+
+                    int count;
+                    if (measureHashes.TryGetValue(h.HashVal, out count))
+                    {
+                        measureHashes[h.HashVal] = count + 1;
+                    }
+                    else
+                    {
+                        measureHashes[h.HashVal] = 1;
+                    }
+                }
+            }
+
             public void Quantize(int qticks)
             {
                 for (int i = 0; i < Notes.Length; ++i)
                 {
                     Notes[i].startTicks = ((Notes[i].startTicks + qticks/2) / qticks) * qticks;
+                    Notes[i].lengthTicks = ((Notes[i].lengthTicks + qticks / 2) / qticks) * qticks;
                 }
             }
 
             void BuildNotes(MidiFile.Message[] messages)
             {
-                int[] noteOnTick = new int[127];
-                int[] noteOnVelocity = new int[127];
+                Note[] noteOnTick = new Note[127];
                 for (int j = 0; j < noteOnTick.Length; j++)
-                    noteOnTick[j] = -1;
+                    noteOnTick[j] = null;
                 List<Message> othMessages = new List<Message>();
                 List<Note> notes = new List<Note>();
+                int mostRecentNote = -1;
                 foreach (var msg in messages)
                 {
                     if ((msg.Command & 0xF0) == 0x90 &&
                         msg.Data2 > 0)
                     {
-                        if (noteOnTick[msg.Data1] == -1)
+                        if (noteOnTick[msg.Data1] == null)
                         {
-                            noteOnTick[msg.Data1] = msg.Ticks;
-                            noteOnVelocity[msg.Data1] = msg.Data2;
+                            mostRecentNote= msg.Data1;
+                            noteOnTick[msg.Data1] = new Note(msg.Ticks, 0, msg.Data1, msg.Data2);
                         }
                     }
                     else if ((msg.Command & 0xF0) == 0x80 ||
                         ((msg.Command & 0xF0) == 0x90 &&
                         msg.Data2 == 0))
                     {
-                        int startTicks = noteOnTick[msg.Data1];
                         int endTicks = msg.Ticks;
-                        noteOnTick[msg.Data1] = -1;
-
-                        if (startTicks >= 0 && msg.Data1 >= GMInstruments.MidiStartIdx &&
-                            msg.Data1 < GMInstruments.MidiEndIdx)
+                        if (noteOnTick[msg.Data1] != null)
                         {
-                            Note note = new Note(startTicks, endTicks - startTicks, msg.Data1, (byte)noteOnVelocity[msg.Data1]);
-                            notes.Add(note);
+                            noteOnTick[msg.Data1].lengthTicks = endTicks - noteOnTick[msg.Data1].startTicks;
+                            notes.Add(noteOnTick[msg.Data1]);
+                            noteOnTick[msg.Data1] = null;
                         }
+                    }
+                    else if ((msg.Command & 0xE0) == 0xE0)
+                    {
+                        int pitchBend = ((msg.Data1 | (msg.Data2 << 7)) - 8192);
+                        if (mostRecentNote >= 0 && noteOnTick[mostRecentNote] != null)
+                        {
+                            if (noteOnTick[mostRecentNote].pitchBends == null)
+                                noteOnTick[mostRecentNote].pitchBends = new List<PitchBend>();
+                            noteOnTick[mostRecentNote].pitchBends.Add(new PitchBend()
+                            {
+                                offsetTicks = msg.Ticks -
+                                noteOnTick[mostRecentNote].startTicks,
+                                pitchOffset = pitchBend
+                            });
+                        }
+                        othMessages.Add(msg);
                     }
                     else
                         othMessages.Add(msg);
@@ -160,7 +256,8 @@ namespace midilib
 
             foreach (var track in Tracks)
             {
-                track.Quantize(midiFile.Resolution / 2);
+                track.Quantize(midiFile.Resolution / 4);
+                track.AnalyzeForType(midiFile.Resolution);
             }
         }
 

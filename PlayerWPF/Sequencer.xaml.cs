@@ -42,23 +42,26 @@ namespace PlayerWPF
         {
             bool expanded = false;
             public ChannelCtrl(Button channelBtn,
+                StackPanel sp,
                 SequencerChannel seq)
             {
                 ChannelBtn = channelBtn;
                 Seq = seq;
+                Sp = sp;
                 ChannelBtn.Click += ChannelBtn_Click;
             }
 
             private void ChannelBtn_Click(object sender, RoutedEventArgs e)
             {
                 if (!expanded)
-                    ChannelBtn.Height = Seq.Height = 500;
+                    Sp.Height = Seq.Height = 500;
                 else
-                    ChannelBtn.Height = Seq.Height = 50;
+                    Sp.Height = Seq.Height = 50;
 
                 expanded = !expanded;
             }
 
+            public StackPanel Sp;
             public Button ChannelBtn;
             public SequencerChannel Seq;
         }
@@ -144,19 +147,24 @@ namespace PlayerWPF
                 SequencerChannel sequencerChannel = new SequencerChannel();
                 sequencerChannel.Height = 50;
                 sequencerChannel.Layout(i,
-                    track.Messages,
+                    track,
                     midiSong.Resolution,
                     pixelsPerSixteenth,
                     midiSong.LengthTicks
                     );
+                StackPanel sp = new StackPanel();
+                sp.Orientation = Orientation.Vertical;
+                sp.Height = 50;
                 Button btn = new Button();
-
                 btn.Content = $"C{track.ChannelNum + 1} {track.Instrument}";
-                btn.Height = 50;
-                ChannelNames.Children.Add(btn);
+                sp.Children.Add(btn);
+                Label lbl = new Label();
+                lbl.Content = track.TrackType.ToString();
+                sp.Children.Add(lbl);
+                ChannelNames.Children.Add(sp);
                 Channels.Children.Add(sequencerChannel);
                 channelCtrls.Add(
-                    new ChannelCtrl(btn, sequencerChannel));
+                    new ChannelCtrl(btn, sp, sequencerChannel));
             }
         }
 
@@ -242,5 +250,45 @@ namespace PlayerWPF
         {
             player.SynthEngine.Stop();
         }
+
+
+        Dictionary<Key, int> KeyNoteDict = new Dictionary<Key, int>()
+        {
+            { Key.A, 0 },
+            { Key.W, 1 },
+            { Key.S, 2 },
+            { Key.E, 3 },
+            { Key.D, 4 },
+            { Key.F, 5 },
+            { Key.T, 6 },
+            { Key.G, 7 },
+            { Key.Y, 8 },
+            { Key.H, 9 },
+            { Key.U, 10 },
+            { Key.J, 11 },
+            { Key.K, 12 },
+            { Key.O, 13 },
+            { Key.L, 14 }
+        };
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            int val;
+            if (KeyNoteDict.TryGetValue(e.Key, out val))
+            {
+                player.SynthEngine.NoteOn(60 + val, 100);
+            }
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            int val;
+            if (KeyNoteDict.TryGetValue(e.Key, out val))
+            {
+                player.SynthEngine.NoteOff(60 + val);
+            }
+            base.OnKeyUp(e);
+        }
+
     }
 }

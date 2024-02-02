@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static midilib.MidiSong;
 
 namespace PlayerWPF
 {
@@ -36,20 +37,20 @@ namespace PlayerWPF
 
         public string InstrumentName { get; set; } = "GM Inst";
         int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
-        IEnumerable<MeltySynth.MidiFile.Message> messages;
-        
+        MidiSong.TrackInfo trackInfo;
+
         int midiFileRes;
         int pixelsPerSixteenth;
         int numTicks;
         int channelIdx;
 
         public void Layout(int _channelIdx,
-            IEnumerable<MeltySynth.MidiFile.Message> _messages,
+            MidiSong.TrackInfo _trackInfo,
             int _midiFileRes, int _pixelsPerSixteenth,
                 int _numTicks)
         {
             midiFileRes = _midiFileRes;
-            messages = _messages;
+            trackInfo = _trackInfo;
             numTicks = _numTicks;
             channelIdx = _channelIdx;
             pixelsPerSixteenth = _pixelsPerSixteenth;
@@ -79,36 +80,25 @@ namespace PlayerWPF
             for (int j = 0; j < noteOnTick.Length; j++)
                 noteOnTick[j] = -1;
 
-            foreach (var msg in messages)
+            foreach (var note in trackInfo.Notes)
             {
-                if ((msg.Command & 0xF0) == 0x90 &&
-                    msg.Data2 > 0)
-                {
-                    if (noteOnTick[msg.Data1] == -1)
-                        noteOnTick[msg.Data1] = msg.Ticks;
-                }
-                else if ((msg.Command & 0xF0) == 0x80 ||
-                    ((msg.Command & 0xF0) == 0x90 &&
-                    msg.Data2 == 0))
-                {
-                    int startTicks = noteOnTick[msg.Data1];
-                    int endTicks = msg.Ticks;
-                    noteOnTick[msg.Data1] = -1;
 
-                    if (startTicks >= 0 && msg.Data1 >= GMInstruments.MidiStartIdx &&
-                        msg.Data1 < GMInstruments.MidiEndIdx)
-                    {
-                        double Y = (GMInstruments.MidiEndIdx - msg.Data1 - 1) / (double)gmNoteRange * channelHeight;
+                int startTicks = note.startTicks;
+                int endTicks = note.startTicks + note.lengthTicks;
 
-                        Line l = new Line();
-                        l.X1 = startTicks * pixelsPerTick;
-                        l.X2 = endTicks * pixelsPerTick;
-                        l.Y1 = Y;
-                        l.Y2 = Y;
-                        l.StrokeThickness = YnoteSizePixels;
-                        l.Stroke = Brushes.Blue;
-                        mainCanvas.Children.Add(l);
-                    }
+                if (note.note >= GMInstruments.MidiStartIdx &&
+                    note.note < GMInstruments.MidiEndIdx)
+                {
+                    double Y = (GMInstruments.MidiEndIdx - note.note - 1) / (double)gmNoteRange * channelHeight;
+
+                    Line l = new Line();
+                    l.X1 = startTicks * pixelsPerTick;
+                    l.X2 = endTicks * pixelsPerTick;
+                    l.Y1 = Y;
+                    l.Y2 = Y;
+                    l.StrokeThickness = YnoteSizePixels;
+                    l.Stroke = Brushes.Blue;
+                    mainCanvas.Children.Add(l);
                 }
             }
         }
