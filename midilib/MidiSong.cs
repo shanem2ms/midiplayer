@@ -35,13 +35,15 @@ namespace midilib
         }
         public class TrackInfo
         {
-            public int ChannelNum;
+            public int ChannelNum { get; set; }
             public int ProgramNum;
-            public string Instrument;
+            public string Instrument { get; set; }
 
             MidiFile.Message[] otherMessages;
             public Note[] Notes;
-
+            public float UniqueMeasures = -1;
+            public double AverageNoteLength = 0;
+            public double AverageNotePitch = 0;
             public enum TrackTypeDef
             {
                 Drums,
@@ -84,18 +86,20 @@ namespace midilib
                 BuildNotes(messages);
             }
 
-            public void AnalyzeForType(int resolution)
+            public void AnalyzeForType(int resolution, int songLength)
             {
                 if (ChannelNum == 9)
                     trackType = TrackTypeDef.Drums;
                 else if (Notes.Length > 0)
                 {
-                    double a = Notes.Select(n => (int)n.note).Average();
-                    if (a < 45)
+                    AverageNotePitch = Notes.Select(n => (int)n.note).Average();
+                    AverageNoteLength = Notes.Select(n => (int)n.lengthTicks).Average();
+                    AverageNoteLength /= resolution;
+                    if (AverageNotePitch < 45)
                         trackType = TrackTypeDef.Bass;
                     else
                     {
-                        FindMeasurePatters(resolution);
+                        FindMeasurePatterns(resolution, songLength);
                         trackType = TrackTypeDef.Chords;
                     }
                 }
@@ -114,12 +118,13 @@ namespace midilib
                     hashedValue *= 3074457345618258799ul;
                 }
             }
-            void FindMeasurePatters(int resolution)
+            void FindMeasurePatterns(int resolution, int songLength)
             {
                 int measureTicks = resolution * 4;
-
+                int measuresInSong = songLength / measureTicks;
                 var measureNotes = Notes.GroupBy(n => n.startTicks / measureTicks);
                 Dictionary<ulong, int> measureHashes = new Dictionary<ulong, int>();
+                int totalMeasures = measureNotes.Count();
                 foreach (var measure in measureNotes)
                 {
                     Hash h = new Hash();
@@ -143,6 +148,9 @@ namespace midilib
                         measureHashes[h.HashVal] = 1;
                     }
                 }
+
+                int totalBuckets = measureHashes.Keys.Count();
+                UniqueMeasures = (float)totalBuckets / (float)measuresInSong;
             }
 
             public void Quantize(int qticks)
@@ -257,7 +265,7 @@ namespace midilib
             foreach (var track in Tracks)
             {
                 track.Quantize(midiFile.Resolution / 4);
-                track.AnalyzeForType(midiFile.Resolution);
+                track.AnalyzeForType(midiFile.Resolution, LengthTicks);
             }
         }
 

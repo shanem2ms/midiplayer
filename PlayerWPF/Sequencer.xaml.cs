@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -38,35 +40,48 @@ namespace PlayerWPF
         public event PropertyChangedEventHandler? PropertyChanged;
         int currentTicks = 0;
 
-        class ChannelCtrl
+        public class ChannelCtrl : INotifyPropertyChanged
         {
             bool expanded = false;
-            public ChannelCtrl(Button channelBtn,
-                StackPanel sp,
+            MidiSong.TrackInfo track;
+            public double Height { get => expanded ? 600 : 50; }
+            public int ChannelNum => track.ChannelNum;
+            public string Instrument => track.Instrument;
+
+            public float Unique => track.UniqueMeasures;
+            public double AverageNoteLength => track.AverageNoteLength;
+            public double AverageNotePitch => track.AverageNotePitch;
+
+            public SolidColorBrush Background { get; }
+            public ChannelCtrl(MidiSong.TrackInfo _track,
                 SequencerChannel seq)
             {
-                ChannelBtn = channelBtn;
+                track = _track;
                 Seq = seq;
-                Sp = sp;
-                ChannelBtn.Click += ChannelBtn_Click;
+
+                int rsub = ((track.ChannelNum + 1) & 1) != 0 ? 25 : 0;
+                int gsub = (((track.ChannelNum + 1) >> 1) & 1) != 0 ? 25 : 0;
+                int bsub = (((track.ChannelNum + 1) >> 2) & 1) != 0 ? 25 : 0;
+                Background = new SolidColorBrush(
+                    Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
+                seq.Background = Background;
             }
 
-            private void ChannelBtn_Click(object sender, RoutedEventArgs e)
+            public void ExpandCollapse()
             {
-                if (!expanded)
-                    Sp.Height = Seq.Height = 500;
-                else
-                    Sp.Height = Seq.Height = 50;
-
-                expanded = !expanded;
+                expanded = !expanded;                
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Height)));
+                Seq.Height = Height;
             }
 
-            public StackPanel Sp;
-            public Button ChannelBtn;
             public SequencerChannel Seq;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
         }
 
-        List<ChannelCtrl> channelCtrls = new List<ChannelCtrl>();
+
+        List<ChannelCtrl> channelCtrls = null;
+        public IEnumerable<ChannelCtrl> ChannelCtrls => channelCtrls;
 
         public Sequencer()
         {
@@ -112,9 +127,8 @@ namespace PlayerWPF
 
         void Relayout()
         {
-            channelCtrls.Clear();
+            channelCtrls = new List<ChannelCtrl>();
             Channels.Children.Clear();
-            ChannelNames.Children.Clear();
             TimeStep.Children.Clear();
 
             int sixteenthRes = midiSong.Resolution / 4;
@@ -140,7 +154,6 @@ namespace PlayerWPF
             }
             TimeStep.Width = midiSong.LengthSixteenths * pixelsPerSixteenth;
 
-            Random r = new Random();
             for (int i = 0; i < midiSong.Tracks.Length; i++)
             {
                 MidiSong.TrackInfo track = midiSong.Tracks[i];
@@ -152,20 +165,12 @@ namespace PlayerWPF
                     pixelsPerSixteenth,
                     midiSong.LengthTicks
                     );
-                StackPanel sp = new StackPanel();
-                sp.Orientation = Orientation.Vertical;
-                sp.Height = 50;
-                Button btn = new Button();
-                btn.Content = $"C{track.ChannelNum + 1} {track.Instrument}";
-                sp.Children.Add(btn);
-                Label lbl = new Label();
-                lbl.Content = track.TrackType.ToString();
-                sp.Children.Add(lbl);
-                ChannelNames.Children.Add(sp);
-                Channels.Children.Add(sequencerChannel);
                 channelCtrls.Add(
-                    new ChannelCtrl(btn, sp, sequencerChannel));
+                    new ChannelCtrl(track, sequencerChannel));
+                Channels.Children.Add(sequencerChannel);
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelCtrls)));
         }
 
         void BuildPiano()
@@ -290,5 +295,14 @@ namespace PlayerWPF
             base.OnKeyUp(e);
         }
 
+        private void ChannelExpand_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                ChannelCtrl ctrl = (ChannelCtrl)btn.DataContext;
+                ctrl.ExpandCollapse();
+            }
+        }
     }
+
 }

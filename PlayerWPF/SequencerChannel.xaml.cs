@@ -70,11 +70,6 @@ namespace PlayerWPF
             double YnoteSizePixels = (1.0) / (double)gmNoteRange * channelHeight;
 
             mainCanvas.Width = lengthSixteenths * pixelsPerSixteenth;
-            int rsub = ((channelIdx + 1) & 1) != 0 ? 25 : 0;
-            int gsub = (((channelIdx + 1) >> 1) & 1) != 0 ? 25 : 0;
-            int bsub = (((channelIdx + 1) >> 2) & 1) != 0 ? 25 : 0;
-            mainCanvas.Background = new SolidColorBrush(
-                Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
 
             int[] noteOnTick = new int[127];
             for (int j = 0; j < noteOnTick.Length; j++)

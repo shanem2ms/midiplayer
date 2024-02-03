@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:midilib="clr-namespace:midilib;assembly=midilib"
              xmlns:local="clr-namespace:PlayerWPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -15,6 +16,7 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid MinWidth="100" >
@@ -25,10 +27,25 @@
                 <Button Content="{Binding Path=SongKey}" Height="25" />
                 <ScrollViewer x:Name="LeftScrollViewer"
                     Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
-                    <StackPanel x:Name="ChannelNames" Orientation="Vertical" />
+                    <ItemsControl ItemsSource="{Binding Path=ChannelCtrls}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="local:ChannelCtrl">
+                                <StackPanel Orientation="Vertical" Height="{Binding Height}"                                            
+                                            Background="{Binding Background}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="{Binding ChannelNum}" Click="ChannelExpand_Click"/>
+                                        <Label Content="{Binding Instrument}" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
+                                    <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
             </Grid>
-            <Grid Grid.Column="1" >
+            <GridSplitter Grid.Column="1" Width="5" VerticalAlignment="Stretch" Background="DarkBlue" />
+            <Grid Grid.Column="2" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
