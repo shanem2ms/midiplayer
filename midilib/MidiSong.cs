@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using Amazon.S3.Model;
 using MeltySynth;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static MeltySynth.MidiFile;
-using System.Diagnostics;
-using System.Net.Http.Headers;
-using Microsoft.Win32.SafeHandles;
-using Amazon.S3.Model;
 
 namespace midilib
 {
@@ -49,6 +45,8 @@ namespace midilib
         {
             public int ChannelNum { get; set; }
             public int ProgramNum;
+            public int Volume;
+            public int Pan;
             public string Instrument { get; set; }
 
             MidiFile.Message[] otherMessages;
@@ -82,10 +80,9 @@ namespace midilib
                 }
             }
 
-            public TrackInfo(int channelNum, int programNum, string instrument, Message[] messages)
+            public TrackInfo(int channelNum, string instrument, Message[] messages)
             {
                 ChannelNum = channelNum;
-                ProgramNum = programNum;
                 Instrument = instrument;
                 BuildNotes(messages);
             }
@@ -222,7 +219,7 @@ namespace midilib
                     {
                         if (noteOnTick[msg.Data1] == null)
                         {
-                            mostRecentNote= msg.Data1;
+                            mostRecentNote = msg.Data1;
                             noteOnTick[msg.Data1] = new Note(msg.Ticks, 0, msg.Data1, msg.Data2);
                         }
                     }
@@ -253,6 +250,17 @@ namespace midilib
                             });
                         }
                         othMessages.Add(msg);
+                    }
+                    else if ((msg.Command & 0xC0) == 0xC0)
+                        ProgramNum = msg.Data1;
+                    else if ((msg.Command & 0xB0) == 0xB0)
+                    {
+                        if (msg.Data1 == 7)
+                            Volume = msg.Data2;
+                        else if (msg.Data1 == 10)
+                            Pan = msg.Data2;
+                        else
+                            othMessages.Add(msg);
                     }
                     else
                         othMessages.Add(msg);
@@ -303,7 +311,7 @@ namespace midilib
                     GMInstruments.DrumKits.TryGetValue(num, out instrument);
                 else
                     instrument = GMInstruments.Names[num];
-                tracks.Add(new TrackInfo( kv.Key, num, instrument, kv.ToArray()));
+                tracks.Add(new TrackInfo( kv.Key, instrument, kv.ToArray()));
             }
             Tracks = tracks.ToArray();
 
@@ -312,6 +320,16 @@ namespace midilib
                 track.Quantize(midiFile.Resolution / 4);
                 track.AnalyzeForType(midiFile.Resolution, LengthTicks);
             }
+        }
+
+
+        void ConvertToMelody()
+        {
+            TrackInfo ti = Tracks.FirstOrDefault(t => t.TrackType == TrackTypeDef.MainMelody);
+            if (ti == null)
+                return;
+
+            int firstMelodyTick = ti.Notes[0].startTicks;
         }
 
         byte GetProgramNumber(IEnumerable<MeltySynth.MidiFile.Message> _messages)
