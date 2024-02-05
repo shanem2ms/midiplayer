@@ -51,6 +51,10 @@ namespace PlayerWPF
             public float Unique => track.UniqueMeasures;
             public double AverageNoteLength => track.AverageNoteLength;
             public double AverageNotePitch => track.AverageNotePitch;
+            
+            public double AverageNoteOverlap => track.AverageNoteOverlap;
+
+            public string TrackType => track.TrackType.ToString();
 
             public SolidColorBrush Background { get; }
             public ChannelCtrl(MidiSong.TrackInfo _track,
@@ -59,9 +63,10 @@ namespace PlayerWPF
                 track = _track;
                 Seq = seq;
 
-                int rsub = ((track.ChannelNum + 1) & 1) != 0 ? 25 : 0;
-                int gsub = (((track.ChannelNum + 1) >> 1) & 1) != 0 ? 25 : 0;
-                int bsub = (((track.ChannelNum + 1) >> 2) & 1) != 0 ? 25 : 0;
+                int typeInt = (int)track.TrackType;
+                int rsub = ((typeInt + 1) & 1) != 0 ? 25 : 0;
+                int gsub = (((typeInt + 1) >> 1) & 1) != 0 ? 25 : 0;
+                int bsub = (((typeInt + 1) >> 2) & 1) != 0 ? 25 : 0;
                 Background = new SolidColorBrush(
                     Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
                 seq.Background = Background;

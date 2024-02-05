@@ -36,6 +36,8 @@
                                         <Button Content="{Binding ChannelNum}" Click="ChannelExpand_Click"/>
                                         <Label Content="{Binding Instrument}" />
                                     </StackPanel>
+                                    <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
+                                    <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
                                     <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
                                     <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
                                 </StackPanel>

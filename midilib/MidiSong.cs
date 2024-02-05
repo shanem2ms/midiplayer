@@ -6,12 +6,24 @@ using MeltySynth;
 using static MeltySynth.MidiFile;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using Microsoft.Win32.SafeHandles;
+using Amazon.S3.Model;
 
 namespace midilib
 {
     public class MidiSong
     {
 
+        public enum TrackTypeDef
+        {
+            Drums,
+            Arpeggio,
+            Chords,
+            String,
+            MainMelody,
+            Bass,
+            Empty
+        }
         public struct PitchBend
         {
             public int offsetTicks;
@@ -44,15 +56,7 @@ namespace midilib
             public float UniqueMeasures = -1;
             public double AverageNoteLength = 0;
             public double AverageNotePitch = 0;
-            public enum TrackTypeDef
-            {
-                Drums,
-                Arpeggio,
-                Chords,
-                Vocals,
-                Bass,
-                Empty
-            }
+            public double AverageNoteOverlap = 0;
 
             TrackTypeDef trackType;
             public TrackTypeDef TrackType => trackType;
@@ -95,13 +99,18 @@ namespace midilib
                     AverageNotePitch = Notes.Select(n => (int)n.note).Average();
                     AverageNoteLength = Notes.Select(n => (int)n.lengthTicks).Average();
                     AverageNoteLength /= resolution;
-                    if (AverageNotePitch < 45)
-                        trackType = TrackTypeDef.Bass;
-                    else
-                    {
-                        FindMeasurePatterns(resolution, songLength);
+                    FindNoteOverlap();
+                    FindMeasurePatterns(resolution, songLength);
+                    if (AverageNoteOverlap > 2.25)
                         trackType = TrackTypeDef.Chords;
-                    }
+                    else if (AverageNotePitch < 45)
+                        trackType = TrackTypeDef.Bass;
+                    else if (AverageNoteLength > 2) 
+                        trackType = TrackTypeDef.String;
+                    else if (UniqueMeasures < 0.2)
+                        trackType = TrackTypeDef.Arpeggio;
+                    else
+                        trackType = TrackTypeDef.MainMelody;
                 }
                 else
                     trackType = TrackTypeDef.Empty;
@@ -152,13 +161,49 @@ namespace midilib
                 int totalBuckets = measureHashes.Keys.Count();
                 UniqueMeasures = (float)totalBuckets / (float)measuresInSong;
             }
+            
+            void FindNoteOverlap()
+            {
+                SortedDictionary<int, int> noteEvents = new SortedDictionary<int, int>();
+                foreach (var note in Notes)
+                {
+                    int notechange = 0;
+                    noteEvents.TryGetValue(note.startTicks, out notechange);
+                    noteEvents[note.startTicks] = notechange + 1;
+                    int endTicks = note.startTicks + note.lengthTicks;
+                    notechange = 0;
+                    noteEvents.TryGetValue(endTicks, out notechange);
+                    noteEvents[endTicks] = notechange - 1;
+                }
+
+                int prevTicks = 0;
+                int currentNotesOn = 0;
+                int[] notesOn = new int[32]; 
+                foreach (var kv in noteEvents)
+                {
+                    notesOn[currentNotesOn] += kv.Key - prevTicks;
+                    currentNotesOn += kv.Value;
+                    prevTicks = kv.Key;
+                }
+
+                int totalTicks = 0;
+                int weightedTicks = 0;
+                for (int i = 1; i < 32; i++)
+                {
+                    totalTicks += notesOn[i];
+                    weightedTicks += notesOn[i] * i;
+                }
+
+                AverageNoteOverlap = (double)weightedTicks / totalTicks;
+            }
 
             public void Quantize(int qticks)
             {
                 for (int i = 0; i < Notes.Length; ++i)
                 {
                     Notes[i].startTicks = ((Notes[i].startTicks + qticks/2) / qticks) * qticks;
-                    Notes[i].lengthTicks = ((Notes[i].lengthTicks + qticks / 2) / qticks) * qticks;
+                    Notes[i].lengthTicks = (Notes[i].lengthTicks < qticks / 2) ? qticks / 2:
+                        ((Notes[i].lengthTicks + qticks / 2) / qticks) * qticks;
                 }
             }
 
