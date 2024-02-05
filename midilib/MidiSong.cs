@@ -1,5 +1,4 @@
-﻿using Amazon.S3.Model;
-using MeltySynth;
+﻿using MeltySynth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +16,7 @@ namespace midilib
             Chords,
             String,
             MainMelody,
+            Accompaniment,
             Bass,
             Empty
         }
@@ -45,46 +45,33 @@ namespace midilib
         {
             public int ChannelNum { get; set; }
             public int ProgramNum;
-            public int Volume;
-            public int Pan;
+            public int Volume = 0x7F;
+            public int Pan = 0x7F;
             public string Instrument { get; set; }
 
             MidiFile.Message[] otherMessages;
             public Note[] Notes;
             public float UniqueMeasures = -1;
+            public float FilledMeasures = -1;
             public double AverageNoteLength = 0;
             public double AverageNotePitch = 0;
             public double AverageNoteOverlap = 0;
 
             TrackTypeDef trackType;
             public TrackTypeDef TrackType => trackType;
-
-            public MidiFile.Message[] Messages { get
-                {
-                    List<Message> msgs = otherMessages.ToList();
-                    foreach (var note in Notes)
-                    {
-                        byte channel = (byte)ChannelNum;
-                        
-                        byte oncommand = 0x90;
-                        byte offcommand = 0x80;
-                        Message onmsg = new Message()
-                        { Channel = channel, Command = oncommand, Data1 = note.note, Data2 = note.velocity, Ticks = note.startTicks };
-                        msgs.Add(onmsg);
-                        Message offmsg = new Message()
-                        { Channel = channel, Command = offcommand, Data1 = note.note, Data2 = 0, Ticks = note.startTicks + note.lengthTicks };
-                        msgs.Add(onmsg);
-                        msgs.Add(offmsg);
-                    }
-                    return msgs.ToArray();
-                }
-            }
+           
 
             public TrackInfo(int channelNum, string instrument, Message[] messages)
             {
                 ChannelNum = channelNum;
                 Instrument = instrument;
                 BuildNotes(messages);
+            }
+            public TrackInfo(int channelNum, string instrument, Note[] notes)
+            {
+                ChannelNum = channelNum;
+                Instrument = instrument;
+                Notes = notes;
             }
 
             public void AnalyzeForType(int resolution, int songLength)
@@ -102,10 +89,12 @@ namespace midilib
                         trackType = TrackTypeDef.Chords;
                     else if (AverageNotePitch < 45)
                         trackType = TrackTypeDef.Bass;
-                    else if (AverageNoteLength > 2) 
+                    else if (AverageNoteLength > 2)
                         trackType = TrackTypeDef.String;
                     else if (UniqueMeasures < 0.2)
                         trackType = TrackTypeDef.Arpeggio;
+                    else if (FilledMeasures < 0.4)
+                        trackType = TrackTypeDef.Accompaniment;
                     else
                         trackType = TrackTypeDef.MainMelody;
                 }
@@ -131,6 +120,7 @@ namespace midilib
                 var measureNotes = Notes.GroupBy(n => n.startTicks / measureTicks);
                 Dictionary<ulong, int> measureHashes = new Dictionary<ulong, int>();
                 int totalMeasures = measureNotes.Count();
+                FilledMeasures = (float)totalMeasures / (float)measuresInSong;
                 foreach (var measure in measureNotes)
                 {
                     Hash h = new Hash();
@@ -203,7 +193,32 @@ namespace midilib
                         ((Notes[i].lengthTicks + qticks / 2) / qticks) * qticks;
                 }
             }
+            public MidiFile.Message[] Messages
+            {
+                get
+                {
+                    byte channel = (byte)ChannelNum;
+                    List<Message> msgs = (otherMessages != null) ? otherMessages.ToList() : new List<Message>();
+                    msgs.Add(new Message()
+                    { Channel = channel, Command = 0xC0, Data1 = (byte)ProgramNum, Data2 = 0, Ticks = 0 });
+                    msgs.Add(new Message()
+                    { Channel = channel, Command = 0xB0, Data1 = (byte)0x7, Data2 = (byte)Volume, Ticks = 0 });
+                    foreach (var note in Notes)
+                    {
 
+                        byte oncommand = 0x90;
+                        byte offcommand = 0x80;
+                        Message onmsg = new Message()
+                        { Channel = channel, Command = oncommand, Data1 = note.note, Data2 = note.velocity, Ticks = note.startTicks };
+                        msgs.Add(onmsg);
+                        Message offmsg = new Message()
+                        { Channel = channel, Command = offcommand, Data1 = note.note, Data2 = 0, Ticks = note.startTicks + note.lengthTicks };
+                        msgs.Add(onmsg);
+                        msgs.Add(offmsg);
+                    }
+                    return msgs.ToArray();
+                }
+            }
             void BuildNotes(MidiFile.Message[] messages)
             {
                 Note[] noteOnTick = new Note[127];
@@ -270,11 +285,9 @@ namespace midilib
             }
         }
 
-        MidiFile midiFile;
-        public int Resolution => midiFile.Resolution;
+        public int Resolution;
         public int LengthSixteenths;
         public int LengthTicks;
-        public int NumChannels;
 
         public MidiFile GetMidiFile() 
         {
@@ -286,17 +299,26 @@ namespace midilib
         }
 
         public TrackInfo[] Tracks; 
-        public MidiSong(MidiFile _midiFile)
+        public MidiSong(MidiFile midiFile)
         {
-            midiFile = _midiFile;            
-            Build();
+            Resolution = midiFile.Resolution;
+            LengthTicks = midiFile.Messages.Last().Ticks;
+            int sixteenthRes = Resolution / 4;
+            LengthSixteenths = LengthTicks / sixteenthRes;
+            Build(midiFile);
         }        
 
-        void Build()
+
+        public MidiSong(TrackInfo[] tracks, int resolution)
         {
-            int sixteenthRes = midiFile.Resolution / 4;
-            LengthTicks = midiFile.Messages.Last().Ticks;
+            Resolution = resolution;
+            LengthTicks = tracks.Select(t => t.Notes.Last().startTicks + t.Notes.Last().lengthTicks).Max();
+            int sixteenthRes = Resolution / 4;
             LengthSixteenths = LengthTicks / sixteenthRes;
+        }
+
+        void Build(MidiFile midiFile)
+        {
 
             var channelGroups = midiFile.Messages.Where(m => m.Channel < 16).GroupBy(m => m.Channel).
                 OrderBy(g => g.Key);
@@ -323,13 +345,20 @@ namespace midilib
         }
 
 
-        void ConvertToMelody()
+        public MidiSong ConvertToMelody()
         {
             TrackInfo ti = Tracks.FirstOrDefault(t => t.TrackType == TrackTypeDef.MainMelody);
             if (ti == null)
-                return;
+                return null;
 
             int firstMelodyTick = ti.Notes[0].startTicks;
+
+            List<TrackInfo> tracks = new List<TrackInfo>();
+            Note []newNotes = 
+                ti.Notes.Select(n => new Note(n.startTicks - firstMelodyTick, n.lengthTicks, n.note, n.velocity)).ToArray();
+            TrackInfo melodyTrack = new TrackInfo(0, ti.Instrument, newNotes);
+            tracks.Add(melodyTrack);
+            return new MidiSong(tracks.ToArray(), Resolution);
         }
 
         byte GetProgramNumber(IEnumerable<MeltySynth.MidiFile.Message> _messages)

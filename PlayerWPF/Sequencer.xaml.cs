@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Windows.Xps.Serialization;
 using static MeltySynth.MidiSynthSequencer;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
@@ -44,17 +45,20 @@ namespace PlayerWPF
         {
             bool expanded = false;
             MidiSong.TrackInfo track;
-            public double Height { get => expanded ? 600 : 50; }
+            public double Height { get => expanded ? 600 : 150; }
             public int ChannelNum => track.ChannelNum;
             public string Instrument => track.Instrument;
 
             public float Unique => track.UniqueMeasures;
+            public float FilledMeasures => track.FilledMeasures;
             public double AverageNoteLength => track.AverageNoteLength;
             public double AverageNotePitch => track.AverageNotePitch;
             
             public double AverageNoteOverlap => track.AverageNoteOverlap;
 
             public string TrackType => track.TrackType.ToString();
+            public bool IsSolo { get; set; }
+            public bool IsMute { get; set; }
 
             public SolidColorBrush Background { get; }
             public ChannelCtrl(MidiSong.TrackInfo _track,
@@ -163,7 +167,7 @@ namespace PlayerWPF
             {
                 MidiSong.TrackInfo track = midiSong.Tracks[i];
                 SequencerChannel sequencerChannel = new SequencerChannel();
-                sequencerChannel.Height = 50;
+                sequencerChannel.Height = 150;
                 sequencerChannel.Layout(i,
                     track,
                     midiSong.Resolution,
@@ -307,6 +311,22 @@ namespace PlayerWPF
                 ChannelCtrl ctrl = (ChannelCtrl)btn.DataContext;
                 ctrl.ExpandCollapse();
             }
+        }
+
+        private void ChannelMuteSolo_Click(object sender, RoutedEventArgs e)
+        {
+            bool isSoloMode = channelCtrls.Any(c => c.IsSolo);
+            foreach (var channel in channelCtrls)
+            {
+                bool channelEnabled = (isSoloMode && channel.IsSolo) ||
+                    (!isSoloMode && !channel.IsMute);
+                player.SynthEngine.SetChannelEnabled(channel.ChannelNum, channelEnabled);
+            }
+        }
+
+        private void ToMelody_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

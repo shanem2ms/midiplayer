@@ -32,11 +32,14 @@
                             <DataTemplate DataType="local:ChannelCtrl">
                                 <StackPanel Orientation="Vertical" Height="{Binding Height}"                                            
                                             Background="{Binding Background}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="{Binding ChannelNum}" Click="ChannelExpand_Click"/>
-                                        <Label Content="{Binding Instrument}" />
-                                    </StackPanel>
+                                    <DockPanel LastChildFill="False">
+                                        <Button DockPanel.Dock="Left" Content="{Binding ChannelNum}" Click="ChannelExpand_Click" Width="20"/>
+                                        <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
+                                        <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" Content="S" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20"/>
+                                        <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" Content="M" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20" />
+                                    </DockPanel>
                                     <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
+                                    <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
                                     <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
                                     <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
                                     <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
@@ -74,9 +77,11 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button Name="PlayBtn" Margin="5" Content="Play" Click="PlayBtn_Click"/>
             <Button Name="StopBtn" Margin="5" Grid.Column="1" Content="Stop" Click="StopBtn_Click"/>
+            <Button Name="ToMelody" Margin="5" Grid.Column="2" Content="To Melody" Click="ToMelody_Click"/>
         </Grid>
         <Canvas x:Name="PianoCanvas" Height="100" Grid.Row="2" SizeChanged="PianoCanvas_SizeChanged" />
     </Grid>

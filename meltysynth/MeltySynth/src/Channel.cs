@@ -6,6 +6,7 @@ namespace MeltySynth
     {
         private readonly Synthesizer synthesizer;
         private readonly bool isPercussionChannel;
+        private bool isEnabled;
 
         private int bankNumber;
         private int patchNumber;
@@ -36,6 +37,7 @@ namespace MeltySynth
 
         public void Reset()
         {
+            isEnabled = true;
             bankNumber = isPercussionChannel ? 128 : 0;
             patchNumber = 0;
 
@@ -67,6 +69,7 @@ namespace MeltySynth
             pitchBend = 0F;
         }
 
+        public bool IsEnabled { get => isEnabled; set => isEnabled = value; }  
         public void SetBank(int value)
         {
             bankNumber = value;

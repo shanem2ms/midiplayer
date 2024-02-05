@@ -278,6 +278,12 @@ namespace MeltySynth
             }
         }
 
+        public void SetChannelEnabled(int channel, bool enabled)
+        {
+            if (channel >= Channels.Length)
+                return;
+            Channels[channel].IsEnabled = enabled;
+        }
         /// <summary>
         /// Stops a note.
         /// </summary>
@@ -319,6 +325,9 @@ namespace MeltySynth
             }
 
             var channelInfo = channels[channel];
+            
+            if (!channelInfo.IsEnabled)
+                return;
 
             var presetId = (channelInfo.BankNumber << 16) | channelInfo.PatchNumber;
 

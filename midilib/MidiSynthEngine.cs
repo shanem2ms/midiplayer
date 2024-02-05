@@ -65,6 +65,11 @@ namespace midilib
                 }
             }
         }
+
+        public void SetChannelEnabled(int channel, bool enabled) 
+        {
+            midiFileSynthesizer.SetChannelEnabled(channel, enabled);
+        }
         public bool Pause(bool pause)
         {
             bool oldState = sequencer.IsPaused;
