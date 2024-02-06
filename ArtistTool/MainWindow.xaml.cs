@@ -45,33 +45,36 @@ namespace ArtistTool
 
             this.ArtistDb.Load("Artists.json");
             ArtistDb.BuildSongWords();
-            mb.LoadTitles();
-
-            var titleWords = mb.TitleWords;
-            foreach (var song in this.ArtistDb.Songs)
+            bool doTitles = false;
+            if (doTitles)
             {
-                if (song.Words == null)
-                    continue;
-                
-                song.Words.RemoveWhere(w => mb.Common100.Contains(w) || char.IsDigit(w[0]));
-                if (song.Words.Count < 2)
-                    continue;
-                var allTitles = song.Words.Select((w) => { HashSet<int> outVal = null;  titleWords.TryGetValue(w, out outVal); return outVal;  }).Where(w => w != null).ToArray();
-                if (allTitles.Length > 1)
-                {
-                    HashSet<int> set = new HashSet<int>(allTitles[0]);
-                    for (int i = 1; i < allTitles.Length; i++)
-                    {
-                        set.IntersectWith(allTitles[i]);
-                    }
-                    if (set.Count > 0)
-                    {
-                        Debug.WriteLine(song.Name);
-                    }
-                }
-                //song.Words
-            }
+                mb.LoadTitles();
 
+                var titleWords = mb.TitleWords;
+                foreach (var song in this.ArtistDb.Songs)
+                {
+                    if (song.Words == null)
+                        continue;
+
+                    song.Words.RemoveWhere(w => mb.Common100.Contains(w) || char.IsDigit(w[0]));
+                    if (song.Words.Count < 2)
+                        continue;
+                    var allTitles = song.Words.Select((w) => { HashSet<int> outVal = null; titleWords.TryGetValue(w, out outVal); return outVal; }).Where(w => w != null).ToArray();
+                    if (allTitles.Length > 1)
+                    {
+                        HashSet<int> set = new HashSet<int>(allTitles[0]);
+                        for (int i = 1; i < allTitles.Length; i++)
+                        {
+                            set.IntersectWith(allTitles[i]);
+                        }
+                        if (set.Count > 0)
+                        {
+                            Debug.WriteLine(song.Name);
+                        }
+                    }
+                    //song.Words
+                }
+            }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistDb)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mb)));
             int assignedSongs = ArtistDb.Songs.Where(s => s.Artist != null).Count();

@@ -93,6 +93,7 @@ namespace midilib
 
         public List<Song> songs;
         public List<Song> Songs => songs;
+        public List<Song> UnassignedSongs => songs.Where(s => s.Artist == null).ToList();
 
         public ArtistDb(MidiDb _db)
         {
@@ -184,7 +185,8 @@ namespace midilib
         public bool BuildSongWords()
         {
             Dictionary<string, Word> allWords = new Dictionary<string, Word>();
-            foreach (var song in songs)
+            var unassignedSongs = UnassignedSongs;
+            foreach (var song in unassignedSongs)
             {
                 if (song.Artist != null)
                     continue;
