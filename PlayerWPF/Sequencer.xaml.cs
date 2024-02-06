@@ -326,7 +326,8 @@ namespace PlayerWPF
 
         private void ToMelody_Click(object sender, RoutedEventArgs e)
         {
-
+            midiSong = midiSong.ConvertToMelody();
+            Relayout();
         }
     }
 

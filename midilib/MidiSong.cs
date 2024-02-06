@@ -292,15 +292,20 @@ namespace midilib
         public MidiFile GetMidiFile() 
         {
             var messages = Tracks.SelectMany(t => t.Messages).ToList();
+            messages.Add(Message.TempoChange(Tempo));
             messages.Sort((a, b) => a.Ticks - b.Ticks);
             var msgarray = messages.ToArray();
             SetMessageTimes(msgarray);
             return new MidiFile(msgarray, Resolution);
         }
 
+        public double Tempo = 120;
         public TrackInfo[] Tracks; 
+
         public MidiSong(MidiFile midiFile)
-        {
+        {           
+            Message? tmpo = midiFile.Messages.FirstOrDefault(m => m.Type == MessageType.TempoChange);
+            Tempo = tmpo != null ? (int)tmpo.Value.Tempo : 120;
             Resolution = midiFile.Resolution;
             LengthTicks = midiFile.Messages.Last().Ticks;
             int sixteenthRes = Resolution / 4;
@@ -313,6 +318,7 @@ namespace midilib
         {
             Resolution = resolution;
             LengthTicks = tracks.Select(t => t.Notes.Last().startTicks + t.Notes.Last().lengthTicks).Max();
+            Tracks = tracks;
             int sixteenthRes = Resolution / 4;
             LengthSixteenths = LengthTicks / sixteenthRes;
         }

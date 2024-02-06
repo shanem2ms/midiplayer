@@ -259,13 +259,13 @@ namespace MeltySynth
             }
             return outMessage.ToArray();
         }
-        
-        static Message[] RemoveOverlappingNotes(Message[]messages, int resolution, double tempo)
+
+        static Message[] RemoveOverlappingNotes(Message[] messages, int resolution, double tempo)
         {
             List<Message> outMessages = new List<Message>();
 
             Note[] noteOnTick = new Note[127];
-            for (int i = 0;i < noteOnTick.Length;i++)
+            for (int i = 0; i < noteOnTick.Length; i++)
             {
                 noteOnTick[i] = new Note();
             }
@@ -307,13 +307,13 @@ namespace MeltySynth
                             Data2 = 0,
                             Ticks = endTicks,
                             Time = GetTimeSpanFromSeconds(60.0 / (resolution * tempo) * endTicks)
-                    });
+                        });
                     }
                     noteOnTick[msg.Data1].noteOn = -1;
                 }
 
             }
-            outMessages.Sort((m1, m2) => m1.Ticks - m2.Ticks);  
+            outMessages.Sort((m1, m2) => m1.Ticks - m2.Ticks);
             return outMessages.ToArray();
         }
         private static (List<Message>, List<int>, List<Meta>) ReadTrack(BinaryReader reader, MidiFileLoopType loopType, int trackIdx)
@@ -493,7 +493,7 @@ namespace MeltySynth
             var currentTime = TimeSpan.Zero;
 
             var tempo = 120.0;
-            int []trackVolume = new int[16];
+            int[] trackVolume = new int[16];
             for (int i = 0; i < trackVolume.Length; i++)
             {
                 trackVolume[i] = 0xFFFF;
@@ -533,7 +533,7 @@ namespace MeltySynth
                 {
                     tempo = message.Tempo;
                 }
-                else 
+                else
                 {
                     if ((message.Command & 0xF0) == 0xC0)
                         message.Data1 = 0;
@@ -609,7 +609,7 @@ namespace MeltySynth
 
         public Message[] Messages => messages;
         public TimeSpan[] Times => messages.Select(m => m.Time).ToArray();
-        public int []Ticks => messages.Select(m => m.Ticks).ToArray();
+        public int[] Ticks => messages.Select(m => m.Ticks).ToArray();
         public Meta[] Metas => metas;
 
         public int Resolution;
@@ -710,6 +710,10 @@ namespace MeltySynth
                 return new Message(channel, command, data1, data2);
             }
 
+            public static Message TempoChange(double tempo)
+            {
+                return TempoChange((int)(60000000.0 / tempo));
+            }
             public static Message TempoChange(int tempo)
             {
                 byte command = (byte)(tempo >> 16);
@@ -779,17 +783,25 @@ namespace MeltySynth
             }
 
             public byte Channel { get => channel; set => channel = value; }
-            public byte Command {get => command; set => command = value; }  
+            public byte Command { get => command; set => command = value; }
             public byte Data1 { get => data1; set => data1 = value; }
             public byte Data2 { get => data2; set => data2 = value; }
             public TimeSpan Time { get => time; set => time = value; }
             public int Ticks { get => ticks; set => ticks = value; }
 
-            public double Tempo => 60000000.0 / ((command << 16) | (data1 << 8) | data2);
+            public double Tempo
+            {
+                get => 60000000.0 / ((command << 16) | (data1 << 8) | data2);
+                set
+                {
+                    uint largenum = (uint)(60000000.0 / value);
+                    command = (byte)((largenum >> 16) & 0xFF);
+                    data1 = (byte)((largenum >> 8) & 0xFF);
+                    data2 = (byte)((largenum & 0xFF));
+                }
+            }
+
         }
-
-
-
         public enum MessageType
         {
             Normal = 0,
