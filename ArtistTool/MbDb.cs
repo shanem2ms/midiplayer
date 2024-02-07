@@ -52,7 +52,9 @@ namespace ArtistTool
             get
             {
                 if (filteredArtists == null)
+                {
                     filteredArtists = Artists.ToList();
+                }
                 return filteredArtists;
             }
         }
@@ -87,6 +89,7 @@ namespace ArtistTool
                 var artist = new MbArtist();
                 artist.Id = Convert.ToString(r["artistKey"]);
                 artist.Name = Convert.ToString(r["name"]);
+                artist.Votes = Convert.ToInt64(r["votes"]);
                 artist.namelwr = artist.Name.ToLower();
                 artists.Add(artist);
             }

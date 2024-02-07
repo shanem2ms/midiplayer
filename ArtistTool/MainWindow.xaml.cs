@@ -109,6 +109,7 @@ namespace ArtistTool
                                     newartist = new Artist()
                                     {
                                         Name = aaw.Name,
+                                        Votes = (int)aaw.Votes
                                     };
                                     artistsHash.Add(newartist);
                                 }

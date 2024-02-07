@@ -32,6 +32,7 @@ namespace midilib
         
         List<Song> songs = new List<Song>();
         public List<Song> Songs => songs;
+        public int Votes { get; set; } = 0;
 
         public override string ToString()
         {
@@ -82,11 +83,14 @@ namespace midilib
 
         public List<Artist> Artists { get; } = new List<Artist>();
 
-        IEnumerable<Artist> filteredArtists;
+        List<Artist> filteredArtists;
         public IEnumerable<Artist> FilteredArtists { get
             {
                 if (filteredArtists == null)
+                {
                     filteredArtists = Artists.ToList();
+                    filteredArtists.Sort((a,b)=>b.Votes.CompareTo(a.Votes));
+                }
                 return filteredArtists;
             } 
             }
@@ -109,9 +113,11 @@ namespace midilib
             public ArtistDef(Artist a)
             {
                 Name = a.Name;
+                Votes = a.Votes;
                 Songs = a.Songs.Select(s => s.Name).ToList();
             }
             public string Name { get; set; }
+            public int Votes { get; set; }
             public List<string> Songs { get; set; }
         }
 
@@ -124,6 +130,7 @@ namespace midilib
             {
                 Artist artist = new Artist();
                 artist.Name = artistDef.Name;
+                artist.Votes = artistDef.Votes;
                 artist.Songs.AddRange(artistDef.Songs.Select((s) => { var sng = songDic[s]; sng.Artist = artist; return sng; } ));;
                 Artists.Add(artist);
             }
