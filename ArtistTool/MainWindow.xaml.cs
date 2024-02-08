@@ -40,10 +40,12 @@ namespace ArtistTool
             await db.InitSongList(false);
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
-            await db.UploadAWS();
+
+            string text = File.ReadAllText("Artists.json");
 
             //await sdb.Md5();
-            //BuildFromDb();
+            BuildFromDb();
+            //await db.UploadAWS("Artists.json", text);
 
             this.ArtistDb.Load("Artists.json");
             ArtistDb.BuildSongWords();
@@ -58,7 +60,7 @@ namespace ArtistTool
                     if (song.Words == null)
                         continue;
 
-                    song.Words.RemoveWhere(w => mb.Common100.Contains(w) || char.IsDigit(w[0]));
+                    song.Words.RemoveAll(w => mb.Common100.Contains(w) || char.IsDigit(w[0]));
                     if (song.Words.Count < 2)
                         continue;
                     var allTitles = song.Words.Select((w) => { HashSet<int> outVal = null; titleWords.TryGetValue(w, out outVal); return outVal; }).Where(w => w != null).ToArray();
@@ -87,12 +89,31 @@ namespace ArtistTool
             return true;
         }
 
+        bool FindWordsInOrder(string[] findwords, List<string> searchWords)
+        {
+            if (findwords.Length > searchWords.Count)
+                return false;
+            int firstIdx = searchWords.IndexOf(findwords[0]);
+            if (firstIdx == -1)
+                return false;
+            if (firstIdx + findwords.Length > searchWords.Count)
+                return false;
+            for (int idx = 1; idx < findwords.Length; ++idx)
+            {
+                if (findwords[idx] != searchWords[firstIdx + idx])
+                    return false;
+            }
+            return true;
+        }
+
         void BuildFromDb()
         {
             mb.LoadArtists();
             this.ArtistDb.BuildSongWords();
             var artistWords = mb.ArtistWords;
             HashSet<Artist> artistsHash = new HashSet<Artist>();
+            int discarded = 0;
+
             foreach (var songw in this.ArtistDb.Words)
             {
                 List<MbArtist> arts;
@@ -106,17 +127,22 @@ namespace ArtistTool
                         {
                             if (awords.All(w => song.Words.Contains(w)))
                             {
-                                if (!artistsHash.TryGetValue(new Artist() { Name = aaw.Name }, out newartist))
+                                if (FindWordsInOrder(aaw.rawWords, song.Words))
                                 {
-                                    newartist = new Artist()
+                                    if (!artistsHash.TryGetValue(new Artist() { Name = aaw.Name }, out newartist))
                                     {
-                                        Name = aaw.Name,
-                                        Votes = (int)aaw.Votes
-                                    };
-                                    artistsHash.Add(newartist);
+                                        newartist = new Artist()
+                                        {
+                                            Name = aaw.Name,
+                                            Votes = (int)aaw.Votes
+                                        };
+                                        artistsHash.Add(newartist);
+                                    }
+                                    if (song.Artist == null || song.Artist.Name.Length < newartist.Name.Length)
+                                        song.Artist = newartist;
                                 }
-                                if (song.Artist == null || song.Artist.Name.Length < newartist.Name.Length)
-                                    song.Artist = newartist;
+                                else
+                                    discarded++;
                             }
                         }
                     }

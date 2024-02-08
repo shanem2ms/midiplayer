@@ -20,6 +20,7 @@ namespace ArtistTool
         public string namelwr;
 
         public string[] words;
+        public string[] rawWords;
         int IComparable<MbArtist>.CompareTo(MbArtist? other)
         {
             return this.Name.CompareTo(other?.Name);
@@ -109,6 +110,7 @@ namespace ArtistTool
             {
                 string[] words = artist.Name.Split(new char[] { ' ', '-', '_', '.', '\x2010' });
                 List<string> artWds = new List<string>();
+                List<string> artRawWds = new List<string>();
                 int totalRank = 1;
                 foreach (string wrd in words)
                 {
@@ -128,6 +130,7 @@ namespace ArtistTool
                 foreach (string wrd in words)
                 {
                     string word = wrd.ToLower();
+                    artRawWds.Add(word);
                     if (Common100.Contains(word))
                         continue;
                     if (word.EndsWith('s') && Common100.Contains(word.Substring(0, word.Length-1)))
@@ -143,6 +146,7 @@ namespace ArtistTool
                     artWds.Add(word);
                 }
                 artist.words = artWds.ToArray();
+                artist.rawWords = artRawWds.ToArray();
                 nonGenericNames.Add(artist);
             }
             artists = nonGenericNames;

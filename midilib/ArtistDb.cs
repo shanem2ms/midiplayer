@@ -1,12 +1,8 @@
 ﻿using System;
 using MeltySynth;
 using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Diagnostics;
 using static midilib.MidiDb;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -29,7 +25,7 @@ namespace midilib
     public class Artist
     {
         public string Name { get; set; }
-        
+
         List<Song> songs = new List<Song>();
         public List<Song> Songs => songs;
         public int Votes { get; set; } = 0;
@@ -70,7 +66,7 @@ namespace midilib
         public MidiDb.Fi Fi { get; set; }
 
         [JsonIgnore]
-        public HashSet<string> Words { get; set; }
+        public List<string> Words { get; set; }
     }
     public class ArtistsFile
     {
@@ -84,16 +80,18 @@ namespace midilib
         public List<Artist> Artists { get; } = new List<Artist>();
 
         List<Artist> filteredArtists;
-        public IEnumerable<Artist> FilteredArtists { get
+        public IEnumerable<Artist> FilteredArtists
+        {
+            get
             {
                 if (filteredArtists == null)
                 {
                     filteredArtists = Artists.ToList();
-                    filteredArtists.Sort((a,b)=>b.Votes.CompareTo(a.Votes));
+                    filteredArtists.Sort((a, b) => b.Votes.CompareTo(a.Votes));
                 }
                 return filteredArtists;
-            } 
             }
+        }
 
         public List<Song> songs;
         public List<Song> Songs => songs;
@@ -131,7 +129,7 @@ namespace midilib
                 Artist artist = new Artist();
                 artist.Name = artistDef.Name;
                 artist.Votes = artistDef.Votes;
-                artist.Songs.AddRange(artistDef.Songs.Select((s) => { var sng = songDic[s]; sng.Artist = artist; return sng; } ));;
+                artist.Songs.AddRange(artistDef.Songs.Select((s) => { var sng = songDic[s]; sng.Artist = artist; return sng; })); ;
                 Artists.Add(artist);
             }
         }
@@ -148,13 +146,13 @@ namespace midilib
             string flower = filter.ToLower();
             filteredArtists = Artists.Where(a => a.Name.ToLower().Contains(flower)).ToList();
         }
-        HashSet<string> GetAllWords(string name)
+        List<string> GetAllWords(string name)
         {
             name = Path.GetFileNameWithoutExtension(name);
             Regex r = new Regex(@"[^a-zA-Z]*([a-zA-Z]+)[^a-zA-Z]*");
             bool keepgoing = true;
             int index = 0;
-            HashSet<string> strs = new HashSet<string>();
+            List<string> strs = new List<string>();
             while (keepgoing)
             {
                 var match = r.Match(name, index);

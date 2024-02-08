@@ -178,15 +178,14 @@ namespace midilib
             return allFiles;
         }
 
-        TaskCompletionSource<bool> IsMappingsInitialized = new TaskCompletionSource<bool>();
-        public async Task<bool> InitializeMappings()
+        async Task<string> FetchOrCache(string filename)
         {
-            string mappingsFile = Path.Combine(homedir, "mappings.json");
-            var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.AwsBucketUrl + "mappings.json"));
+            string mappingsFile = Path.Combine(homedir, filename);
+            var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.AwsBucketUrl + filename));
             long contentLen = (long)resp.Content.Headers.ContentLength;
             if (!File.Exists(mappingsFile) || new System.IO.FileInfo(mappingsFile).Length != contentLen)
             {
-                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + "mappings.json");
+                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + filename);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
                 inputstream.Seek(0, SeekOrigin.Begin);
                 FileStream fs = File.OpenWrite(mappingsFile);
@@ -194,12 +193,20 @@ namespace midilib
                 fs.Close();
                 fs.Close();
             }
-            string jsonstr = await File.ReadAllTextAsync(mappingsFile);
+            return await File.ReadAllTextAsync(mappingsFile);
+        }
+        TaskCompletionSource<bool> IsMappingsInitialized = new TaskCompletionSource<bool>();
+        public async Task<bool> InitializeMappings()
+        {
+            string jsonstr = await FetchOrCache("mappings.json");            
             Mappings = JsonConvert.DeserializeObject<MappingsFile>(jsonstr);
             this.AllSoundFonts.Clear();
             var sfonts = Mappings.soundfonts.Select(kv => new SoundFontDesc() { Name = kv.Key, Length = 0, IsCached = IsSoundfontInstalled(kv.Key) });
             this.AllSoundFonts.AddRange(sfonts);
             IsMappingsInitialized.SetResult(true);
+
+            string artiststr = await FetchOrCache("Artists.json");
+
             return true;
         }
 
