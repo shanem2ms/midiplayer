@@ -40,6 +40,8 @@ namespace ArtistTool
             await db.InitSongList(false);
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
+            await db.UploadAWS();
+
             //await sdb.Md5();
             //BuildFromDb();
 

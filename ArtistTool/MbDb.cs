@@ -74,6 +74,10 @@ namespace ArtistTool
         {
             string[] allwords = File.ReadAllLines("20kwords.txt");
             Common100 = allwords.Take(100).ToHashSet();
+            Dictionary<string, int> wordRanks = new Dictionary<string, int>();
+            for (int idx = 0; idx < allwords.Length; idx++) {
+                wordRanks.Add(allwords[idx], idx);
+            }
 
             SQLiteConnection sqlite_conn = null;
             // Create a new database connection:
@@ -100,10 +104,27 @@ namespace ArtistTool
             }
             artists.Sort();
 
+            List<MbArtist> nonGenericNames = new List<MbArtist>();
             foreach (MbArtist artist in artists)
             {
                 string[] words = artist.Name.Split(new char[] { ' ', '-', '_', '.', '\x2010' });
                 List<string> artWds = new List<string>();
+                int totalRank = 1;
+                foreach (string wrd in words)
+                {
+                    string word = wrd.ToLower();
+                    if (Common100.Contains(word))
+                        continue;
+                    if (word.EndsWith('s') && Common100.Contains(word.Substring(0, word.Length - 1)))
+                        continue;
+                    int rank;
+                    if (!wordRanks.TryGetValue(word, out rank))
+                        rank = 10000;
+                    totalRank *= rank;
+                }
+                if (totalRank < 10000)
+                    continue;
+
                 foreach (string wrd in words)
                 {
                     string word = wrd.ToLower();
@@ -122,7 +143,9 @@ namespace ArtistTool
                     artWds.Add(word);
                 }
                 artist.words = artWds.ToArray();
+                nonGenericNames.Add(artist);
             }
+            artists = nonGenericNames;
             artists.Sort();
             filteredArtists = Artists.ToList();
         }

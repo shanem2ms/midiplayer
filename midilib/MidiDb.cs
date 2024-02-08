@@ -203,15 +203,15 @@ namespace midilib
             return true;
         }
 
-        public async Task<bool> UploadAWS()
+        public async Task<bool> UploadAWS(string name, string filedata)
         {
-            var awsCredentials = new BasicAWSCredentials("","");
+            var awsCredentials = new BasicAWSCredentials("AKIAXPMVBCNZ2HLG3TT7", "c0VaKXZRbipD2Q9wVRKK/yQIKvvI2F+WbLlHaihy");
             var s3client = new AmazonS3Client(awsCredentials, Amazon.RegionEndpoint.USEast2);
             var resp = await s3client.PutObjectAsync(new Amazon.S3.Model.PutObjectRequest()
             {
                 BucketName = "midisongs",
-                Key = "Item1",
-                ContentBody = "This is sample content..."
+                Key = name,
+                ContentBody = filedata
             });
             return true;
         }
