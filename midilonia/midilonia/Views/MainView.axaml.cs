@@ -20,10 +20,23 @@ public partial class MainView : UserControl, INotifyPropertyChanged
         Initialize();
     }
 
-    public string Greeting => "Hello";
+    public string Greeting => "MidiLonia";
 
     public new event PropertyChangedEventHandler? PropertyChanged;
     public IEnumerable<MidiDb.ArtistDef> Artists => db.Artists;
+
+    MidiDb.ArtistDef currentArtist;
+    public MidiDb.ArtistDef CurrentArtist
+    {
+        get => currentArtist;
+        set
+        {
+            currentArtist = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistSongs)));
+        }
+    }
+    public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
+
 
     private async Task<bool> Initialize()
     {

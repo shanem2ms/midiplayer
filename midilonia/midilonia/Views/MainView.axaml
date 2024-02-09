@@ -8,18 +8,17 @@
              x:CompileBindings="False"
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
-  <Grid RowDefinitions="Auto, Auto">
+  <Grid RowDefinitions="Auto, *">
     <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    <Grid Grid.Row="1" ColumnDefinitions="Auto, 5, Auto" >
-      <ListBox ItemsSource="{Binding Artists}">
+    <Grid Grid.Row="1" ColumnDefinitions="*, 5, 2*" >
+      <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <TextBlock Text="{Binding Name}"/>
           </DataTemplate>
         </ListBox.ItemTemplate>
        </ListBox>
-      <GridSplitter Grid.Column="1" Background="Blue"/>
-      <ListBox Grid.Column="2"></ListBox>
+      <ListBox Grid.Column="2" ItemsSource="{Binding ArtistSongs}"></ListBox>
     </Grid>
   </Grid>
 </UserControl>
