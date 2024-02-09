@@ -57,8 +57,7 @@ namespace midilib
             public double AverageNotePitch = 0;
             public double AverageNoteOverlap = 0;
 
-            TrackTypeDef trackType;
-            public TrackTypeDef TrackType => trackType;
+            public TrackTypeDef TrackType { get; set; }
            
 
             public TrackInfo(int channelNum, string instrument, Message[] messages)
@@ -77,7 +76,7 @@ namespace midilib
             public void AnalyzeForType(int resolution, int songLength)
             {
                 if (ChannelNum == 9)
-                    trackType = TrackTypeDef.Drums;
+                    TrackType = TrackTypeDef.Drums;
                 else if (Notes.Length > 0)
                 {
                     AverageNotePitch = Notes.Select(n => (int)n.note).Average();
@@ -86,20 +85,18 @@ namespace midilib
                     FindNoteOverlap();
                     FindMeasurePatterns(resolution, songLength);
                     if (AverageNoteOverlap > 2.25)
-                        trackType = TrackTypeDef.Chords;
+                        TrackType = TrackTypeDef.Chords;
                     else if (AverageNotePitch < 45)
-                        trackType = TrackTypeDef.Bass;
+                        TrackType = TrackTypeDef.Bass;
                     else if (AverageNoteLength > 2)
-                        trackType = TrackTypeDef.String;
+                        TrackType = TrackTypeDef.String;
                     else if (UniqueMeasures < 0.2)
-                        trackType = TrackTypeDef.Arpeggio;
-                    else if (FilledMeasures < 0.4)
-                        trackType = TrackTypeDef.Accompaniment;
+                        TrackType = TrackTypeDef.Arpeggio;
                     else
-                        trackType = TrackTypeDef.MainMelody;
+                        TrackType = TrackTypeDef.MainMelody;
                 }
                 else
-                    trackType = TrackTypeDef.Empty;
+                    TrackType = TrackTypeDef.Empty;
             }
 
             class Hash
@@ -146,7 +143,7 @@ namespace midilib
                 }
 
                 int totalBuckets = measureHashes.Keys.Count();
-                UniqueMeasures = (float)totalBuckets / (float)measuresInSong;
+                UniqueMeasures = (float)totalBuckets / (float)totalMeasures;
             }
             
             void FindNoteOverlap()
@@ -347,6 +344,13 @@ namespace midilib
             {
                 track.Quantize(midiFile.Resolution / 4);
                 track.AnalyzeForType(midiFile.Resolution, LengthTicks);
+            }
+
+            TrackInfo []mainMelodies = Tracks.Where(t => t.TrackType == TrackTypeDef.MainMelody).ToArray();
+            if (mainMelodies.Length > 1)
+            {
+                float maxFilledMeasures = mainMelodies.Max(m => m.FilledMeasures);
+                foreach (var m in mainMelodies) { if (m.FilledMeasures < maxFilledMeasures) m.TrackType = TrackTypeDef.Accompaniment; }
             }
         }
 

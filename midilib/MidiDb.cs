@@ -43,6 +43,8 @@ namespace midilib
         public MappingsFile Mappings { get; private set; }
         HttpClient httpClient = new HttpClient();
         Fi[] midiFiles;
+        List<ArtistDef> artists;
+        public List<ArtistDef> Artists => artists;
         public Fi[] AllMidiFiles => midiFiles;
         public string searchStr;
         string homedir;
@@ -59,6 +61,21 @@ namespace midilib
             public int Length { get; set; }
             public bool IsCached { get; set; }
         }
+        public class ArtistDef
+        {
+            public ArtistDef()
+            { }
+            public ArtistDef(Artist a)
+            {
+                Name = a.Name;
+                Votes = a.Votes;
+                Songs = a.Songs.Select(s => s.Name).ToList();
+            }
+            public string Name { get; set; }
+            public int Votes { get; set; }
+            public List<string> Songs { get; set; }
+        }
+
         public List<SoundFontDesc> AllSoundFonts { get; } = new List<SoundFontDesc>();
         public event EventHandler<bool> OnIntialized;
 
@@ -206,6 +223,8 @@ namespace midilib
             IsMappingsInitialized.SetResult(true);
 
             string artiststr = await FetchOrCache("Artists.json");
+            artists = JsonConvert.DeserializeObject<List<ArtistDef>>(artiststr);
+            artists.Sort((a, b) => b.Votes.CompareTo(a.Votes));
 
             return true;
         }

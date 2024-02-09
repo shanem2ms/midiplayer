@@ -41,10 +41,10 @@ namespace ArtistTool
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
 
-            string text = File.ReadAllText("Artists.json");
 
             //await sdb.Md5();
-            BuildFromDb();
+            //BuildFromDb();
+            //string text = File.ReadAllText("Artists.json");
             //await db.UploadAWS("Artists.json", text);
 
             this.ArtistDb.Load("Artists.json");

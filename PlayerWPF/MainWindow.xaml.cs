@@ -1,9 +1,13 @@
-﻿using midilib;
-using NAudio.Wave;
+﻿using MeltySynth;
+using Microsoft.VisualBasic;
+using midilib;
 using NAudio.Midi;
+using NAudio.Wave;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,6 +31,19 @@ namespace PlayerWPF
         MidiOut midiOut;
         TimeSpan currentSongTime;
         bool enableMidi = false;
+
+        MidiDb.ArtistDef currentArtist;
+        public MidiDb.ArtistDef CurrentArtist
+        {
+            get => currentArtist;
+            set
+            {
+                currentArtist = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistSongs)));
+            }
+        }
+        public IEnumerable<MidiDb.ArtistDef> Artists => db.Artists;
+        public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
 
         public bool PianoMode { get; set; } = false;
 
@@ -66,11 +83,12 @@ namespace PlayerWPF
             CurrentPosSlider.ValueChanged += CurrentPosSlider_ValueChanged;
 
             SequencerCtrl.Visibility = Visibility.Visible;
+            ArtistsGrid.Visibility = Visibility.Collapsed;
             PlayingCtrl.Visibility = Visibility.Collapsed;
             SongsGrid.Visibility = Visibility.Collapsed;
 
             //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
-            Initialize();            
+            Initialize();
         }
 
         private async Task<bool> Initialize()
@@ -81,12 +99,13 @@ namespace PlayerWPF
             player.OnPlaybackTime += Player_OnPlaybackTime;
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackComplete += Player_OnPlaybackComplete;
-            
+
             await player.Initialize(OnEngineCreate);
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MidiFiles"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SoundFonts"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSoundFont"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Artists"));
             return true;
         }
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
@@ -98,7 +117,7 @@ namespace PlayerWPF
         {
             if (enableMidi && MidiOut.NumberOfDevices > 0)
             {
-                midiOut = new MidiOut(MidiOut.NumberOfDevices-1);
+                midiOut = new MidiOut(MidiOut.NumberOfDevices - 1);
                 midiSynthEngine.SetMidiOut(OnProcessMidiMessage);
             }
             waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
@@ -158,12 +177,12 @@ namespace PlayerWPF
         {
             if (isChanging)
                 return;
-            double lerp = 
+            double lerp =
                 (CurrentPosSlider.Value - CurrentPosSlider.Minimum) / (CurrentPosSlider.Maximum - CurrentPosSlider.Minimum);
             TimeSpan t = new TimeSpan((long)(currentSongTime.Ticks * lerp));
             player.Seek(t);
         }
-  
+
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -178,6 +197,16 @@ namespace PlayerWPF
                 PlaySong(e.AddedItems[0] as MidiDb.Fi);
             }
         }
+
+        private void ArtistSongsLb_SelectedItemsChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                string songname = e.AddedItems[0] as string;
+                MidiDb.Fi fi = MidiFiles.First(fi => fi.NmLwr == songname);
+                PlaySong(fi);
+            }
+        }
         private void Prev_Click(object sender, RoutedEventArgs e)
         {
 
@@ -185,6 +214,7 @@ namespace PlayerWPF
 
         private void Playing_Click(object sender, RoutedEventArgs e)
         {
+            ArtistsGrid.Visibility = Visibility.Collapsed;
             PlayingCtrl.Visibility = Visibility.Visible;
             SongsGrid.Visibility = Visibility.Collapsed;
             SequencerCtrl.Visibility = Visibility.Collapsed;
@@ -192,6 +222,7 @@ namespace PlayerWPF
 
         private void Sequencer_Click(object sender, RoutedEventArgs e)
         {
+            ArtistsGrid.Visibility = Visibility.Collapsed;
             SequencerCtrl.Visibility = Visibility.Visible;
             PlayingCtrl.Visibility = Visibility.Collapsed;
             SongsGrid.Visibility = Visibility.Collapsed;
@@ -199,8 +230,16 @@ namespace PlayerWPF
 
         private void Songs_Click(object sender, RoutedEventArgs e)
         {
+            ArtistsGrid.Visibility = Visibility.Collapsed;
             PlayingCtrl.Visibility = Visibility.Collapsed;
             SongsGrid.Visibility = Visibility.Visible;
+            SequencerCtrl.Visibility = Visibility.Collapsed;
+        }
+        private void Artists_Click(object sender, RoutedEventArgs e)
+        {
+            ArtistsGrid.Visibility = Visibility.Visible;
+            PlayingCtrl.Visibility = Visibility.Collapsed;
+            SongsGrid.Visibility = Visibility.Collapsed;
             SequencerCtrl.Visibility = Visibility.Collapsed;
         }
 

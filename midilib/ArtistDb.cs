@@ -104,21 +104,7 @@ namespace midilib
         }
 
 
-        class ArtistDef
-        {
-            public ArtistDef()
-            { }
-            public ArtistDef(Artist a)
-            {
-                Name = a.Name;
-                Votes = a.Votes;
-                Songs = a.Songs.Select(s => s.Name).ToList();
-            }
-            public string Name { get; set; }
-            public int Votes { get; set; }
-            public List<string> Songs { get; set; }
-        }
-
+        
         public void Load(string filename)
         {
             Dictionary<string, Song> songDic = Songs.ToDictionary(s => s.Name);

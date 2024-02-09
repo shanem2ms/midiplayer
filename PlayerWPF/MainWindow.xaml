@@ -26,14 +26,32 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Songs" Click="Songs_Click" />
-            <Button Grid.Column="1" Content="Playing" Click="Playing_Click" />
-            <Button Grid.Column="2" Content="Sequencer" Click="Sequencer_Click" />
-            <Label Grid.Column="3" Content="{Binding Path=CurrentSong}" />
+            <Button Grid.Column="0" Content="Artists" Click="Artists_Click" />
+            <Button Grid.Column="1" Content="Songs" Click="Songs_Click" />
+            <Button Grid.Column="2" Content="Playing" Click="Playing_Click" />
+            <Button Grid.Column="3" Content="Sequencer" Click="Sequencer_Click" />
+            <Label Grid.Column="4" Content="{Binding Path=CurrentSong}" />
         </Grid>
 
-        <Grid x:Name="SongsGrid" Grid.Row="1" Grid.Column="1"  >
+        <Grid x:Name="ArtistsGrid" Grid.Row="1" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ListBox x:Name="ArtistsLb" ItemsSource="{Binding Path=Artists}" SelectedItem="{Binding Path=CurrentArtist, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <ListBox x:Name="ArtistSongsLb" ItemsSource="{Binding Path=ArtistSongs}" Grid.Column="1" 
+                     SelectionChanged="ArtistSongsLb_SelectedItemsChanged"
+                     SelectionMode="Single" />
+        </Grid>
+        <Grid x:Name="SongsGrid" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>

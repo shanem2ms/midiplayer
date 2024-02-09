@@ -116,6 +116,7 @@ namespace PlayerWPF
             chordAnalyzer.Analyze();
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
+            currentTicks = 0;
             Relayout();
         }
 
