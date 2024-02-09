@@ -41,7 +41,6 @@ namespace ArtistTool
             this.midiDb = db;
             this.ArtistDb = new ArtistDb(db);
 
-
             //await sdb.Md5();
             //BuildFromDb();
             //string text = File.ReadAllText("Artists.json");
