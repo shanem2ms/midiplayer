@@ -36,7 +36,7 @@ public partial class MainView : UserControl, INotifyPropertyChanged
         }
     }
     public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
-
+    public string CurrentSong { get; set; }
 
     private async Task<bool> Initialize()
     {
@@ -57,4 +57,19 @@ public partial class MainView : UserControl, INotifyPropertyChanged
     {
     }
 
+    private void PlayButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button btn)
+        {
+            switch (btn.Name)
+            {
+                case "PlayBtn":
+                    break;
+                case "StopBtn":
+                    break;
+                case "RewindBtn":
+                    break;
+            }
+        }
+    }
 }

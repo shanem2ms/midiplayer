@@ -4,12 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:s="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="False"
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
   <Grid RowDefinitions="Auto, *">
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid ColumnDefinitions="Auto, Auto, Auto, Auto">
+      <TextBlock Text="{Binding Greeting}" Margin="15,5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Button Name="PlayBtn" Grid.Column="1" i:Attached.Icon="fa-play" Click="PlayButton_Click"/>
+      <Button Name="StopBtn" Grid.Column="2" i:Attached.Icon="fa-stop" Click="PlayButton_Click"/>
+      <Button Name="RewindBtn" Grid.Column="3" i:Attached.Icon="fa-backward" Click="PlayButton_Click"/>
+    </Grid>
     <Grid Grid.Row="1" ColumnDefinitions="*, 5, 2*" >
       <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
         <ListBox.ItemTemplate>
@@ -18,7 +24,8 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
        </ListBox>
-      <ListBox Grid.Column="2" ItemsSource="{Binding ArtistSongs}"></ListBox>
+      <ListBox Grid.Column="2" ItemsSource="{Binding ArtistSongs}"
+               SelectedItem="{Binding CurrentSong, Mode=TwoWay}"></ListBox>
     </Grid>
   </Grid>
 </UserControl>
