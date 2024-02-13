@@ -3,6 +3,7 @@ using midilib;
 using NAudio.Midi;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -65,6 +66,11 @@ public partial class MainView : UserControl, INotifyPropertyChanged
             switch (btn.Name)
             {
                 case "PlayBtn":
+                    {
+                        MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == CurrentSong);
+                        player.PlaySong(fi, false);
+                        player.PauseOrUnPause(false);
+                    }
                     break;
                 case "StopBtn":
                     break;
