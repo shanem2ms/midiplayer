@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using static midilib.MidiDb;
 
 namespace midilonia.Views;
 
@@ -37,7 +38,9 @@ public partial class MainView : UserControl, INotifyPropertyChanged
         }
     }
     public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
-    public string CurrentSong { get; set; }
+    
+    string currentSong;
+    public string CurrentSong { get => currentSong; set { currentSong = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); } }
 
     private async Task<bool> Initialize()
     {
@@ -73,6 +76,9 @@ public partial class MainView : UserControl, INotifyPropertyChanged
                     }
                     break;
                 case "StopBtn":
+                    {
+                        player.PauseOrUnPause(true);
+                    }
                     break;
                 case "RewindBtn":
                     break;
