@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeltySynth", "..\meltysynth
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "midilib", "..\midilib\midilib.csproj", "{4FBE2CB1-2268-467E-9AAA-9903BA3367FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "audiooutwnd", "..\audiooutwnd\audiooutwnd.csproj", "{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,18 @@ Global
 		{4FBE2CB1-2268-467E-9AAA-9903BA3367FB}.Release|ARM64.Build.0 = Release|ARM64
 		{4FBE2CB1-2268-467E-9AAA-9903BA3367FB}.Release|x64.ActiveCfg = Release|Any CPU
 		{4FBE2CB1-2268-467E-9AAA-9903BA3367FB}.Release|x64.Build.0 = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Debug|x64.Build.0 = Debug|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|ARM64.Build.0 = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|x64.ActiveCfg = Release|Any CPU
+		{8A69EDA7-FB9A-4095-8A34-CC10D37C2008}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

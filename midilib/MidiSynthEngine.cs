@@ -16,7 +16,7 @@ namespace midilib
         MidiOutSequencer midiOutSequencer;
         public delegate void OnProcessMidiMessageDel(int channel, int command, int data1, int data2);
         OnProcessMidiMessageDel onProcessMidiMessage;
-
+        
         public MidiSynthSequencer Sequencer => sequencer;
         private float rms = 0;
         public float RMS => rms;

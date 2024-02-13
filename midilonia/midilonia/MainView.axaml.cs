@@ -12,7 +12,7 @@ public partial class MainView : UserControl, INotifyPropertyChanged
 {
     MidiDb db = App.Db;
     MidiPlayer player = App.Player;
-
+    
     public MainView()
     {
         DataContext = this;
@@ -55,6 +55,7 @@ public partial class MainView : UserControl, INotifyPropertyChanged
 
     void OnEngineCreate(MidiSynthEngine midiSynthEngine)
     {
+        App.OnEngineCreate(midiSynthEngine);
     }
 
     private void PlayButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
