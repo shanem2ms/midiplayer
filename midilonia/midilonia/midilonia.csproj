@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\meltysynth\MeltySynth\MeltySynth.csproj" />
     <ProjectReference Include="..\..\midilib\midilib.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\SynthList.axaml.cs">
+      <DependentUpon>SynthList.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
