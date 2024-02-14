@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "midimo", "midimo\midimo.csproj", "{E6680031-749C-405E-9B49-53FEC312DAFB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "midimo.iOS", "midimo.iOS\midimo.iOS.csproj", "{9F8C69F4-761E-4ECA-880B-2AC6AD36017F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6680031-749C-405E-9B49-53FEC312DAFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6680031-749C-405E-9B49-53FEC312DAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6680031-749C-405E-9B49-53FEC312DAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6680031-749C-405E-9B49-53FEC312DAFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F8C69F4-761E-4ECA-880B-2AC6AD36017F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F8C69F4-761E-4ECA-880B-2AC6AD36017F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F8C69F4-761E-4ECA-880B-2AC6AD36017F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F8C69F4-761E-4ECA-880B-2AC6AD36017F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {36E2EE6F-BFD9-487D-8C0E-6DAB2105144E}
+	EndGlobalSection
+EndGlobal
