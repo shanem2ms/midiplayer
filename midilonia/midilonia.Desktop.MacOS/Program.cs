@@ -18,6 +18,7 @@ sealed class Program
     {
         App.OnEngineCreate = audioOut.OnEngineCreate;
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        audioOut.Dispose();
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

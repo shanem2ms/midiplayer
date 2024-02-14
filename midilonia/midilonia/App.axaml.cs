@@ -10,13 +10,16 @@ public partial class App : Application
 {
     public static MidiDb Db { get; set; } = new MidiDb();
     public static MidiPlayer Player { get; set; } = new MidiPlayer(Db);
+
+    public static MidiPlayer.OnAudioEngineCreateDel OnEngineCreate = null;
     
+    public static MainViewModel ViewModel { get; } = new MainViewModel();
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
     }
 
-        public override void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
