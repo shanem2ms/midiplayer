@@ -9,7 +9,9 @@
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
   <Grid RowDefinitions="Auto, *">
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid ColumnDefinitions="Auto, Auto">
+        <TextBlock Text="{Binding Greeting}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
     <Grid Grid.Row="1" ColumnDefinitions="*, 5, 2*" >
       <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
         <ListBox.ItemTemplate>
