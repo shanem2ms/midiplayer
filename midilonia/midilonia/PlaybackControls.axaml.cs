@@ -1,7 +1,12 @@
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using midilib;
+using System.Globalization;
+using System;
 using System.Linq;
+using Avalonia.Data.Converters;
 using System.Numerics;
+using Avalonia.Utilities;
 
 namespace midilonia.Views
 {
@@ -37,6 +42,26 @@ namespace midilonia.Views
                         break;
                 }
             }
+        }
+    }
+
+
+    public class TimeToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is long ms)
+            {
+                return TimeSpan.FromMilliseconds(ms).ToString(@"mm\:ss");
+            }
+
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // ConvertBack is not needed for this scenario
+            throw new NotImplementedException();
         }
     }
 }

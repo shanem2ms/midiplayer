@@ -36,7 +36,11 @@ namespace midilonia
         public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds??1);
 
         public long currentTime = 0;
-        public long CurrentTime { get => currentTime; set { currentTime = value; } }
+        public long CurrentTime { get => currentTime; 
+            set {
+                player.Seek(TimeSpan.FromMilliseconds(value));
+                currentTime = value; 
+            } }
 
         public MainViewModel()
         {
