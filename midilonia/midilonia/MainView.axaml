@@ -10,15 +10,7 @@
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
   <Grid RowDefinitions="Auto, *">
-    <Grid ColumnDefinitions="Auto, Auto, Auto, Auto">
-      <TextBlock Text="{Binding Greeting}" Margin="15,5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <Button Name="PlayBtn" Grid.Column="1" i:Attached.Icon="fa-play" Click="PlayButton_Click" 
-              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
-      <Button Name="StopBtn" Grid.Column="2" i:Attached.Icon="fa-stop" Click="PlayButton_Click"
-              IsEnabled="false" />
-      <Button Name="RewindBtn" Grid.Column="3" i:Attached.Icon="fa-backward" Click="PlayButton_Click"
-              IsEnabled="false" />
-    </Grid>
+    <s:PlaybackControls />
     <Grid Grid.Row="1" ColumnDefinitions="*, 5, 2*" >
       <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
         <ListBox.ItemTemplate>

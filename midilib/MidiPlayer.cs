@@ -141,7 +141,7 @@ namespace midilib
                     MeltySynth.MidiFile.InstrumentType.Original);
                 OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
                 synthEngine.Play(currentPlayerMidifile, false, 0);
-                IsPaused = false;
+                IsPaused = true;
                 synthEngine.Sequencer.Pause(IsPaused);
             }
             catch (Exception e)

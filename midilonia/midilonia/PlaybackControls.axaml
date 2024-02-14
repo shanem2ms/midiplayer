@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
+             x:CompileBindings="False"
+             x:Class="midilonia.Views.PlaybackControls">
+  <Grid RowDefinitions="Auto, Auto">
+    <TextBlock Text="{Binding Path=CurrentSong}" Margin="15,5" HorizontalAlignment="Left" 
+               VerticalAlignment="Center" />
+    <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, *">
+      <Button Name="PlayBtn" Grid.Column="1" i:Attached.Icon="fa-play" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Name="StopBtn" Grid.Column="2" i:Attached.Icon="fa-stop" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Name="RewindBtn" Grid.Column="3" i:Attached.Icon="fa-backward" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Slider Grid.Column="4" Margin="10,0,10,0" Minimum="0" Maximum="{Binding Path=CurrentSongLength}"
+              Value="{Binding Path=CurrentTime}"/>
+    </Grid>
+  </Grid>
+</UserControl>
