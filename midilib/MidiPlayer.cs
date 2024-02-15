@@ -57,6 +57,7 @@ namespace midilib
         }
         public event EventHandler<PlaybackStartArgs> OnPlaybackStart;
         public event EventHandler<PlaybackStartArgs> OnSongLoaded;
+        public event EventHandler<MidiDb.SoundFontDesc> OnSoundFontChanged;
 
         public TimeSpan CurrentSongTime => synthEngine.Sequencer?.CurrentTime ?? new TimeSpan();
 
@@ -82,6 +83,7 @@ namespace midilib
                 PlaySong(currentPlayingSong, false);
                 Seek(prevSongTime);
             }
+            OnSoundFontChanged?.Invoke(this, soundFont);
             return true;
         }
      

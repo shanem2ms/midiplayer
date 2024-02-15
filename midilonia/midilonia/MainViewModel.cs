@@ -6,6 +6,7 @@ using midilib;
 using System.Numerics;
 using System;
 using Amazon.S3.Model;
+using Avalonia.Threading;
 
 namespace midilonia
 {
@@ -30,17 +31,40 @@ namespace midilonia
         public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
 
         string currentSong;
-        public string CurrentSong { get => currentSong; set { currentSong = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); } }
+        public string CurrentSong
+        {
+            get => currentSong;
+            set { currentSong = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
+        }
 
         MeltySynth.MidiFile currentplayingSong = null;
-        public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds??1);
+        public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds ?? 1);
 
         public long currentTime = 0;
-        public long CurrentTime { get => currentTime; 
-            set {
+        public long CurrentTime
+        {
+            get => currentTime;
+            set
+            {
                 player.Seek(TimeSpan.FromMilliseconds(value));
-                currentTime = value; 
-            } }
+                currentTime = value;
+            }
+        }
+
+
+        public IEnumerable<MidiDb.SoundFontDesc> SoundFonts => db.AllSoundFonts;
+
+        MidiDb.SoundFontDesc selectedSoundFont;
+        public MidiDb.SoundFontDesc SelectedSoundFont
+        {
+            get => selectedSoundFont;
+            set {
+                selectedSoundFont = value;
+                player.ChangeSoundFont(value);
+            }
+        }
+
+        public MidiDb.SoundFontDesc CurrentSoundFont => player.CurrentSoundFont;
 
         public MainViewModel()
         {
@@ -57,9 +81,17 @@ namespace midilonia
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackTime += Player_OnPlaybackTime;
             player.OnPlaybackComplete += Player_OnPlaybackComplete;
+            player.OnSoundFontChanged += Player_OnSoundFontChanged;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Artists"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Artists)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SoundFonts)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
             return true;
+        }
+
+        private void Player_OnSoundFontChanged(object? sender, MidiDb.SoundFontDesc e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
         }
 
         private void Player_OnPlaybackComplete(object? sender, bool e)

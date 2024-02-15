@@ -10,18 +10,49 @@
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
   <UserControl.Styles>
-    <Style Selector="RadioButton.Tab" >
+    <Style Selector="RadioButton.Nav" >
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="Medium"/>
+      <Setter Property="BorderBrush" Value="Gray"/>
+      <Setter Property="BorderThickness" Value="2"/>
+      <Setter Property="Margin" Value="5 5 5 5"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="Blue" />
       <Setter Property="Width" Value="40" />
       <Setter Property="Height" Value="40" />
-      <Setter Property="Margin" Value="5" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Border
+              Height="{TemplateBinding Height}"
+              CornerRadius="{TemplateBinding CornerRadius}"
+              Width="{TemplateBinding Width}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}">
+              <ContentPresenter
+                Name="PART_ContentPresenter"
+                Margin="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                Content="{TemplateBinding Content}"
+                ContentTemplate="{TemplateBinding ContentTemplate}"
+                RecognizesAccessKey="True" />
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto, *">
     <s:PlaybackControls />
     <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
       <StackPanel Orientation="Vertical">
-        <RadioButton Name="ArtistListRb" i:Attached.Icon="fa-list" Classes="Tab" />
-        <RadioButton Name="SynthListRb" i:Attached.Icon="fa-cash-register" Classes="Tab" />
+        <RadioButton Name="ArtistListRb" i:Attached.Icon="fa-list" Classes="Nav" IsChecked="true" />
+        <RadioButton Name="SynthListRb" i:Attached.Icon="fa-cash-register" Classes="Nav" />
       </StackPanel>
       <Grid Grid.Column="1" ColumnDefinitions="*, 5, 2*" 
             IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">

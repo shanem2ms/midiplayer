@@ -6,6 +6,7 @@ namespace midilonia.Views
     {
         public SynthList()
         {
+            DataContext = App.ViewModel;
             InitializeComponent();
         }
     }

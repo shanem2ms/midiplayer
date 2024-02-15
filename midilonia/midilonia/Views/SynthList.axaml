@@ -3,6 +3,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:CompileBindings="False"
              x:Class="midilonia.Views.SynthList">
-     Synth List
+  <Grid RowDefinitions="Auto,*">
+    <ContentControl Content="{Binding CurrentSoundFont}">
+      <ContentControl.ContentTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+      </ContentControl.ContentTemplate>
+    </ContentControl>
+    <ListBox Grid.Row="1" ItemsSource="{Binding Path=SoundFonts}"
+             SelectedItem="{Binding Path=SelectedSoundFont, Mode=TwoWay}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="Auto, 2*, 1*">
+            <Rectangle Width="15" Margin="10,0" Fill="Red"
+                       IsVisible="{Binding !IsCached}"/>
+            <Rectangle Width="15" Margin="10,0" Fill="Green"
+                       IsVisible="{Binding IsCached}"/>
+            <TextBlock Grid.Column="1" Text="{Binding Name}"/>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
 </UserControl>
