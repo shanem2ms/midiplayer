@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.iOS;
 using Avalonia.Media;
 using Avalonia.ReactiveUI;
+using audiooutwnd;
 
 namespace midilonia.iOS;
 
@@ -16,8 +17,11 @@ namespace midilonia.iOS;
 public partial class AppDelegate : AvaloniaAppDelegate<App>
 #pragma warning restore CA1711 // Identifiers should not have incorrect suffix
 {
+    static AudioOut audioOut = new AudioOut();
+
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
+        App.OnEngineCreate = audioOut.OnEngineCreate;
         return base.CustomizeAppBuilder(builder)
             .WithInterFont()
             .UseReactiveUI();

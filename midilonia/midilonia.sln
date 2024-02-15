@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "midilonia.Desktop.MacOS", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "audioout.MacOS", "..\audioout.MacOS\audioout.MacOS.csproj", "{7E440877-C691-4931-9401-4794DF0282DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "audioout.IOS", "..\audioout.IOS\audioout.IOS.csproj", "{ED9DE802-54FC-4B5B-95C9-CF50C437836D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,18 @@ Global
 		{7E440877-C691-4931-9401-4794DF0282DB}.Release|ARM64.Build.0 = Release|Any CPU
 		{7E440877-C691-4931-9401-4794DF0282DB}.Release|x64.ActiveCfg = Release|Any CPU
 		{7E440877-C691-4931-9401-4794DF0282DB}.Release|x64.Build.0 = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|ARM64.Build.0 = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED9DE802-54FC-4B5B-95C9-CF50C437836D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

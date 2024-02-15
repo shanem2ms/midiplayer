@@ -1,24 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net7.0-ios</TargetFramework>
-    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <CreatePackage>false</CreatePackage>
+    <UseSGen>false</UseSGen>
+    <WarningLevel>4</WarningLevel>
+    <LinkMode>None</LinkMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <CreatePackage>false</CreatePackage>
+    <UseSGen>false</UseSGen>
+    <LinkMode>None</LinkMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia.iOS" Version="11.0.9" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\midilonia\midilonia.csproj" />
-    <ProjectReference Include="..\..\audioout.IOS\audioout.IOS.csproj" />
-    <ProjectReference Include="..\..\midilib\midilib.csproj" />
+    <ProjectReference Include="..\midilib\midilib.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
   </ItemGroup>
+
 </Project>
