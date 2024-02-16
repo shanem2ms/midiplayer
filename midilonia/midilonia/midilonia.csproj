@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\ArtistsSongs.axaml.cs">
+      <DependentUpon>ArtistsSongs.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\SynthList.axaml.cs">
       <DependentUpon>SynthList.axaml</DependentUpon>
     </Compile>

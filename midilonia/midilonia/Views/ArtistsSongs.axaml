@@ -1,0 +1,35 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:s="clr-namespace:midilonia.Views"
+             xmlns:midilib="clr-namespace:midilib;assembly=midilib"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
+             x:CompileBindings="False"
+             x:Class="midilonia.Views.ArtistsSongs" x:DataType="s:MainView">
+
+  <Grid RowDefinitions="Auto, *">
+    <s:PlaybackControls />
+    <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
+      <StackPanel Orientation="Vertical">
+        <RadioButton Name="ArtistListRb" Classes="Nav" IsChecked="true" Content="{StaticResource List}"/>
+        <RadioButton Name="SynthListRb" Classes="Nav" Content="{StaticResource CashRegister}" />
+      </StackPanel>
+      <Grid Grid.Column="1" ColumnDefinitions="*, 5, 2*" 
+            IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
+        <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Name}"/>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox Grid.Column="2" ItemsSource="{Binding ArtistSongs}"
+                 SelectedItem="{Binding CurrentSong, Mode=TwoWay}"></ListBox>
+      </Grid>
+      <s:SynthList Grid.Column="1"
+                   IsVisible="{Binding ElementName=SynthListRb, Path=IsChecked}"/>
+    </Grid>
+  </Grid>
+</UserControl>
+
