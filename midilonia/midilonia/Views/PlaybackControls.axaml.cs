@@ -1,12 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using midilib;
-using System.Globalization;
 using System;
+using System.Globalization;
 using System.Linq;
-using Avalonia.Data.Converters;
-using System.Numerics;
-using Avalonia.Utilities;
 
 namespace midilonia.Views
 {

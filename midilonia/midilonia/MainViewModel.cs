@@ -1,13 +1,9 @@
 ﻿using midilib;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Linq;
-using midilib;
-using System.Numerics;
-using System;
-using Amazon.S3.Model;
-using Avalonia.Threading;
+using System.Threading.Tasks;
 
 namespace midilonia
 {

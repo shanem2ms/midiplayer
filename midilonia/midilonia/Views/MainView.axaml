@@ -4,11 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:s="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
              x:CompileBindings="False"
              x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
 
+  <UserControl.Resources>    
+    <Path x:Key="List" Stretch="Uniform" Fill="White" Data="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z" />
+    <Path x:Key="CashRegister" Stretch="Uniform" Fill="White" Data="M64 0C46.3 0 32 14.3 32 32V96c0 17.7 14.3 32 32 32h80v32H87c-31.6 0-58.5 23.1-63.3 54.4L1.1 364.1C.4 368.8 0 373.6 0 378.4V448c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V378.4c0-4.8-.4-9.6-1.1-14.4L488.2 214.4C483.5 183.1 456.6 160 425 160H208V128h80c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H64zM96 48H256c8.8 0 16 7.2 16 16s-7.2 16-16 16H96c-8.8 0-16-7.2-16-16s7.2-16 16-16zM64 432c0-8.8 7.2-16 16-16H432c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16zm48-168a24 24 0 1 1 0-48 24 24 0 1 1 0 48zm120-24a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM160 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM328 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM256 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM424 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM352 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48z" />
+  </UserControl.Resources>
   <UserControl.Styles>
     <Style Selector="RadioButton.Nav" >
       <Setter Property="FontSize" Value="20"/>
@@ -51,8 +54,8 @@
     <s:PlaybackControls />
     <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
       <StackPanel Orientation="Vertical">
-        <RadioButton Name="ArtistListRb" i:Attached.Icon="fa-list" Classes="Nav" IsChecked="true" />
-        <RadioButton Name="SynthListRb" i:Attached.Icon="fa-cash-register" Classes="Nav" />
+        <RadioButton Name="ArtistListRb" Classes="Nav" IsChecked="true" Content="{StaticResource List}"/>
+        <RadioButton Name="SynthListRb" Classes="Nav" Content="{StaticResource CashRegister}" />
       </StackPanel>
       <Grid Grid.Column="1" ColumnDefinitions="*, 5, 2*" 
             IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
