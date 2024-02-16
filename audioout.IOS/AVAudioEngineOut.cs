@@ -119,6 +119,9 @@ namespace NAudio.Wave
             //Make sure we haven't been disposed
             ThrowIfDisposed();
 
+            AVAudioSession.SharedInstance().SetCategory(AVAudioSessionCategory.Playback,
+                AVAudioSessionCategoryOptions.MixWithOthers);
+            AVAudioSession.SharedInstance().SetActive(true);
             //Check the player state
             if (m_WaveProvider != null)
             {

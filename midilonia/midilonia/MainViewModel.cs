@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Linq;
 using midilib;
 using System.Numerics;
 using System;
@@ -52,19 +53,19 @@ namespace midilonia
         }
 
 
-        public IEnumerable<MidiDb.SoundFontDesc> SoundFonts => db.AllSoundFonts;
+        public IEnumerable<SFDesc> SoundFonts => db.AllSoundFonts.Select(sf => new SFDesc(sf));
 
-        MidiDb.SoundFontDesc selectedSoundFont;
-        public MidiDb.SoundFontDesc SelectedSoundFont
+        SFDesc selectedSoundFont;
+        public SFDesc SelectedSoundFont
         {
             get => selectedSoundFont;
             set {
                 selectedSoundFont = value;
-                player.ChangeSoundFont(value);
+                player.ChangeSoundFont(value.Desc);
             }
         }
 
-        public MidiDb.SoundFontDesc CurrentSoundFont => player.CurrentSoundFont;
+        public SFDesc CurrentSoundFont => new SFDesc(player.CurrentSoundFont);
 
         public MainViewModel()
         {
@@ -114,5 +115,18 @@ namespace midilonia
         {
             App.OnEngineCreate(midiSynthEngine);
         }
+    }
+
+    public class SFDesc
+    {
+        MidiDb.SoundFontDesc sfd;
+        public SFDesc(MidiDb.SoundFontDesc _sfd)
+        {
+            sfd = _sfd;
+        }
+
+        public string Name => sfd.Name;
+        public MidiDb.SoundFontDesc Desc => sfd;
+        public bool IsCached => sfd.IsCached;
     }
 }
