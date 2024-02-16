@@ -80,7 +80,7 @@ namespace midilib
             userSettings.Persist();
             if (currentPlayingSong != null)
             {
-                PlaySong(currentPlayingSong, false);
+                PlaySong(currentPlayingSong, false, IsPaused);
                 Seek(prevSongTime);
             }
             OnSoundFontChanged?.Invoke(this, soundFont);
@@ -151,9 +151,10 @@ namespace midilib
             }
             return true;
         }
-        public async void PlaySong(MidiDb.Fi mfi, bool pianoMode)
+        public async void PlaySong(MidiDb.Fi mfi, bool pianoMode, bool startPaused)
         {
             await LoadSong(mfi, pianoMode);
+            PauseOrUnPause(startPaused);
             //synthEngine.Play(currentPlayerMidifile, false);
         }
 
