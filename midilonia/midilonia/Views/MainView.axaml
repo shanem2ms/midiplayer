@@ -57,18 +57,9 @@
         <RadioButton Name="ArtistListRb" Classes="Nav" IsChecked="true" Content="{StaticResource List}"/>
         <RadioButton Name="SynthListRb" Classes="Nav" Content="{StaticResource CashRegister}" />
       </StackPanel>
-      <Grid Grid.Column="1" ColumnDefinitions="*, 5, 2*" 
-            IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
-        <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}">
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Name}"/>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
-        <ListBox Grid.Column="2" ItemsSource="{Binding ArtistSongs}"
-                 SelectedItem="{Binding CurrentSong, Mode=TwoWay}"></ListBox>
-      </Grid>
+      <s:ArtistsSongs Grid.Column="1"
+                   IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}"/>
+
       <s:SynthList Grid.Column="1"
                    IsVisible="{Binding ElementName=SynthListRb, Path=IsChecked}"/>
     </Grid>

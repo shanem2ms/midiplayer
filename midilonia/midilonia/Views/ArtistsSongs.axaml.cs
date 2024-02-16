@@ -1,12 +1,5 @@
 ﻿using Avalonia.Controls;
-using midilib;
-using NAudio.Midi;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Numerics;
-using System.Threading.Tasks;
-using static midilib.MidiDb;
+using System.Net.NetworkInformation;
 
 namespace midilonia.Views;
 
@@ -17,5 +10,18 @@ public partial class ArtistsSongs : UserControl
         DataContext = App.ViewModel;
         InitializeComponent();
     }
-      
+
+    private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        App.ViewModel.CurrentArtist = null;
+    }
+
+    private void PlayButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button btn)
+        {
+            string songname = btn.DataContext as string;
+            App.ViewModel.CurrentSong = songname;
+        }
+    }
 }

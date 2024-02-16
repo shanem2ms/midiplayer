@@ -26,7 +26,7 @@ namespace midilonia.Views
                     case "PlayBtn":
                         {
                             MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == App.ViewModel.CurrentSong);
-                            player.PlaySong(fi, false);
+                            player.PlaySong(fi, false, false);
                             player.PauseOrUnPause(false);
                         }
                         break;

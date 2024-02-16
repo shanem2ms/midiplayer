@@ -23,15 +23,22 @@ namespace midilonia
             {
                 currentArtist = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArtistSongs)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentArtist)));
             }
         }
         public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
+
+        public string SelectedSong { get; set; }
 
         string currentSong;
         public string CurrentSong
         {
             get => currentSong;
-            set { currentSong = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
+            set { 
+                currentSong = value;
+                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == currentSong);
+                player.PlaySong(fi, false, false);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
         }
 
         MeltySynth.MidiFile currentplayingSong = null;
