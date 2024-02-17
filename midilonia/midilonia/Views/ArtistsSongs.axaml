@@ -4,39 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:s="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"             
              mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
              x:CompileBindings="False"
              x:Class="midilonia.Views.ArtistsSongs" x:DataType="s:ArtistsSongs">
 
-  <UserControl.Resources>
-    <Path x:Key="ArrowLeft" Stretch="Uniform" Fill="White" Data="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
-  </UserControl.Resources>
-  <UserControl.Styles>
-    <Styles>
-      <Styles.Resources>
-        <Template x:Key="PlayBtn">
-          <Path Stretch="Uniform" Fill="White" Data="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
-        </Template>
-      </Styles.Resources>
-    </Styles>
-    <Style Selector="Button.Play">
-      <Setter Property="Content" Value="{StaticResource PlayBtn}" />
-    </Style>
-  </UserControl.Styles>
   <Grid ColumnDefinitions="*, 0"
         IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
     <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}"
              IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNull}}">
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <TextBlock Text="{Binding Name}"/>
+          <TextBlock Text="{Binding Name}" FontSize="18"/>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
     <Grid RowDefinitions="Auto, *"
         IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}">
       <Grid ColumnDefinitions="Auto, *">
-        <Button Width="35" Height="35" Click="Button_Click" Content="{StaticResource ArrowLeft}" />
+        <Button Width="35" Height="35" Margin="0,0,20,0" Click="Button_Click" i:Attached.Icon="fa-angle-left" />
         <ContentControl Grid.Column="1" Content="{Binding CurrentArtist}" >
           <ContentControl.ContentTemplate>
             <DataTemplate>
@@ -50,8 +36,8 @@
         <ListBox.ItemTemplate>
           <DataTemplate>
             <Grid ColumnDefinitions="*, Auto, 10">
-              <TextBlock Text="{Binding}"/>
-              <Button Grid.Column="1" Width="25" Height="25" Click="PlayButton_Click" Classes="Play"/>
+              <TextBlock Text="{Binding}" FontSize="18"/>
+              <Button Grid.Column="1" Width="25" Height="25" Click="PlayButton_Click" i:Attached.Icon="fa-play"/>
             </Grid>
           </DataTemplate>
         </ListBox.ItemTemplate>

@@ -2,14 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"             
              xmlns:views="clr-namespace:midilonia.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
              x:CompileBindings="False"
              x:Class="midilonia.Views.PlaybackControls">
   <UserControl.Resources>
-    <Path x:Key="Play" Stretch="Uniform" Fill="White" Data="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
-    <Path x:Key="Stop" Stretch="Uniform" Fill="White" Data="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z" />
-    <Path x:Key="Backward" Stretch="Uniform" Fill="White" Data="M459.5 440.6c9.5 7.9 22.8 9.7 34.1 4.4s18.4-16.6 18.4-29V96c0-12.4-7.2-23.7-18.4-29s-24.5-3.6-34.1 4.4L288 214.3V256v41.7L459.5 440.6zM256 352V256 128 96c0-12.4-7.2-23.7-18.4-29s-24.5-3.6-34.1 4.4l-192 160C4.2 237.5 0 246.5 0 256s4.2 18.5 11.5 24.6l192 160c9.5 7.9 22.8 9.7 34.1 4.4s18.4-16.6 18.4-29V352z" />
     <views:TimeToStringConverter x:Key="TimeToStringConverter" />
   </UserControl.Resources>
   <UserControl.Styles>
@@ -30,15 +28,14 @@
                  VerticalAlignment="Center" />
     </Grid>
     <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, *">
-      <Button Name="PlayBtn" Classes="PlayControls" Grid.Column="1" Click="PlayButton_Click"
+      <Button Name="PlayBtn" i:Attached.Icon="fa-play" Classes="PlayControls" Grid.Column="1" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Name="StopBtn" i:Attached.Icon="fa-stop" Classes="PlayControls" Grid.Column="2" Click="PlayButton_Click"
               IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
-              Content="{StaticResource Play}"/>
-      <Button Name="StopBtn" Classes="PlayControls" Grid.Column="2" Click="PlayButton_Click"
-              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
-              Content="{StaticResource Stop}" />
+               />
       <Button Name="RewindBtn" Classes="PlayControls" Grid.Column="3" Click="PlayButton_Click"
               IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
-              Content="{StaticResource Backward}"/>
+              i:Attached.Icon="fa-backward" />
       <Slider Grid.Column="4" Margin="10,0,10,0" Minimum="0" Maximum="{Binding Path=CurrentSongLength}"
               Value="{Binding Path=CurrentTime}"/>
     </Grid>
