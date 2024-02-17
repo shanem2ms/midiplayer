@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\meltysynth\MeltySynth\MeltySynth.csproj" />
     <ProjectReference Include="..\..\midilib\midilib.csproj" />
+    <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>
