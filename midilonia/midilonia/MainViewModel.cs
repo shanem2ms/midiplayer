@@ -1,6 +1,7 @@
 ﻿using midilib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +40,18 @@ namespace midilonia
                 MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == currentSong);
                 player.PlaySong(fi, false, false);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
+        }
+
+        public IEnumerable<MidiDb.Fi> FilteredMidiFiles => db.FilteredMidiFiles;
+
+        public string SongSearchString
+        {
+            get => db.SearchStr;
+            set
+            {
+                db.SearchStr = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilteredMidiFiles)));
+            }
         }
 
         MeltySynth.MidiFile currentplayingSong = null;

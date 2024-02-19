@@ -3,11 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:i="https://github.com/projektanker/icons.avalonia"             
-             xmlns:s="clr-namespace:midilonia.Views"
+             xmlns:v="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
              mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
              x:CompileBindings="False"
-             x:Class="midilonia.Views.MainView" x:DataType="s:MainView">
+             x:Class="midilonia.Views.MainView" x:DataType="v:MainView">
   <UserControl.Styles>
     <Style Selector="RadioButton.Nav" >
       <Setter Property="FontSize" Value="20"/>
@@ -47,16 +47,20 @@
     </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto, *">
-    <s:PlaybackControls />
+    <v:PlaybackControls />
     <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
       <StackPanel Orientation="Vertical">
-        <RadioButton Name="ArtistListRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-list"/>
+        <RadioButton Name="SearchRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-searchengin"/>
+        <RadioButton Name="ArtistListRb" Classes="Nav" i:Attached.Icon="fa-list"/>
         <RadioButton Name="SynthListRb" Classes="Nav" i:Attached.Icon="fa-cash-register" />
       </StackPanel>
-      <s:ArtistsSongs Grid.Column="1"
+      <v:SongSearch Grid.Column="1"
+                   IsVisible="{Binding ElementName=SearchRb, Path=IsChecked}"/>
+
+      <v:ArtistsSongs Grid.Column="1"
                    IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}"/>
 
-      <s:SynthList Grid.Column="1"
+      <v:SynthList Grid.Column="1"
                    IsVisible="{Binding ElementName=SynthListRb, Path=IsChecked}"/>
     </Grid>
   </Grid>

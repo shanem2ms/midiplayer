@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="clr-namespace:midilonia.Views"
+             xmlns:m="clr-namespace:midilonia"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="midilonia.Views.SongSearch"
+             x:CompileBindings="False"
+             x:DataType="m:MainViewModel">
+  <Grid RowDefinitions="Auto, *">
+    <TextBox Name="SearchTb" Text="{Binding SongSearchString, Mode=TwoWay}" FontSize="18" />
+    <ListBox Name="SearchSongsLb" Grid.Row="1" ItemsSource="{Binding FilteredMidiFiles}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="Auto, 10, * ">
+
+            <TextBlock Grid.Column="2" Text="{Binding Name}" FontSize="18"/>
+            <Button Grid.Column="0" Width="50" Height="50" Click="PlayButton_Click" i:Attached.Icon="fa-play"
+            IsVisible="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type ListBoxItem}},
+                                Path=IsSelected}"/>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>
