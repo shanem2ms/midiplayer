@@ -8,15 +8,5 @@
   </Application.Resources>
   <Application.Styles>
     <FluentTheme />
-    <Style Selector="ScrollBar">
-      <Setter Property="Width" Value="12"/>
-      <Setter Property="Background" Value="#CCC"/>
-    </Style>
-    <Style Selector="ScrollBar:vertical">
-      <Setter Property="Width" Value="12"/>
-    </Style>
-    <Style Selector="ScrollBar:horizontal">
-      <Setter Property="Height" Value="12"/>
-    </Style>
   </Application.Styles>
 </Application>

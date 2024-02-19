@@ -1,6 +1,4 @@
-﻿using MeltySynth;
-using Microsoft.VisualBasic;
-using midilib;
+﻿using midilib;
 using NAudio.Midi;
 using NAudio.Wave;
 using System;
@@ -249,7 +247,7 @@ namespace PlayerWPF
         }
         void PlaySong(MidiDb.Fi midiFI)
         {
-            player.PlaySong(midiFI, PianoMode);
+            player.PlaySong(midiFI, PianoMode, false);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSong"));
 
         }

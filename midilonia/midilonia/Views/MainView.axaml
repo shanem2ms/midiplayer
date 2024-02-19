@@ -5,7 +5,7 @@
              xmlns:i="https://github.com/projektanker/icons.avalonia"             
              xmlns:v="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="400"
              x:CompileBindings="False"
              x:Class="midilonia.Views.MainView" x:DataType="v:MainView">
   <UserControl.Styles>
@@ -53,6 +53,7 @@
         <RadioButton Name="SearchRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-searchengin"/>
         <RadioButton Name="ArtistListRb" Classes="Nav" i:Attached.Icon="fa-list"/>
         <RadioButton Name="SynthListRb" Classes="Nav" i:Attached.Icon="fa-cash-register" />
+        <RadioButton Name="PianoRb" Classes="Nav" i:Attached.Icon="fa-vials" />
       </StackPanel>
       <v:SongSearch Grid.Column="1"
                    IsVisible="{Binding ElementName=SearchRb, Path=IsChecked}"/>
@@ -62,6 +63,8 @@
 
       <v:SynthList Grid.Column="1"
                    IsVisible="{Binding ElementName=SynthListRb, Path=IsChecked}"/>
+      <v:InteractivePiano Grid.Column="1"
+                   IsVisible="{Binding ElementName=PianoRb, Path=IsChecked}"/>
     </Grid>
   </Grid>
 </UserControl>

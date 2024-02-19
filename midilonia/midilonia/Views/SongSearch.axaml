@@ -15,7 +15,6 @@
       <ListBox.ItemTemplate>
         <DataTemplate>
           <Grid ColumnDefinitions="Auto, 10, * ">
-
             <TextBlock Grid.Column="2" Text="{Binding Name}" FontSize="18"/>
             <Button Grid.Column="0" Width="50" Height="50" Click="PlayButton_Click" i:Attached.Icon="fa-play"
             IsVisible="{Binding
