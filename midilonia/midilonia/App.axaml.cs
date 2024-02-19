@@ -34,6 +34,7 @@ public partial class App : Application
             };
         }
 
+        string[] resources = typeof(App).Assembly.GetManifestResourceNames();
         base.OnFrameworkInitializationCompleted();
     }
 }

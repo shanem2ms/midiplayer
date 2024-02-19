@@ -21,11 +21,13 @@
   <Grid RowDefinitions="Auto, Auto">
     <Grid ColumnDefinitions="*, *">
       <TextBlock Text="{Binding Path=CurrentSong}" Margin="15,5" HorizontalAlignment="Left"
-                 VerticalAlignment="Center" />
+                 FontFamily="{StaticResource DigitalLCD}"
+                 VerticalAlignment="Center" FontSize="20" />
       <TextBlock Grid.Column="1"
                  Text="{Binding Path=CurrentTime, Converter={StaticResource TimeToStringConverter}}"
                  Margin="15,5" HorizontalAlignment="Left"
-                 VerticalAlignment="Center" />
+                 FontFamily="{StaticResource DigitalLCD}"
+                 VerticalAlignment="Center" FontSize="20" />
     </Grid>
     <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, *">
       <Button Name="PlayBtn" i:Attached.Icon="fa-play" Classes="PlayControls" Grid.Column="1" Click="PlayButton_Click"
