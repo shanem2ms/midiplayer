@@ -119,7 +119,7 @@ namespace midilib
     {
         List<NoteBlock> noteBlocks;
         static public Vector4[] ChannelColors;
-        Piano piano = new Piano(true);
+        Piano piano = new Piano();
 
         public NoteVis(MeltySynth.MidiFile _midiFile)
             : base(_midiFile)
