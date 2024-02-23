@@ -93,7 +93,7 @@ namespace NAudio.Wave
             m_Volume = 1.0f;
             m_IsDisposed = false;
             PlaybackState = PlaybackState.Stopped;
-            DesiredLatency = 300;
+            DesiredLatency = 50;
             NumberOfBuffers = 2;
         }
 

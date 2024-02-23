@@ -4,6 +4,7 @@ using midilib;
 using Avalonia.Controls.Shapes;
 using System.Collections.Generic;
 using Avalonia.Input;
+using Amazon.Runtime.Internal.Transform;
 
 namespace midilonia.Views
 {
@@ -22,8 +23,13 @@ namespace midilonia.Views
             }
         }
 
+        class PointerState
+        {
+            public UIKey pressedKey = null;
+
+        }
+
         UIKey[] uikeys;
-        UIKey pressedKey = null;
         public InteractivePiano()
         {
             InitializeComponent();
@@ -33,37 +39,45 @@ namespace midilonia.Views
             PianoCanvas.PointerMoved += PianoCanvas_PointerMoved;
         }
 
+        Dictionary<IPointer, PointerState> pointerMap = new Dictionary<IPointer, PointerState>();
+
         private void PianoCanvas_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
         {
-            if (!pointerPressed)
+            PointerState ps;
+            if (!pointerMap.TryGetValue(e.Pointer, out ps))
                 return;
 
             var point = e.GetCurrentPoint(sender as Control);
-            KeyboardTouchPos(point);
+            KeyboardTouchPos(ps, point);
         }
 
-        bool pointerPressed = false;
+
 
         private void PianoCanvas_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
         {
-            pointerPressed = false;
-            if (pressedKey != null)
+            PointerState ps;
+            if (!pointerMap.TryGetValue(e.Pointer, out ps))
+                return;
+
+            if (ps.pressedKey != null)
             {
-                player.SynthEngine.NoteOff(pressedKey.midiNote);
-                pressedKey.SetHit(false);
-                pressedKey = null;
+                player.SynthEngine.NoteOff(ps.pressedKey.midiNote);
+                ps.pressedKey.SetHit(false);
+                ps.pressedKey = null;
             }
+            pointerMap.Remove(e.Pointer);
         }
 
         private void PianoCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
         {
-            pointerPressed = true;
             var point = e.GetCurrentPoint(sender as Control);
-            KeyboardTouchPos(point);
+            PointerState ps = new PointerState();
+            pointerMap.Add(e.Pointer, ps);
+            KeyboardTouchPos(ps, point);
         }
 
 
-        void KeyboardTouchPos(PointerPoint point)
+        void KeyboardTouchPos(PointerState ps, PointerPoint point)
         {
             UIKey hitkey = null;
             foreach (var key in uikeys)
@@ -88,18 +102,18 @@ namespace midilonia.Views
                 }
             }
 
-            if (hitkey == pressedKey)
+            if (hitkey == ps.pressedKey)
                 return;
-            if (pressedKey != null)
+            if (ps.pressedKey != null)
             {
-                player.SynthEngine.NoteOff(pressedKey.midiNote);
-                pressedKey.SetHit(false);
+                player.SynthEngine.NoteOff(ps.pressedKey.midiNote);
+                ps.pressedKey.SetHit(false);
             }
-            pressedKey = hitkey;
-            if (pressedKey != null)
+            ps.pressedKey = hitkey;
+            if (ps.pressedKey != null)
             {
-                player.SynthEngine.NoteOn(pressedKey.midiNote, 100);
-                pressedKey.SetHit(true);
+                player.SynthEngine.NoteOn(ps.pressedKey.midiNote, 100);
+                ps.pressedKey.SetHit(true);
             }
         }
 
