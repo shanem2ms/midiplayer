@@ -11,8 +11,8 @@
       <Button i:Attached.Icon="fa-square-minus" FontSize="28" Click="OctaveDn_Click" />
       <TextBlock Text="{Binding Path=CurrentOctave}" VerticalAlignment="Center"  />
       <Button i:Attached.Icon="fa-square-plus" FontSize="28" Click="OctaveUp_Click" />
+      <ComboBox ItemsSource="{Binding Instruments}" />
     </StackPanel>
-  <Canvas Grid.Row="1" x:Name="PianoCanvas" MaxHeight="200">
-  </Canvas>
-    </Grid>
+    <Canvas Grid.Row="1" x:Name="PianoCanvas" MaxHeight="200" />
+  </Grid>
 </UserControl>

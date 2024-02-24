@@ -14,6 +14,8 @@ namespace midilonia.Views
         MidiPlayer player = App.Player;
         public new event PropertyChangedEventHandler? PropertyChanged;
 
+        public string[] Instruments => GMInstruments.Names;
+
         public int CurrentOctave { get; set; } = 0;
         class UIKey
         {
