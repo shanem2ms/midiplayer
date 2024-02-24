@@ -2,8 +2,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"             
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:CompileBindings="False"
              x:Class="midilonia.Views.InteractivePiano">
-  <Canvas x:Name="PianoCanvas" MaxHeight="200">
+  <Grid RowDefinitions="Auto, *">
+    <StackPanel Orientation="Horizontal">
+      <Button i:Attached.Icon="fa-square-minus" FontSize="28" Click="OctaveDn_Click" />
+      <TextBlock Text="{Binding Path=CurrentOctave}" VerticalAlignment="Center"  />
+      <Button i:Attached.Icon="fa-square-plus" FontSize="28" Click="OctaveUp_Click" />
+    </StackPanel>
+  <Canvas Grid.Row="1" x:Name="PianoCanvas" MaxHeight="200">
   </Canvas>
+    </Grid>
 </UserControl>

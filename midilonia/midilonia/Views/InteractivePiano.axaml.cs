@@ -5,12 +5,16 @@ using Avalonia.Controls.Shapes;
 using System.Collections.Generic;
 using Avalonia.Input;
 using Amazon.Runtime.Internal.Transform;
+using System.ComponentModel;
 
 namespace midilonia.Views
 {
-    public partial class InteractivePiano : UserControl
+    public partial class InteractivePiano : UserControl, INotifyPropertyChanged
     {
         MidiPlayer player = App.Player;
+        public new event PropertyChangedEventHandler? PropertyChanged;
+
+        public int CurrentOctave { get; set; } = 0;
         class UIKey
         {
             public Rectangle r;
@@ -32,11 +36,13 @@ namespace midilonia.Views
         UIKey[] uikeys;
         public InteractivePiano()
         {
+            this.DataContext = this;
             InitializeComponent();
             PianoCanvas.SizeChanged += PianoCanvas_SizeChanged;
             PianoCanvas.PointerPressed += PianoCanvas_PointerPressed;
             PianoCanvas.PointerReleased += PianoCanvas_PointerReleased;
             PianoCanvas.PointerMoved += PianoCanvas_PointerMoved;
+            //GMInstruments.Names
         }
 
         Dictionary<IPointer, PointerState> pointerMap = new Dictionary<IPointer, PointerState>();
@@ -129,10 +135,11 @@ namespace midilonia.Views
             double h = size.Height;
             Piano piano = new Piano();
             List<UIKey> keys = new List<UIKey>();
-            int startKey = 24;
+            int startKey = 36 + CurrentOctave * 12;
             int numKeys = 48;
+            startKey = System.Math.Min(System.Math.Max(0, startKey), 128 - numKeys);
             float leftX = piano.PianoKeys[startKey].x;
-            float rightX = piano.PianoKeys[startKey + numKeys + 1].x;
+            float rightX = piano.PianoKeys[startKey + numKeys - 1].x + piano.PianoWhiteXs;
             float xScale = 1.0f / (rightX - leftX);
 
             for (int i = 0; i < numKeys; i++)
@@ -156,6 +163,20 @@ namespace midilonia.Views
             }
 
             uikeys = keys.ToArray();
+        }
+
+        private void OctaveDn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            CurrentOctave--;
+            BuildPiano(PianoCanvas.Bounds.Size);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentOctave)));
+        }
+
+        private void OctaveUp_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            CurrentOctave++;
+            BuildPiano(PianoCanvas.Bounds.Size);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentOctave)));
         }
     }
 }

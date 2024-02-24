@@ -30,10 +30,10 @@ namespace midilib
             float xleft = 0;
             bool[] hasBlackKey = { true, true, false, true, true, true, false };
             char []keyletters = new char[] { 'C', 'D', 'E', 'F', 'G', 'A', 'B' };
-            int nWhiteKeys = 75;
+            int nWhiteKeys = 85;
             float xscale = 1.0f / (float)(nWhiteKeys + 1);
 
-            PianoWhiteXs = xscale * 0.8f;
+            PianoWhiteXs = xscale;// * 0.8f;
             PianoBlackXs = PianoWhiteXs * 0.75f;
 
             int keyIdx = 0;
