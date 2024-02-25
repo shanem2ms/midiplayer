@@ -278,6 +278,11 @@ namespace MeltySynth
             }
         }
 
+        public void SetChannelPatch(int channel, int patch)
+        {
+            Channels[channel].SetPatch(patch);
+        }
+
         public void SetChannelEnabled(int channel, bool enabled)
         {
             if (channel >= Channels.Length)

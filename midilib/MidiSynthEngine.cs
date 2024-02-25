@@ -156,6 +156,11 @@ namespace midilib
             userSynthesizer.NoteOff(0, key);
         }
 
+        public void SetPatch(int patch)
+        {
+            userSynthesizer.SetChannelPatch(0, patch);
+        }
+
         public WaveFormat WaveFormat => format;
     }
 
