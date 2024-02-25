@@ -29,6 +29,8 @@ namespace midilonia.Views
             }
         }
 
+        int currentPatch = 0;
+        public int CurrentPatch { get => currentPatch; set { currentPatch = value; player.SynthEngine.SetPatch(currentPatch); } }
         class PointerState
         {
             public UIKey pressedKey = null;
@@ -180,5 +182,6 @@ namespace midilonia.Views
             BuildPiano(PianoCanvas.Bounds.Size);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentOctave)));
         }
+
     }
 }
