@@ -14,7 +14,26 @@ namespace midilonia
         MidiPlayer player = App.Player;
 
         public new event PropertyChangedEventHandler? PropertyChanged;
-        public IEnumerable<MidiDb.ArtistDef> Artists => db.Artists;
+
+
+        string artistSearchStr = string.Empty;
+        IEnumerable<MidiDb.ArtistDef> filteredArtists = null;
+        public string ArtistSearchString
+        {
+            get => artistSearchStr;
+            set
+            {
+                artistSearchStr = value.ToLower();
+                if (artistSearchStr.Length < 2)
+                    filteredArtists = null;
+                else
+                {
+                    filteredArtists = db.Artists.Where(db => db.Name.ToLower().Contains(artistSearchStr));
+                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Artists)));
+            }
+        }
+        public IEnumerable<MidiDb.ArtistDef> Artists => filteredArtists != null ? filteredArtists : db.Artists;
 
         MidiDb.ArtistDef currentArtist;
         public MidiDb.ArtistDef CurrentArtist
@@ -53,6 +72,7 @@ namespace midilonia
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilteredMidiFiles)));
             }
         }
+
 
         MeltySynth.MidiFile currentplayingSong = null;
         public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds ?? 1);
