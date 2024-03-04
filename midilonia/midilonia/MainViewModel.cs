@@ -50,13 +50,11 @@ namespace midilonia
 
         public string SelectedSong { get; set; }
 
-        string currentSong;
         public string CurrentSong
         {
-            get => currentSong;
+            get => player.CurrentPlayingSong?.Name;
             set { 
-                currentSong = value;
-                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == currentSong);
+                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == value);
                 player.PlaySong(fi, false, false);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
         }
@@ -117,12 +115,13 @@ namespace midilonia
 
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackTime += Player_OnPlaybackTime;
-            player.OnPlaybackComplete += Player_OnPlaybackComplete;
             player.OnSoundFontChanged += Player_OnSoundFontChanged;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Artists)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SoundFonts)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
+            
             return true;
         }
 

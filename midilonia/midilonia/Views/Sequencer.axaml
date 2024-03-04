@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="clr-namespace:midilonia.Views"
+             xmlns:m="clr-namespace:midilonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:CompileBindings="False"
+             x:Class="midilonia.Views.Sequencer">
+  <Grid >
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Grid MinWidth="100" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Content="{Binding Path=SongKey}" Height="25" />
+        <ScrollViewer x:Name="LeftScrollViewer"
+            Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+          <ItemsControl ItemsSource="{Binding Path=ChannelCtrls}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="m:ChannelCtrl">
+                <StackPanel Orientation="Vertical" Height="{Binding Height}"
+                            Background="{Binding Background}">
+                  <DockPanel LastChildFill="False">
+                    <Button DockPanel.Dock="Left" Content="{Binding ChannelNum}" Click="Button_Click" Width="20"/>
+                    <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
+                    <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" Content="S" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20"/>
+                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" Content="M" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20" />
+                  </DockPanel>
+                  <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
+                  <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
+                  <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
+                  <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
+                  <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+      <GridSplitter Grid.Column="1" Width="5" VerticalAlignment="Stretch" Background="DarkBlue" />
+      <Grid Grid.Column="2" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+          <Grid>
+            <Canvas x:Name="TimeStep" PointerPressed="Canvas_PointerPressed"
+                Height="25" Background="AliceBlue" HorizontalAlignment="Left">
+            </Canvas>
+            <Canvas Height="25">
+      
+            </Canvas>
+          </Grid>
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible"
+                       ScrollChanged="ScrollViewer_ScrollChanged">
+          <StackPanel Orientation="Vertical" x:Name="Channels" />
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Button Name="PlayBtn" Margin="5" Content="Play" Click="PlayBtn_Click"/>
+      <Button Name="StopBtn" Margin="5" Grid.Column="1" Content="Stop" Click="StopBtn_Click"/>
+      <Button Name="ToMelody" Margin="5" Grid.Column="2" Content="To Melody" Click="ToMelody_Click"/>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -82,7 +82,7 @@
                 <Button Content="P" Width="30" Height="30" Margin="5" Click="PausePlay_Click" />
             </StackPanel>
         </Grid>
-        <local:Playing x:Name="PlayingCtrl"  Grid.Row="1" Grid.Column="1" Visibility="Collapsed"/>
+        <Grid x:Name="PlayingCtrl"  Grid.Row="1" Grid.Column="1" Visibility="Collapsed"/>
         <local:Sequencer x:Name="SequencerCtrl" Grid.Row="1" Grid.Column="1" Visibility="Collapsed"/>
         <Label Grid.Row="2" Grid.Column="0" Content="Volume"/>
         <Slider x:Name="CurrentPosSlider" Grid.Row="2" Grid.Column="1" />
