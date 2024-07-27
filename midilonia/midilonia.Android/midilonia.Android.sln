@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "midilonia.Android", "midilonia.Android.csproj", "{38C707F5-F27F-4A07-A08D-217E8B50C96B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38C707F5-F27F-4A07-A08D-217E8B50C96B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38C707F5-F27F-4A07-A08D-217E8B50C96B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38C707F5-F27F-4A07-A08D-217E8B50C96B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38C707F5-F27F-4A07-A08D-217E8B50C96B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C09D62A2-85D5-4D13-8AFA-8B29EFD32175}
+	EndGlobalSection
+EndGlobal

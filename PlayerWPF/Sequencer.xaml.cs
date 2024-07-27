@@ -188,7 +188,7 @@ namespace PlayerWPF
             PianoCanvas.Children.Clear();
             double len = PianoCanvas.ActualWidth;
             double h = PianoCanvas.ActualHeight;
-            Piano piano = new Piano(false);
+            Piano piano = new Piano();
             for (int i = 0; i < piano.PianoKeys.Length; i++)
             {
                 bool isBlack = piano.PianoKeys[i].isBlack;
