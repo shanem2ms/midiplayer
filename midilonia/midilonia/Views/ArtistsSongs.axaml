@@ -4,49 +4,53 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:v="clr-namespace:midilonia.Views"
              xmlns:midilib="clr-namespace:midilib;assembly=midilib"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"             
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="1080"
              x:CompileBindings="False"
              x:Class="midilonia.Views.ArtistsSongs" x:DataType="v:ArtistsSongs">
 
-  <Grid ColumnDefinitions="*, 0"
-        IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
-    <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}"
-             IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNull}}">
-      <ListBox.ItemTemplate>
-        <DataTemplate>
-          <TextBlock Text="{Binding Name}" FontSize="18"/>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
-    <Grid RowDefinitions="Auto, *"
-        IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}">
-      <Grid ColumnDefinitions="Auto, *">
-        <Button Width="35" Height="35" Margin="0,0,20,0" Click="Button_Click" i:Attached.Icon="fa-angle-left" />
-        <ContentControl Grid.Column="1" Content="{Binding CurrentArtist}" >
-          <ContentControl.ContentTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold" />
-            </DataTemplate>
-          </ContentControl.ContentTemplate>
-        </ContentControl>
-      </Grid>
-      <ListBox Grid.Row="1" ItemsSource="{Binding ArtistSongs}"
-               SelectedItem="{Binding SelectedSong, Mode=TwoWay}">
+  <Grid RowDefinitions="Auto, *">
+    <TextBox Name="SearchTb" Text="{Binding ArtistSearchString, Mode=TwoWay}" FontSize="18" />
+    <Grid Grid.Row="1"
+      ColumnDefinitions="*, 0"
+          IsVisible="{Binding ElementName=ArtistListRb, Path=IsChecked}">
+      <ListBox ItemsSource="{Binding Artists}" SelectedItem="{Binding CurrentArtist, Mode=TwoWay}"
+               IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNull}}">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Grid ColumnDefinitions="Auto, 10, * ">
-              <TextBlock Grid.Column="2" Text="{Binding}" FontSize="18"/> 
-              <Button Grid.Column="0" Width="50" Height="50" Click="PlayButton_Click" i:Attached.Icon="fa-play"
-                      IsVisible="{Binding
+            <TextBlock Text="{Binding Name}" FontSize="18"/>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+      <Grid RowDefinitions="Auto, *"
+          IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <Grid ColumnDefinitions="Auto, *">
+          <Button Width="35" Height="35" Margin="0,0,20,0" Click="Button_Click" i:Attached.Icon="fa-angle-left" />
+          <ContentControl Grid.Column="1" Content="{Binding CurrentArtist}" >
+            <ContentControl.ContentTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold" />
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+        </Grid>
+        <ListBox Grid.Row="1" ItemsSource="{Binding ArtistSongs}"
+                 SelectedItem="{Binding SelectedSong, Mode=TwoWay}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="Auto, 10, * ">
+                <TextBlock Grid.Column="2" Text="{Binding}" FontSize="18"/>
+                <Button Grid.Column="0" Width="50" Height="50" Click="PlayButton_Click" i:Attached.Icon="fa-play"
+                        IsVisible="{Binding
                             RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type ListBoxItem}},
                                 Path=IsSelected}"/>
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
     </Grid>
   </Grid>
 </UserControl>

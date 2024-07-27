@@ -47,13 +47,17 @@
     </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto, *">
-    <v:PlaybackControls />
+    <Grid ColumnDefinitions="*,Auto">
+      <v:PlaybackControls />
+      <Button Grid.Column="1" i:Attached.Icon="fa-user" Width="40" Height="40" Margin="10"/>
+    </Grid>
     <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
       <StackPanel Orientation="Vertical">
-        <RadioButton Name="SearchRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-searchengin"/>
         <RadioButton Name="ArtistListRb" Classes="Nav" i:Attached.Icon="fa-list"/>
+        <RadioButton Name="SearchRb" Classes="Nav"  i:Attached.Icon="fa-searchengin"/>
         <RadioButton Name="SynthListRb" Classes="Nav" i:Attached.Icon="fa-cash-register" />
         <RadioButton Name="PianoRb" Classes="Nav" i:Attached.Icon="fa-vials" />
+        <RadioButton Name="SequencerRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-sliders" />
       </StackPanel>
       <v:SongSearch Grid.Column="1"
                    IsVisible="{Binding ElementName=SearchRb, Path=IsChecked}"/>
@@ -65,6 +69,8 @@
                    IsVisible="{Binding ElementName=SynthListRb, Path=IsChecked}"/>
       <v:InteractivePiano Grid.Column="1"
                    IsVisible="{Binding ElementName=PianoRb, Path=IsChecked}"/>
+      <v:Sequencer Grid.Column="1"
+                   IsVisible="{Binding ElementName=SequencerRb, Path=IsChecked}"/>
     </Grid>
   </Grid>
 </UserControl>

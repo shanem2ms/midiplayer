@@ -14,7 +14,26 @@ namespace midilonia
         MidiPlayer player = App.Player;
 
         public new event PropertyChangedEventHandler? PropertyChanged;
-        public IEnumerable<MidiDb.ArtistDef> Artists => db.Artists;
+
+
+        string artistSearchStr = string.Empty;
+        IEnumerable<MidiDb.ArtistDef> filteredArtists = null;
+        public string ArtistSearchString
+        {
+            get => artistSearchStr;
+            set
+            {
+                artistSearchStr = value.ToLower();
+                if (artistSearchStr.Length < 2)
+                    filteredArtists = null;
+                else
+                {
+                    filteredArtists = db.Artists.Where(db => db.Name.ToLower().Contains(artistSearchStr));
+                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Artists)));
+            }
+        }
+        public IEnumerable<MidiDb.ArtistDef> Artists => filteredArtists != null ? filteredArtists : db.Artists;
 
         MidiDb.ArtistDef currentArtist;
         public MidiDb.ArtistDef CurrentArtist
@@ -31,13 +50,11 @@ namespace midilonia
 
         public string SelectedSong { get; set; }
 
-        string currentSong;
         public string CurrentSong
         {
-            get => currentSong;
+            get => player.CurrentPlayingSong?.Name;
             set { 
-                currentSong = value;
-                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == currentSong);
+                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == value);
                 player.PlaySong(fi, false, false);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
         }
@@ -53,6 +70,7 @@ namespace midilonia
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilteredMidiFiles)));
             }
         }
+
 
         MeltySynth.MidiFile currentplayingSong = null;
         public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds ?? 1);
@@ -97,12 +115,13 @@ namespace midilonia
 
             player.OnPlaybackStart += Player_OnPlaybackStart;
             player.OnPlaybackTime += Player_OnPlaybackTime;
-            player.OnPlaybackComplete += Player_OnPlaybackComplete;
             player.OnSoundFontChanged += Player_OnSoundFontChanged;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Artists)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SoundFonts)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
+            
             return true;
         }
 
