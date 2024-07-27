@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict/>
+<dict>
+    <key>application-identifier</key>
+    <string>EE6F6TUKRZ.com.your.bundle.id</string>
+    <key>com.apple.developer.team-identifier</key>
+    <string>EE6F6TUKRZ</string>
+    <key>get-task-allow</key>
+    <true/>
+</dict>
 </plist>

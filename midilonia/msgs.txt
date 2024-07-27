@@ -1,0 +1,1135 @@
+    1  cd ..
+    2  cd flash
+    3  git status
+    4  git rm
+    5  git rm csflash/file:/Users/shanemorrison/Documents/flash.log
+    6  git status
+    7  git commit -m "remove weird path"
+    8  git psh
+    9  git pish
+   10  git push
+   11  cd
+   12  du --help
+   13  du
+   14  du --help
+   15  cd
+   16  ls
+   17  ls
+   18  ls
+   19  cd wxeyesunreal
+   20  ls
+   21  git pull
+   22  git clean -xdf
+   23  ls
+   24  git pull
+   25  git clean -xdf
+   26  git clean -xdf
+   27  ls
+   28  cd
+   29  ls
+   30  ls -altr
+   31  cd wxeyesunreal
+   32  open wxeyesunreal.uproject
+   33  git pull
+   34  git clean -xdf
+   35  ./BuildXCode.sh
+   36  ls
+   37  open ./wxeyesunreal.uproject
+   38  ls
+   39  open wxeyesunreal\ \(Mac\).xcworkspace
+   40  open ./wxeyesunreal.uproject
+   41  open ./wxeyesunreal.uproject
+   42  git add .
+   43  git status
+   44  git commit -m "fix macos"
+   45  git push
+   46  git status
+   47  cd
+   48  ls
+   49  cd
+   50  git clone --recursive https://github.com/AvaloniaUI/Avalonia.git
+   51  ls
+   52  ls
+   53  ls
+   54  cd Avalonia
+   55  ls
+   56  ls
+   57  ls
+   58  code .
+   59  cd ..
+   60  dotnet workload list
+   61  dotnet workload search 
+   62  dotnet workload install maui-tizen
+   63  auso dotnet workload install maui-tizen
+   64  sudo dotnet workload install maui-tizen
+   65  ls
+   66  dotnet workload list
+   67  more /Users/shanemorrison/Avalonia/samples/ControlCatalog.Tizen/ControlCatalog.Tizen.csproj
+   68  cd Avalonia
+   69  dotnet build
+   70  ;s
+   71  ls
+   72  more Avalonia.Desktop.slnf
+   73  dotnet build Avalonia.Desktop.slnf
+   74  dir
+   75  ls
+   76  dir
+   77  ls
+   78  ls
+   79  cd /
+   80  ls
+   81  ls
+   82  ls
+   83  ps 
+   84  ps -A
+   85  ps -A | grep Unreal
+   86  c d
+   87  cd Documents
+   88  cd Unreal\ Projects
+   89  ls
+   90  rm -rf *
+   91  ls
+   92  cd
+   93  git clone https://github.com/niels747/2D-Weather-Sandbox.git
+   94  cd
+   95  ls
+   96  lua
+   97  cd 2D-Weather-Sandbox
+   98  code .
+   99  ls
+  100  cd
+  101  cd
+  102  git clone --recurse https://github.com/shanem2ms/VideoTracker.git
+  103  cd VideoTracker
+  104  ls
+  105  code .
+  106  cd ..
+  107  ls
+  108  rm -rf VideoTracker
+  109  ls
+  110  ls
+  111  ls
+  112  npm
+  113  ls
+  114  ls
+  115  code .
+  116  cd midi
+  117  cd ..
+  118  cd midiplayer
+  119  ls
+  120  cd midilonia
+  121  ls
+  122  code .
+  123  cd ..
+  124  ls
+  125  ls
+  126  code .
+  127  ls
+  128  cd midilonia
+  129  ls
+  130  cd ..
+  131  cd ..
+  132  cd wordup
+  133  ls
+  134  code .
+  135  ls
+  136  dot build 
+  137  dotnet build
+  138  ls
+  139  cd ..
+  140  ls
+  141  ls -latr
+  142  dotnet sdk
+  143  dotnet list-sdks
+  144  dotnet list
+  145  dotnet
+  146  dotnet --list-sdks
+  147  dotnet workloads
+  148  dotnet workload
+  149  dotnet workload list
+  150  ls
+  151  ls
+  152  cd ..
+  153  ls
+  154  cd
+  155  ls
+  156  dir
+  157  ls
+  158  cd wordup
+  159  ls
+  160  more depios.sh
+  161  dotnet build wordup.iOS/wordup.iOS.csproj -p:RuntimeIdentifier=ios-arm64 -p:_DeviceName=00008120-00182D5E3A70201E
+  162  dotnet build
+  163  ls
+  164  more /Users/shanemorrison/Avalonia/samples/ControlCatalog.Tizen/ControlCatalog.Tizen.csprojq
+  165  dotnet build wordup.Desktop
+  166  dotnet run wordup.Desktop
+  167  dotnet run --project wordup.Desktop
+  168  cd
+  169  git pull
+  170  git clone https://github.com/shanem2ms/wxweathersim.git
+  171  dc wxweathersim
+  172  ls
+  173  cd wxweathersim
+  174  ls
+  175  code .
+  176  npm
+  177  git pull
+  178  npm
+  179  ls
+  180  brew install npm
+  181  npm
+  182  ls
+  183  npm install
+  184  npm start
+  185  mkdir .vscode
+  186  cp launch.json .vscode/
+  187  npm start
+  188  git pull
+  189  git pull
+  190  cd .vscode
+  191  rm launch.json
+  192  cd ..
+  193  ls
+  194  rm package-lock.json
+  195  git pull
+  196  ls
+  197  git rm package-lock.json
+  198  code .gitignore
+  199  git add .
+  200  git statis
+  201  git status
+  202  git commit -m "up"
+  203  git push
+  204  npm install
+  205  ls
+  206  git add 
+  207  git add .
+  208  git status
+  209  npm start
+  210  git add .
+  211  git commit -m up
+  212  git push
+  213  cd ..
+  214  ls
+  215  cd
+  216  ls
+  217  cd wxweathersim
+  218  git pull
+  219  cd l
+  220  cd 
+  221  ls
+  222  ls -altr
+  223  cd
+  224  ls
+  225  cd midi
+  226  ls
+  227  cd bmidi
+  228  ls
+  229  cd ..
+  230  cd ..
+  231  ls
+  232  rm -rf midi
+  233  ls
+  234  cd midiplayer
+  235  ls
+  236  cd midilonia
+  237  ls
+  238  code .
+  239  dotnet
+  240  dot --list-sdks
+  241  dotnet --list-sdks
+  242  dotnet workloads
+  243  dotnet workload
+  244  dotnet workload list
+  245  dotnet workload install maco
+  246  dotnet workload install macos
+  247  sudo dotnet workload install macos
+  248  dotnet build
+  249  code .
+  250  dotnet help build
+  251  ls
+  252  dotnet build midilonia.Desktop.MacOS
+  253  dotnet build midilonia.Desktop
+  254  ls
+  255  dotnet run midilonia.Desktop.MacOS
+  256   dotnet run midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+  257  dotnet run
+  258  ls
+  259  dotnet run --project midilonia.Desktop.MacOS
+  260  cd
+  261  pwd
+  262  ls -altr
+  263  ls
+  264  cd ..
+  265  ls
+  266  cd /
+  267  ls
+  268  cd
+  269  ls -altr prl_disp_service.md 2D-Weather-Sandbox
+  270  cd /private
+  271  ls
+  272  cd b..
+  273  cd .
+  274  cd ..
+  275  ls -altr private
+  276  ls -altr
+  277  cd var
+  278  ls
+  279  pwd
+  280  pwd --help
+  281  pwd -h
+  282  cd
+  283  ls
+  284  ls
+  285  pwd
+  286  ls
+  287  pwd
+  288  git clone https://github.com/shanem2ms/wxweathersim.git
+  289  cd wx
+  290  cd wxweathersim
+  291  ls
+  292  git pull
+  293  ls
+  294  npm install
+  295  shadeup
+  296  more
+  297  ls
+  298  find .
+  299  find . | grep shadeup
+  300  ls
+  301  npm
+  302  ls
+  303  cd node_modules
+  304  ls
+  305  cd ..
+  306  ls
+  307  more package
+  308  more package.json
+  309  ls
+  310  cd fluid
+  311  ls
+  312  cd ..
+  313  ls
+  314  git status
+  315  git clean -xdf
+  316  ls
+  317  cd fluid
+  318  ls
+  319  cd ..
+  320  git pull
+  321  cd fluid
+  322  ls
+  323  npm install
+  324  ls
+  325  more p.bat
+  326  ./node_modules/.bin/shadeup
+  327  cat p.sh << ./node_modules/.bin/shadeup\n\nq
+  328  echo ./node_modules/.bin/shadeup >> p.sh
+  329  ls
+  330  more p.sh
+  331  chmod +x ./p.sh
+  332  ./p.sh
+  333  ./p.sh fluids.shadeup
+  334  code p.sh
+  335  ./p.sh fluids.shadeup
+  336  code p.sh
+  337  ./p.sh fluids.shadeup
+  338  ./p.sh fluids.shadeup
+  339  ./p.sh fluids.shadeup
+  340  ./p.sh fluids.shadeup
+  341  ./p.sh fluids.shadeup
+  342  cd ..
+  343  ls
+  344  more package.json
+  345  cdc
+  346  cd
+  347  git clone --recursive https://github.com/veldrid/veldrid.git
+  348  cd veldrid
+  349  ls
+  350  code .
+  351  cd src
+  352  code .
+  353  cd ..
+  354  cd ..
+  355  rm -rf veldrid
+  356  ls
+  357  ls
+  358  cd wxweathersim
+  359  git pull
+  360  cd .
+  361  cd ..
+  362  cd wxeyesunreal
+  363  git pull
+  364  ls
+  365  git clean -xdf
+  366  ls
+  367  ls
+  368  ./BuildXCode.sh
+  369  ls
+  370  open wxeyesunreal\ \(Mac\).xcworkspace
+  371  ls
+  372  cd ..
+  373  ls
+  374  ls
+  375  cd
+  376  git clone --recursive https://github.com/mellinoe/veldrid-samples.git
+  377  cd veldrid-samples
+  378  ls
+  379  cd src
+  380  ls
+  381  code .
+  382  cd ..
+  383  ls
+  384  cd ..
+  385  rm -rf veldrid-samples
+  386  ls
+  387  dotnet sdk
+  388  dotnet sdk list
+  389  dotnet sdk --list
+  390  dotnet sdk -h
+  391  dotnet -h
+  392  dotnet sdk
+  393  dotnet sdk -h
+  394  dotnet sdk check
+  395  dotnet help
+  396  dotnet list
+  397  dotnet list sdks
+  398  dotnet
+  399  dotnet help
+  400  dotnet --list-sdks
+  401  dotnet --list-runtimes
+  402  ls
+  403  cd wxeyesunreal
+  404  git pull
+  405  ls
+  406  git clean -xdf
+  407  ls
+  408  ./BuildXCode.sh
+  409  ls
+  410  ls
+  411  open ./wxeyesunreal\ \(Mac\).xcworkspace
+  412  open ./wxeyesunreal\ \(Mac\).xcworkspace
+  413  ls
+  414  git submodule init
+  415  git submodule update
+  416  git pull
+  417  ls
+  418  git clean -xdf
+  419  ls
+  420  ./BuildXCode.sh
+  421  ls
+  422  ./wxeyesunreal\ \(Mac\).xcworkspace
+  423  open ./wxeyesunreal\ \(Mac\).xcworkspace
+  424  cd ..
+  425  ls
+  426  cd fl
+  427  ls
+  428  cd wxeyesunreal
+  429  git pull
+  430  git status
+  431  git add .
+  432  git commit -m "mac fixes"
+  433  git pull
+  434  git resolve
+  435  git help
+  436  ls
+  437  ls
+  438  code .
+  439  ls
+  440  git status
+  441  git restore .
+  442  git status
+  443  git restore --staged
+  444  git restore --staged .
+  445  git status
+  446  git restore .
+  447  git status
+  448  ls
+  449  cd ..
+  450  cd wx
+  451  cd wxeyesunreal
+  452  git reset --hard .
+  453  git reset --hard 
+  454  git status
+  455  git clean -xdf
+  456  git status
+  457  ls
+  458  git pull
+  459  git status
+  460  code .
+  461  git status
+  462  ls
+  463  ./BuildXCode.sh
+  464  ls
+  465  open wxeyesunreal\ \(Mac\).xcworkspace
+  466  cd
+  467  ls
+  468  cd midiplayer
+  469  ls
+  470  git pull
+  471  ls
+  472  git pull
+  473  ls
+  474  cd midilonia
+  475  ls
+  476  cd ..
+  477  ls
+  478  git clean -xdf
+  479  ls
+  480  cd midilonia
+  481  ls
+  482  code .
+  483  ls
+  484  ls
+  485  dotnet build midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+  486  dotnet run midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+  487  dotnet run
+  488  cd midilonia.Desktop.MacOS
+  489  dotnet run
+  490  dls
+  491  cd
+  492  ls
+  493   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=59798 
+  494   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=59803 
+  495   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=59935 
+  496   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60121 
+  497   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60202 
+  498   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60298 
+  499   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60302 
+  500   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60306 
+  501   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=60448 
+  502   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=62178 
+  503   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=62261 
+  504   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=62268 
+  505   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=50288 
+  506   /Users/shanemorrison/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb terminal-agent --connect=62141 
+  507  ls
+  508  cd 
+  509  ls
+  510  cdls
+  511  ls
+  512  ls
+  513  ls
+  514  ls
+  515  cd
+  516  git clone https://github.com/reason000123/uncopylocked-game-collection.git
+  517  cd uncopylocked-game-collection
+  518  ls
+  519  cd ROBLOX
+  520  ls
+  521  cd Community-created
+  522  ls
+  523  ope Builderman\'s\ Vacation\ Sim\!\ Relax\ to\ Survive\!.rbxl
+  524  open Builderman\'s\ Vacation\ Sim\!\ Relax\ to\ Survive\!.rbxl
+  525  ls
+  526  ope Castle\ Warfare.rbxl
+  527  open Castle\ Warfare.rbxl
+  528  ls
+  529  open Four\ Towers\ Bridge\ Battle.rbxl
+  530  ls
+  531  cd ..
+  532  ls
+  533  cd Miscellaneous
+  534  ls
+  535  cd ..
+  536  ls
+  537  cd Co
+  538  cd Content\ team
+  539  ls
+  540  cd ..
+  541  ls
+  542  cd Shedletsky
+  543  ls
+  544  cd ..
+  545  ls
+  546  cd Co
+  547  cd Community-created
+  548  ls
+  549  code Four\ Towers\ Bridge\ Battle.rbxl
+  550  open Emerald\ Forest.rbxl
+  551  cd
+  552  ls
+  553  cd flash
+  554  git pull
+  555  cd ..
+  556  lg
+  557  ls
+  558  cd fl
+  559  cd flash
+  560  git remote -v
+  561  git remote -v
+  562  git branch list
+  563  git branches
+  564  git branch
+  565  git help 
+  566  git help branch
+  567  git help branch -d list
+  568  git help branch
+  569  git help branch list -D
+  570  git branch -D list
+  571  ls
+  572  git branch --list
+  573  git branch --list -r
+  574  git checkout earth
+  575  git pull
+  576  ls
+  577  cd external
+  578  ls
+  579  cd ...
+  580  cd ..
+  581  git submodule update
+  582  l
+  583  ls
+  584  code .
+  585  cd ed
+  586  cd external
+  587  ls
+  588  cd sam
+  589  cd ..
+  590  cd sam.geo
+  591  ls
+  592  cd ..
+  593  cd ..
+  594  ls
+  595  git submodule update --help
+  596  git submodule update --init
+  597  git pull
+  598  git submodule update --init
+  599  git submodule update --init
+  600  git pull
+  601  git git branch --list
+  602  ls
+  603  git git branch --list
+  604  git branch --list
+  605  git clean -xdf
+  606  code .
+  607  cd external/sam.geo
+  608  ls
+  609  cd ..
+  610  cd..
+  611  cd ..
+  612  git submodule update
+  613  git submodule update --init
+  614  git submodule fetch
+  615  ls
+  616  cd external
+  617  ls
+  618  cd  glmext/
+  619  ls
+  620  cd ..
+  621  cd ..
+  622  ls
+  623  git submodule update --init
+  624  git submodule --list
+  625  git submodule status
+  626  git submodule status
+  627  cd external/sam.geo
+  628  git remote -v
+  629  git pull
+  630  ls
+  631  git branch --list
+  632  ls
+  633  git fetch
+  634  ls
+  635  ls
+  636  git checkout main
+  637  ls
+  638  cd src
+  639  ls
+  640  cd
+  641  ls
+  642  cd flash
+  643  ls
+  644  git status
+  645  cd external/sam/geo
+  646  ls
+  647  cd ..
+  648  ls
+  649  cd ..
+  650  cd sam.geo
+  651  ls
+  652  cd src
+  653  ls
+  654  cd ..
+  655  cd ..
+  656  ls
+  657  cd ..
+  658  git submodule --list
+  659  git submodule status
+  660  ls
+  661  code .
+  662  ls
+  663  ls -altr
+  664  ls
+  665  ls
+  666  cd src
+  667  ls
+  668  cd ..
+  669  ls
+  670  ls -altr
+  671  ls
+  672  cd ..
+  673  ls
+  674  ls
+  675  ls
+  676  ls -altr
+  677  cd
+  678  ls
+  679  LS
+  680  LS
+  681  ls
+  682  ls -altr
+  683  ls
+  684  cd fl
+  685  cd flash
+  686  ls
+  687  cd ..
+  688  ls
+  689  cd flash
+  690  ls
+  691  ls ../vcpkg
+  692  ls
+  693  find . | grep shaderc
+  694  ./build/arm64-debug/vcpkg_installed/arm64-osx/tools/bgfx/shaderc
+  695  ls
+  696  git pull
+  697  git submodule update
+  698  git clean -xdf
+  699  code .
+  700  cd ../vcpkg
+  701  cd installed
+  702  ls
+  703  cd arm64-osx
+  704  ls
+  705  cd tools/
+  706  ls
+  707  cd ..
+  708  cd
+  709  ls
+  710  cd flash/
+  711  ls
+  712  find . | grep shaderc
+  713  ls
+  714  cd build
+  715  ls
+  716  cd arm64-debug
+  717  ls
+  718  cd dotnet
+  719  ls
+  720  cd ..
+  721  ld
+  722  ls
+  723  cd src
+  724  ls
+  725  cd .
+  726  cd ..
+  727  ls
+  728  cd
+  729  cd fl
+  730  cd flash
+  731  git submodule update
+  732  git pull
+  733  git submodule update
+  734  code .
+  735  find . | grep cxx
+  736  ls
+  737  find . | grep flash
+  738  ls
+  739  cd build
+  740  ls
+  741  cd arm64-debug
+  742  ls
+  743  ./flash
+  744  find . | grep fs_geofrustum
+  745  ls
+  746  ls
+  747  pwd
+  748  ./flash
+  749  ./flash
+  750  cd
+  751  cd fl
+  752  cd flash
+  753  git status
+  754  cd
+  755  cd flash
+  756  ls
+  757  ls
+  758  cd build/arm64-debug/
+  759  ./flash
+  760  cd 
+  761  cd fl
+  762  cd flash
+  763  git commit -m "macos updatges"
+  764  git add .
+  765  git commit -m "macos updatges"
+  766  git pull
+  767  git config pull.rebase false
+  768  git pull
+  769  ls
+  770  git pull
+  771  code .
+  772  ls
+  773  cd build
+  774  ls
+  775  cd arm64-debug
+  776  ls
+  777  ./flash
+  778  ls
+  779  ls
+  780  git push
+  781  git status
+  782  ls
+  783  git status
+  784  clang
+  785  clang-tidy
+  786  where clang
+  787  ls
+  788  cd ..
+  789  ls
+  790  cd ..
+  791  ls
+  792  git pull
+  793  ls
+  794  cd build
+  795  ls
+  796  cd arm64-debug
+  797  ls
+  798  ls *.json
+  799  cd ..
+  800  ls
+  801  cd ..
+  802  ls
+  803  clang-tidy
+  804  brew
+  805  brew install clang-tidy
+  806  brew search clang
+  807  brew install clang-format
+  808  clang-format
+  809  clang-tidy
+  810  git add .
+  811  git commit -m up
+  812  git push
+  813  ls
+  814  ls -altr
+  815  git status
+  816  code .
+  817  cd ..
+  818  cd wxeyesunreal
+  819  git pull
+  820  ls
+  821  git status
+  822  git commit -m mg
+  823  git pull
+  824  ls
+  825  git pull
+  826  ls
+  827  ls
+  828  git clean -xdf
+  829  ls
+  830  ./BuildXCode.sh
+  831  ls
+  832  open wxeyesunreal\ \(Mac\).xcworkspace
+  833  git submodule update
+  834  ls
+  835  cd Source
+  836  ls
+  837  cd wxeyesunreal
+  838  ls
+  839  cd ..
+  840  cd ..
+  841  ls
+  842  cd ThirdParty
+  843  ls
+  844  cd glmext
+  845  ls
+  846  cd glm
+  847  ls
+  848  cd ex
+  849  cd ext
+  850  ls
+  851  cd ..
+  852  ls
+  853  cd ..
+  854  ls
+  855  cd glmext
+  856  ls
+  857  more Intersection.h
+  858  ls
+  859  cd 
+  860  cd wxeyesunreal
+  861  l
+  862  code .
+  863  cd ThirdParty/glmext/glmext
+  864  ls
+  865  cd 
+  866  cd ..
+  867  ls
+  868  cd
+  869  cd wxeyesunreal
+  870  ./BuildXCode.sh
+  871  code ,.
+  872  code .
+  873  git status
+  874  ls
+  875  cd
+  876  cd wxeyesunreal
+  877  git status
+  878  git push
+  879  git status
+  880  git rebase --continue
+  881  git rebase --continue
+  882  git rebase --continue
+  883  git clean -xdf
+  884  ls
+  885  git status
+  886  git rebase --continue
+  887  git rebase --amend
+  888  git reset --hard
+  889  git status
+  890  git branch
+  891  git branch main
+  892  git checkout main
+  893  git status
+  894  git rebase --continue
+  895  git rebase --abort
+  896  git clean -xdf
+  897  git submodule update
+  898  cd ThirdParty/glmext
+  899  ls
+  900  cd ..
+  901  ls
+  902  git status
+  903  cd ..
+  904  ls
+  905  ls
+  906  git status
+  907  git branch
+  908  ls
+  909  git log
+  910  git revert e6ed1a4c86c729ec331b8db46f0033a5d4ed05c7
+  911  git status
+  912  git clean -xdf
+  913  git status
+  914  git reset --hard
+  915  git checkout main
+  916  git reset --hard
+  917  git status
+  918  ls
+  919  cd ThirdParty
+  920  cd ..
+  921  git submodule update
+  922  git submodule
+  923  ls
+  924  git status
+  925  git checkout main
+  926  ls
+  927  git branch
+  928  git reset --hard
+  929  git status
+  930  git fetch origin/main
+  931  git pull
+  932  git status
+  933  git pull
+  934  ls
+  935  git clean -xdf
+  936  git pull
+  937  ls
+  938  git status
+  939  git reset --hard
+  940  git status
+  941  git checkout main
+  942  git remote -v
+  943  cd ..
+  944  rm -rf wxeyesunreal
+  945  git clone --recursive https://github.com/TheWeatherCompany/wxeyesunreal.git
+  946  ls
+  947  cd wxeyesunreal
+  948  ./BuildXCode.sh
+  949  open wxeyesunreal\ \(Mac\).xcworkspace
+  950  ls
+  951  open wxeyesunreal.uproject
+  952  ps -A
+  953  ps -A | grep finder
+  954  kill -9 43529
+  955  kill -9 finder
+  956  ps -A | grep finder
+  957  ps -A | grep finder
+  958  ps -A | grep finder
+  959  cd /mnt
+  960  ls
+  961  cd /
+  962  ls
+  963  cd
+  964  ls
+  965  mount
+  966  cd /Volumes
+  967  l
+  968  ls
+  969  mkdir ST
+  970  sudo mount -t nfs 192.168.1.8:/st /Volumes/ST
+  971  ls
+  972  sudo mkdir st
+  973  ls
+  974  sudo mount -t nfs 192.168.1.8:/st /Volumes/st
+  975  sudo mount -t nfs 192.168.1.8://mnt/pool2/vd /Volumes/st
+  976  cd st
+  977  ls
+  978  open IMG_0092.MOV
+  979  cd ..
+  980  ls
+  981  ls
+  982  ls
+  983  umount /Volumes/st
+  984  sudo umount /Volumes/st
+  985  ls
+  986  sudo mount -t nfs 192.168.1.8://mnt/main /Volumes/st
+  987  ls
+  988  sudo mkdir st
+  989  sudo mount -t nfs 192.168.1.8://mnt/main /Volumes/st
+  990  cd st
+  991  ls
+  992  ls
+  993  cp /Users/shanemorrison/Desktop/Morrison_Andover_7_16.pdf 
+  994  cp /Users/shanemorrison/Desktop/Morrison_Andover_7_16.pdf  .
+  995  sudo cp /Users/shanemorrison/Desktop/Morrison_Andover_7_16.pdf  .
+  996  ls
+  997  touch shane
+  998  ls
+  999  ls -altr
+ 1000  ls
+ 1001  cd 
+ 1002  ls
+ 1003  cd wxweathersim
+ 1004  ls
+ 1005  git status
+ 1006  git remote -v
+ 1007  git pull
+ 1008  git status
+ 1009  cd fluid
+ 1010  ls
+ 1011  more p.sh
+ 1012  ./p.sh
+ 1013  ls
+ 1014  cd ..
+ 1015  ls
+ 1016  cd shadeup
+ 1017  ls
+ 1018  cd ..
+ 1019  ls
+ 1020  cd tk
+ 1021  ls
+ 1022  cd ..
+ 1023  ls
+ 1024  cd ..
+ 1025  ls
+ 1026  cd midiplayer
+ 1027  ls
+ 1028  ls
+ 1029  cd midilonia
+ 1030  ls
+ 1031  code .
+ 1032  ls
+ 1033  dotnet build 
+ 1034  ls
+ 1035  ls
+ 1036  cd ..
+ 1037  ls
+ 1038  cd midilonia
+ 1039  ls
+ 1040  open midilonia.sln
+ 1041  dotnet workload
+ 1042  dotnet workload list
+ 1043  dotnet 
+ 1044  dotnet --list-sdks
+ 1045  dotnet --list-runtimes
+ 1046  dotnet --list-sdks
+ 1047  dotnet --list-sdks
+ 1048  dotnet workload restore
+ 1049  sudo dotnet workload restore
+ 1050  dotnet build
+ 1051  dotnet workload
+ 1052  dotnet workload list
+ 1053  ;s
+ 1054  cd ..
+ 1055  git pull
+ 1056  ls
+ 1057  ls
+ 1058  ls
+ 1059  cd midilonia
+ 1060  ls
+ 1061  dotnet build
+ 1062  ls
+ 1063  more midilonia.sln
+ 1064  dotnet help build
+ 1065  ls
+ 1066  cd midilonia.Desktop
+ 1067  ls
+ 1068  cd ..
+ 1069  ls
+ 1070  dotnet build midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+ 1071  dotnet run midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+ 1072  cd ..
+ 1073  dotnet run
+ 1074  dotnet run --project midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+ 1075  dotnet run --project midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+ 1076  ls
+ 1077  cd midilonia
+ 1078  dotnet run --project midilonia.Desktop.MacOS/midilonia.Desktop.MacOS.csproj
+ 1079  ls
+ 1080  ls
+ 1081  ls
+ 1082  cd ..
+ 1083  ls
+ 1084  ls *.sh
+ 1085  cd midimo
+ 1086  ls
+ 1087  cd ..
+ 1088  ls
+ 1089  ls
+ 1090  cd midil
+ 1091  cd midilonia
+ 1092  ls
+ 1093  cd midilonia.I
+ 1094  cd midilonia.iOS
+ 1095  ls
+ 1096  cd ..
+ 1097  ls
+ 1098  cd 
+ 1099  cd fl
+ 1100  cd flash
+ 1101  ls
+ 1102  cd scripts
+ 1103  ls
+ 1104  more cmakexcode.sh
+ 1105  cd ..
+ 1106  git branch
+ 1107  git checkout main
+ 1108  ls
+ 1109  git branch
+ 1110  ls
+ 1111  cd scripts
+ 1112  ls
+ 1113  ls *.sh
+ 1114  cd ..
+ 1115  ls
+ 1116  cd csflash
+ 1117  ls
+ 1118  ls *.sh
+ 1119  cd ..
+ 1120  ls
+ 1121  cd dotnet
+ 1122  ls
+ 1123  cd ..
+ 1124  ls
+ 1125  cd ..
+ 1126  ls
+ 1127  cd midilo
+ 1128  ls
+ 1129  cd midiplayer
+ 1130  ls
+ 1131  cd midilonia
+ 1132  ls
+ 1133  hist
+ 1134  history
+ 1135  history -2000
