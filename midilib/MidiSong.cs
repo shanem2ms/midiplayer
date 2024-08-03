@@ -56,6 +56,7 @@ namespace midilib
             public double AverageNoteLength = 0;
             public double AverageNotePitch = 0;
             public double AverageNoteOverlap = 0;
+            public double MelodyScore = 0;
 
             public TrackTypeDef TrackType { get; set; }
            
@@ -97,6 +98,8 @@ namespace midilib
                 }
                 else
                     TrackType = TrackTypeDef.Empty;
+
+                MelodyScore = (UniqueMeasures * FilledMeasures / AverageNoteOverlap);
             }
 
             class Hash
@@ -182,7 +185,7 @@ namespace midilib
             }
 
             public void Quantize(int qticks)
-            {
+            {                
                 for (int i = 0; i < Notes.Length; ++i)
                 {
                     Notes[i].startTicks = ((Notes[i].startTicks + qticks/2) / qticks) * qticks;
@@ -347,10 +350,10 @@ namespace midilib
             }
 
             TrackInfo []mainMelodies = Tracks.Where(t => t.TrackType == TrackTypeDef.MainMelody).ToArray();
-            if (mainMelodies.Length > 1)
+            if (mainMelodies.Length > 0)
             {
-                float maxFilledMeasures = mainMelodies.Max(m => m.FilledMeasures);
-                foreach (var m in mainMelodies) { if (m.FilledMeasures < maxFilledMeasures) m.TrackType = TrackTypeDef.Accompaniment; }
+                double maxScore = mainMelodies.Max(t => t.MelodyScore);
+                foreach (var m in mainMelodies) { if (m.MelodyScore < maxScore) m.TrackType = TrackTypeDef.Accompaniment; }
             }
         }
 
@@ -369,6 +372,78 @@ namespace midilib
             TrackInfo melodyTrack = new TrackInfo(0, ti.Instrument, newNotes);
             tracks.Add(melodyTrack);
             return new MidiSong(tracks.ToArray(), Resolution);
+        }
+
+        public MidiSong ConvertToPianoSong()
+        {
+            List<Note> newNotes = new List<Note>();
+            IEnumerable<TrackInfo> tiList = Tracks.Where(t => t.TrackType == TrackTypeDef.MainMelody);
+            foreach (var ti in tiList)
+            {
+                AddNotes(newNotes, ti.Notes, 1000, null);
+            }
+
+            int measureTicks = Resolution * 4;
+            int measuresInSong = LengthTicks / measureTicks;
+            bool []measuresWithMelody = new bool[measuresInSong+1];
+            foreach (var n in newNotes)
+            {
+                int startMeasure = n.startTicks / measureTicks;
+                measuresWithMelody[startMeasure] = true;
+            }
+
+            tiList = tiList = Tracks.Where(t => t.TrackType != TrackTypeDef.MainMelody &&
+                t.TrackType != TrackTypeDef.Drums);
+            foreach (var ti in tiList)
+            {
+                int velocityMul = ti.TrackType == TrackTypeDef.Bass ? 1000 : 750;
+                AddNotes(newNotes, ti.Notes, velocityMul, measuresWithMelody);
+            }
+
+            List<TrackInfo> tracks = new List<TrackInfo>();
+            TrackInfo melodyTrack = new TrackInfo(0, "Piano", newNotes.ToArray());
+            tracks.Add(melodyTrack);
+            return new MidiSong(tracks.ToArray(), Resolution);
+        }
+
+        class NoteCmb
+        {
+            public bool isNew;
+            public Note n;
+        }
+        void AddNotes(List<Note> songNotes, IEnumerable<Note> inNotes, int velocityMul, bool[]measuresWithMelody)
+        {
+            int measureTicks = Resolution * 4;
+            Note[] currentNote = new Note[127];
+            for (int i = 0; i < currentNote.Length; i++)
+            {
+                currentNote[i] = null;
+            }
+
+            List<NoteCmb> noteCmbs = inNotes.Select(n => new NoteCmb { n = n, isNew = true }).ToList();
+            noteCmbs.AddRange(songNotes.Select(n => new NoteCmb { n = n, isNew = false }));
+            noteCmbs.Sort((a, b) => { 
+                int c = a.n.startTicks.CompareTo(b.n.startTicks);
+                if (c != 0) return c;
+                return a.isNew.CompareTo(b.isNew);
+            });
+
+            foreach (var note in noteCmbs)
+            {
+                int notekey = note.n.note;
+                if (currentNote[notekey] == null ||
+                    (currentNote[notekey].startTicks + currentNote[notekey].lengthTicks) < note.n.startTicks)
+                {
+                    currentNote[notekey] = note.n;
+                    if (note.isNew)
+                    {
+                        bool hasMelody = measuresWithMelody != null && measuresWithMelody[note.n.startTicks / measureTicks];
+                        byte newVelocity = hasMelody ? (byte)Math.Clamp((note.n.velocity * velocityMul) / 1000, 0, 127) : note.n.velocity;
+                        songNotes.Add(new Note(note.n.startTicks, note.n.lengthTicks,
+                            note.n.note, newVelocity));
+                    }
+                }
+            }
         }
 
         byte GetProgramNumber(IEnumerable<MeltySynth.MidiFile.Message> _messages)
@@ -405,6 +480,7 @@ namespace midilib
         {
             return new TimeSpan((long)(TimeSpan.TicksPerSecond * value));
         }
+
 
     }
 }

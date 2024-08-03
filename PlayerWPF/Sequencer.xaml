@@ -43,6 +43,7 @@
                                     <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
                                     <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
                                     <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
+                                    <TextBlock Text="{Binding MelodyScore, StringFormat='MelodyScore: {0:F2}'}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -78,10 +79,12 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button Name="PlayBtn" Margin="5" Content="Play" Click="PlayBtn_Click"/>
             <Button Name="StopBtn" Margin="5" Grid.Column="1" Content="Stop" Click="StopBtn_Click"/>
             <Button Name="ToMelody" Margin="5" Grid.Column="2" Content="To Melody" Click="ToMelody_Click"/>
+            <Button Name="ToPiano" Margin="5" Grid.Column="3" Content="To Piano" Click="ToPiano_Click"/>
         </Grid>
         <Canvas x:Name="PianoCanvas" Height="100" Grid.Row="2" SizeChanged="PianoCanvas_SizeChanged" />
     </Grid>

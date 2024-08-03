@@ -6,4 +6,7 @@
     <ActiveDebugProfile>Tablet H-DPI 13.5in - API 34 (Android 14.0 - API 34)</ActiveDebugProfile>
     <DefaultDevice>tablet_h-dpi_13_5in_-_api_34</DefaultDevice>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

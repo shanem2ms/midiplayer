@@ -55,6 +55,7 @@ namespace PlayerWPF
             public double AverageNotePitch => track.AverageNotePitch;
             
             public double AverageNoteOverlap => track.AverageNoteOverlap;
+            public double MelodyScore => track.MelodyScore;
 
             public string TrackType => track.TrackType.ToString();
             public bool IsSolo { get; set; }
@@ -328,6 +329,12 @@ namespace PlayerWPF
         private void ToMelody_Click(object sender, RoutedEventArgs e)
         {
             midiSong = midiSong.ConvertToMelody();
+            Relayout();
+        }
+
+        private void ToPiano_Click(object sender, RoutedEventArgs e)
+        {
+            midiSong = midiSong.ConvertToPianoSong();
             Relayout();
         }
     }

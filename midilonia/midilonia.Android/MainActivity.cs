@@ -3,6 +3,8 @@ using Android.Content.PM;
 using Avalonia;
 using Avalonia.Android;
 using Avalonia.ReactiveUI;
+using Projektanker.Icons.Avalonia.FontAwesome;
+using Projektanker.Icons.Avalonia;
 
 namespace midilonia.Android
 {
@@ -16,6 +18,9 @@ namespace midilonia.Android
     {
         protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
         {
+            IconProvider.Current
+              .Register<FontAwesomeIconProvider>();
+
             return base.CustomizeAppBuilder(builder)
                 .WithInterFont()
                 .UseReactiveUI();

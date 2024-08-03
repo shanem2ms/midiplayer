@@ -139,8 +139,13 @@ namespace midilib
             userSettings.Persist();
             try
             {
-                currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile, pianoMode ? MeltySynth.MidiFile.InstrumentType.Piano :
-                    MeltySynth.MidiFile.InstrumentType.Original);
+                currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile);
+                if (pianoMode)
+                {
+                    MidiSong song = new MidiSong(currentPlayerMidifile);
+                    MidiSong pianoSong = song.ConvertToPianoSong();
+                    currentPlayerMidifile = pianoSong.GetMidiFile();
+                }
                 OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
                 synthEngine.Play(currentPlayerMidifile, false, 0);
                 IsPaused = true;

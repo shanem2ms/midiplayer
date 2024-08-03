@@ -84,7 +84,7 @@ namespace midilib
                 sw.Start();
                 cmd.CommandText = "BEGIN";
                 await cmd.ExecuteNonQueryAsync();
-                MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid", MeltySynth.MidiFile.InstrumentType.Original);
+                MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid");
 
                 Parallel.ForEach(batch, fi =>
                 {
@@ -94,7 +94,7 @@ namespace midilib
                     if (path == null) return;
                     try
                     {
-                        MidiFile midiFile = new MidiFile(path, MeltySynth.MidiFile.InstrumentType.Original);
+                        MidiFile midiFile = new MidiFile(path);
                         MidiFile.Message[] messages = midiFile.Messages;
                         ChordAnalyzer chordAnalyzer = new ChordAnalyzer(midiFile);
                         var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
