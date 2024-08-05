@@ -345,7 +345,7 @@ namespace midilib
 
             foreach (var track in Tracks)
             {
-                track.Quantize(midiFile.Resolution / 4);
+                //track.Quantize(midiFile.Resolution / 4);
                 track.AnalyzeForType(midiFile.Resolution, LengthTicks);
             }
 
