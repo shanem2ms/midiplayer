@@ -314,9 +314,10 @@ namespace midilib
         }        
 
 
-        public MidiSong(TrackInfo[] tracks, int resolution)
+        public MidiSong(TrackInfo[] tracks, int resolution, double tempo)
         {
             Resolution = resolution;
+            Tempo = tempo;
             LengthTicks = tracks.Select(t => t.Notes.Last().startTicks + t.Notes.Last().lengthTicks).Max();
             Tracks = tracks;
             int sixteenthRes = Resolution / 4;
@@ -371,7 +372,7 @@ namespace midilib
                 ti.Notes.Select(n => new Note(n.startTicks - firstMelodyTick, n.lengthTicks, n.note, n.velocity)).ToArray();
             TrackInfo melodyTrack = new TrackInfo(0, ti.Instrument, newNotes);
             tracks.Add(melodyTrack);
-            return new MidiSong(tracks.ToArray(), Resolution);
+            return new MidiSong(tracks.ToArray(), Resolution, Tempo);
         }
 
         public MidiSong ConvertToPianoSong()
@@ -403,7 +404,7 @@ namespace midilib
             List<TrackInfo> tracks = new List<TrackInfo>();
             TrackInfo melodyTrack = new TrackInfo(0, "Piano", newNotes.ToArray());
             tracks.Add(melodyTrack);
-            return new MidiSong(tracks.ToArray(), Resolution);
+            return new MidiSong(tracks.ToArray(), Resolution, Tempo);
         }
 
         class NoteCmb
@@ -458,7 +459,7 @@ namespace midilib
             var currentTick = 0;
             var currentTime = TimeSpan.Zero;
 
-            var tempo = 120.0;
+            var tempo = Tempo;
 
             for (int idx = 0; idx < messages.Length; ++idx)
             {

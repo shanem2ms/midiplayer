@@ -1,18 +1,9 @@
-﻿using midilib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using midilib;
-using System.ComponentModel;
+﻿using Avalonia.Media;
 using Avalonia.Threading;
-using Avalonia.Media;
+using midilib;
 using midilonia.Views;
-using Avalonia.Controls.Shapes;
-using Avalonia.Controls;
-using static midilonia.SequencerModel;
-using System.Threading.Channels;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace midilonia
 {
@@ -45,10 +36,52 @@ namespace midilonia
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             currentTicks = 0;
-            //Relayout();
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Relayout();
+            });
         }
 
-   
+        void Relayout()
+        {
+            channelCtrls = new List<ChannelCtrl>();
+
+            /*
+
+    int sixteenthRes = midiSong.Resolution / 4;
+    pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
+    int height = (int)TimeStep.Height;
+
+    for (int i = 0; i < midiSong.LengthSixteenths; i += 4)
+    {
+        Line l = new Line();
+        l.StartPoint = new Avalonia.Point(i * pixelsPerSixteenth - 1, 0);
+        l.EndPoint = new Avalonia.Point(i * pixelsPerSixteenth, (i % 16) == 0 ? height : height / 2);
+        l.Stroke = Brushes.Black;
+        TimeStep.Children.Add(l);
+    }
+    for (int i = 0; i < midiSong.LengthSixteenths; i += 16)
+    {
+        TextBlock textBlock = new TextBlock();
+        textBlock.Text = (i / 16 + 1).ToString();
+        TimeStep.Children.Add(textBlock);
+        Canvas.SetLeft(textBlock, i * pixelsPerSixteenth);
+    }
+    TimeStep.Width = midiSong.LengthSixteenths * pixelsPerSixteenth;
+            */
+            for (int i = 0; i < midiSong.Tracks.Length; i++)
+            {
+                MidiSong.TrackInfo track = midiSong.Tracks[i];
+
+                channelCtrls.Add(
+                    new ChannelCtrl(track));
+                //Channels.Children.Add(sequencerChannel);
+            }
+
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelCtrls)));
+        }
+
     }
     public class ChannelCtrl : INotifyPropertyChanged
     {
@@ -70,11 +103,9 @@ namespace midilonia
         public bool IsMute { get; set; }
 
         public SolidColorBrush Background { get; }
-        public ChannelCtrl(MidiSong.TrackInfo _track,
-            SequencerChannel seq)
+        public ChannelCtrl(MidiSong.TrackInfo _track)
         {
             track = _track;
-            Seq = seq;
 
             int typeInt = (int)track.TrackType;
             int rsub = ((typeInt + 1) & 1) != 0 ? 25 : 0;
@@ -82,7 +113,6 @@ namespace midilonia
             int bsub = (((typeInt + 1) >> 2) & 1) != 0 ? 25 : 0;
             Background = new SolidColorBrush(
                 Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
-            seq.Background = Background;
         }
 
         public void ExpandCollapse()

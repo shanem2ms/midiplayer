@@ -14,7 +14,7 @@ public partial class App : Application
     public static MidiPlayer.OnAudioEngineCreateDel OnEngineCreate = null;
     
     public static MainViewModel ViewModel { get; } = new MainViewModel();
-    public static SequencerModel SequencerMdl { get; set; }
+    public static SequencerModel SequencerMdl { get; set; } = new SequencerModel();
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
