@@ -4,7 +4,6 @@ using Avalonia.ReactiveUI;
 using Projektanker.Icons.Avalonia.FontAwesome;
 using Projektanker.Icons.Avalonia;
 using audiooutwnd;
-using System.Reflection.PortableExecutable;
 
 namespace midilonia.Desktop;
 
@@ -27,7 +26,7 @@ sealed class Program
         IconProvider.Current
         .Register<FontAwesomeIconProvider>();
 
-        return AppBuilder.Configure<App>()
+      return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
