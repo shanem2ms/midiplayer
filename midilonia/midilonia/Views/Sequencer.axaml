@@ -27,7 +27,7 @@
         <Button Content="{Binding Path=SongKey}" Height="25" />
         <ScrollViewer x:Name="LeftScrollViewer"
             Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
-          <ItemsControl ItemsSource="{Binding Path=ChannelCtrls}">
+          <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
                 <StackPanel Orientation="Vertical" Height="{Binding Height}"
@@ -61,7 +61,6 @@
                 Height="25" Background="AliceBlue" HorizontalAlignment="Left">
             </Canvas>
             <Canvas Height="25">
-      
             </Canvas>
           </Grid>
         </ScrollViewer>

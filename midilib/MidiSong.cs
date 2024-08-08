@@ -221,7 +221,7 @@ namespace midilib
             }
             void BuildNotes(MidiFile.Message[] messages)
             {
-                Note[] noteOnTick = new Note[127];
+                Note[] noteOnTick = new Note[127 + 1];
                 for (int j = 0; j < noteOnTick.Length; j++)
                     noteOnTick[j] = null;
                 List<Message> othMessages = new List<Message>();

@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace midilonia
 {
-    public class SequencerModel
+    public class SequencerModel : INotifyPropertyChanged
     {
         MidiPlayer player = App.Player;
         const int pixelsPerSixteenth = 10;
@@ -21,7 +21,7 @@ namespace midilonia
         int currentTicks = 0;
 
         List<ChannelCtrl> channelCtrls = null;
-        public IEnumerable<ChannelCtrl> ChannelCtrls => channelCtrls;
+        public List<ChannelCtrl> ChannelCtrls => channelCtrls;
 
         public SequencerModel()
         {
@@ -112,7 +112,7 @@ namespace midilonia
             int gsub = (((typeInt + 1) >> 1) & 1) != 0 ? 25 : 0;
             int bsub = (((typeInt + 1) >> 2) & 1) != 0 ? 25 : 0;
             Background = new SolidColorBrush(
-                Color.FromRgb((byte)(255 - rsub), (byte)(255 - gsub), (byte)(255 - bsub)));
+                Color.FromRgb((byte)(rsub), (byte)(gsub), (byte)(bsub)));
         }
 
         public void ExpandCollapse()
