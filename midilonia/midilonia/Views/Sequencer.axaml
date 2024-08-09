@@ -49,7 +49,8 @@
           </ItemsControl>
         </ScrollViewer>
       </Grid>
-      <GridSplitter Grid.Column="1" Width="5" VerticalAlignment="Stretch" Background="DarkBlue" />
+      <GridSplitter Grid.Column="1" Width="20" VerticalAlignment="Stretch" 
+                    Background="LightBlue" />
       <Grid Grid.Column="2" >
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -65,8 +66,17 @@
           </Grid>
         </ScrollViewer>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible"
+                      Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
                        ScrollChanged="ScrollViewer_ScrollChanged">
-          <StackPanel Orientation="Vertical" x:Name="Channels" />
+          <ItemsControl ItemsSource="{Binding ChannelCtrls}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="m:ChannelCtrl">
+                <StackPanel Orientation="Vertical" Height="{Binding Height}"
+                            Background="{Binding Background}">
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+          </ItemsControl> 
         </ScrollViewer>
       </Grid>
     </Grid>

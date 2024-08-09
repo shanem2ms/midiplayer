@@ -111,6 +111,10 @@ namespace midilonia
             int rsub = ((typeInt + 1) & 1) != 0 ? 25 : 0;
             int gsub = (((typeInt + 1) >> 1) & 1) != 0 ? 25 : 0;
             int bsub = (((typeInt + 1) >> 2) & 1) != 0 ? 25 : 0;
+            if (!App.IsDarkTheme())
+            {
+                rsub = 255 - rsub; gsub = 255 - gsub; bsub = 255 - bsub;
+            }
             Background = new SolidColorBrush(
                 Color.FromRgb((byte)(rsub), (byte)(gsub), (byte)(bsub)));
         }

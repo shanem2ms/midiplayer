@@ -1,8 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using midilib;
 using midilonia.Views;
+using System;
 
 namespace midilonia;
 
@@ -19,7 +21,19 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
     }
+    public static bool IsDarkTheme()
+    {
+        var app = Application.Current;
+        if (app is null)
+        {
+            throw new InvalidOperationException("Application instance is not available.");
+        }
 
+        var themeVariant = app.RequestedThemeVariant;
+
+        // Check if the theme is dark
+        return themeVariant == ThemeVariant.Dark;
+    }
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
