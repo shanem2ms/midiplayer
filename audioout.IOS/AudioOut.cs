@@ -6,7 +6,7 @@ namespace audiooutwnd
 {
     public class AudioOut
     {
-        bool enableMidi = false;
+        bool enableMidi = true;
         MidiOut midiOut;
         NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
         public void OnEngineCreate(MidiSynthEngine midiSynthEngine)
