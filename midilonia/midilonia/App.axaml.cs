@@ -29,7 +29,7 @@ public partial class App : Application
             throw new InvalidOperationException("Application instance is not available.");
         }
 
-        var themeVariant = app.RequestedThemeVariant;
+        var themeVariant = app.ActualThemeVariant;
 
         // Check if the theme is dark
         return themeVariant == ThemeVariant.Dark;

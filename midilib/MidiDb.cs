@@ -205,7 +205,7 @@ namespace midilib
                 var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + filename);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
                 inputstream.Seek(0, SeekOrigin.Begin);
-                FileStream fs = File.OpenWrite(mappingsFile);
+                FileStream fs = File.Create(mappingsFile);
                 inputstream.CopyTo(fs);
                 fs.Close();
                 fs.Close();
@@ -215,7 +215,7 @@ namespace midilib
         TaskCompletionSource<bool> IsMappingsInitialized = new TaskCompletionSource<bool>();
         public async Task<bool> InitializeMappings()
         {
-            string jsonstr = await FetchOrCache("mappings.json");            
+            string jsonstr = await FetchOrCache("mappings.json");
             Mappings = JsonConvert.DeserializeObject<MappingsFile>(jsonstr);
             this.AllSoundFonts.Clear();
             var sfonts = Mappings.soundfonts.Select(kv => new SoundFontDesc() { Name = kv.Key, Length = 0, IsCached = IsSoundfontInstalled(kv.Key) });
