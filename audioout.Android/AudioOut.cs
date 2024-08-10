@@ -2,13 +2,13 @@
 using NAudio.Midi;
 using NAudio.Wave;
 
-namespace audiooutandroid
+namespace audioout.Droid
 {
     public class AudioOut
     {
         bool enableMidi = false;
         MidiOut midiOut;
-        NAudio.Wave.AVAudioEngineOut aVAudioEngineOut;
+        PortAudio portAudio;
         public void OnEngineCreate(MidiSynthEngine midiSynthEngine)
         {
             if (enableMidi && MidiOut.NumberOfDevices > 0)
@@ -16,9 +16,13 @@ namespace audiooutandroid
                 midiOut = new MidiOut(MidiOut.NumberOfDevices - 1);
                 midiSynthEngine.SetMidiOut(OnProcessMidiMessage);
             }
-            aVAudioEngineOut = new AVAudioEngineOut();
-            aVAudioEngineOut.Init(midiSynthEngine);
-            aVAudioEngineOut.Play();
+
+            portAudio = new PortAudio();
+            portAudio.Init(midiSynthEngine);
+            portAudio.Play();
+            //waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
+            // waveOut.Init(midiSynthEngine);
+            //waveOut.Play();
         }
         void OnProcessMidiMessage(int channel, int command, int data1, int data2)
         {
@@ -48,11 +52,6 @@ namespace audiooutandroid
                     break;
 
             }
-        }
-
-        public void Dispose()
-        {
-            aVAudioEngineOut.Dispose();
         }
 
     }

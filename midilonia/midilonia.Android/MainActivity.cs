@@ -16,8 +16,11 @@ namespace midilonia.Android
         ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
     public class MainActivity : AvaloniaMainActivity<App>
     {
+        static audioout.Droid.AudioOut audioOut = new audioout.Droid.AudioOut();
+
         protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
         {
+            App.OnEngineCreate = audioOut.OnEngineCreate;
             IconProvider.Current
               .Register<FontAwesomeIconProvider>();
 

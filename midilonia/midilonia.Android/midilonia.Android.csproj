@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\audioout.Android\audioout.Droid.csproj" />
     <ProjectReference Include="..\midilonia\midilonia.csproj" />
   </ItemGroup>
 </Project>
