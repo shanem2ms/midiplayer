@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Media;
 using Android.Runtime;
 using System.Collections;
+using System.Collections.Concurrent;
 
 namespace audioout.Droid
 {
@@ -12,7 +13,11 @@ namespace audioout.Droid
         private AudioTrack audioTrack;
         IWaveProvider m_WaveProvider;
         private bool isPlaying = true;
-        private Thread playbackThread;
+        private Thread audioOutThread;
+        private Thread synthThread;
+        ConcurrentQueue<float[]> queue = new ConcurrentQueue<float[]>();
+        ManualResetEventSlim eventSlim = new ManualResetEventSlim(false);
+
         public float Volume { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public PlaybackState PlaybackState { get; private set; }
@@ -51,15 +56,14 @@ namespace audioout.Droid
         
         private void StartPlayback()
         {
-            playbackThread = new Thread(() =>
+            synthThread = new Thread(() =>
             {
                 // Example: Generate a sine wave for playback
                 float[] flbuffer = new float[2048];
                 byte[] buffer = new byte[flbuffer.Length * sizeof(float)];
-
                 while (PlaybackState != PlaybackState.Stopped)
                 {
-                    if (PlaybackState == PlaybackState.Paused)
+                    if (PlaybackState == PlaybackState.Paused || queue.Count > 5)
                     {
                         Thread.Sleep(5);
                     }
@@ -67,12 +71,32 @@ namespace audioout.Droid
                     {
                         m_WaveProvider.Read(buffer, 0, buffer.Length);
                         Buffer.BlockCopy(buffer, 0, flbuffer, 0, buffer.Length);
-                        audioTrack.Write(flbuffer, 0, flbuffer.Length, WriteMode.NonBlocking);
+                        queue.Enqueue(flbuffer);
+                        eventSlim.Set();
                     }
                 }
             });
+            audioOutThread = new Thread(() =>
+            {
 
-            playbackThread.Start();
+                while (true)
+                {
+                    // Wait for a signal from the producer
+                    eventSlim.Wait();
+
+                    // Process items from the queue
+                    while (queue.TryDequeue(out float[] flbuffer))
+                    {
+                        audioTrack.Write(flbuffer, 0, flbuffer.Length, WriteMode.Blocking);
+                    }
+
+                    // Reset the event after processing
+                    eventSlim.Reset();
+                }
+            });
+
+            synthThread.Start();
+            audioOutThread.Start();
         }
 /*
         public void StartPlayback()

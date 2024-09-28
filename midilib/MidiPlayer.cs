@@ -32,7 +32,7 @@ namespace midilib
         public MidiSynthEngine SynthEngine => synthEngine;
 
         int volume = 100;
-        public static string AwsBucketUrl = "https://midisongs.s3.us-east-2.amazonaws.com/";
+        public static string AwsBucketUrl = "https://shanem.ddns.net/midisongs/";
         public MidiDb.SoundFontDesc CurrentSoundFont
         {
             get => db.SFDescFromName(userSettings.CurrentSoundFont);

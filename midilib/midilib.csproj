@@ -25,13 +25,9 @@
     <None Remove="NAudio.Core" />
     <None Remove="NAudio.Asio" />
     <None Remove="NAudio.Midi" />
-    <None Remove="Newtonsoft.Json" />
-    <None Remove="Veldrid" />
-    <None Remove="Veldrid.MetalBindings" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.400" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.7" />
     <PackageReference Include="NAudio.Core" Version="2.2.1" />
     <PackageReference Include="NAudio.Asio" Version="2.2.1" />
     <PackageReference Include="NAudio.Midi" Version="2.2.1" />

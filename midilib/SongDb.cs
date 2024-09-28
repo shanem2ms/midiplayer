@@ -11,7 +11,6 @@ using static midilib.MidiDb;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Amazon.S3.Model;
-using SQLitePCL;
 
 namespace midilib
 {
