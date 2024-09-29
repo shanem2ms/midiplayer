@@ -29,7 +29,7 @@
                  FontFamily="{StaticResource DigitalLCD}"
                  VerticalAlignment="Center" FontSize="20" />
     </Grid>
-    <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, Auto, *">
+    <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, Auto, *, Auto">
       <Button Name="PlayBtn" i:Attached.Icon="fa-play" Classes="PlayControls" Grid.Column="1" Click="PlayButton_Click"
               IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
       <Button Name="StopBtn" i:Attached.Icon="fa-stop" Classes="PlayControls" Grid.Column="2" Click="PlayButton_Click"
@@ -42,6 +42,8 @@
               i:Attached.Icon="fa-p" />
       <Slider Grid.Column="5" Margin="10,0,10,0" Minimum="0" Maximum="{Binding Path=CurrentSongLength}"
               Value="{Binding Path=CurrentTime}"/>
+      <ToggleButton Name="PianoPlayBtn" Classes="PlayControls" Grid.Column="6" i:Attached.Icon="fa-m" 
+                    IsChecked="{Binding Path=ExternalMidiMode, Mode=TwoWay}" />
     </Grid>
   </Grid>
 </UserControl>

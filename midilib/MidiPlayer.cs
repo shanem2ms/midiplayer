@@ -1,10 +1,14 @@
-﻿using MeltySynth;
+﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
+using MeltySynth;
 using NAudio.Midi;
 using NAudio.Wave;
 using System;
+using System.Collections;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using static MeltySynth.MidiSynthSequencer;
 
@@ -144,7 +148,7 @@ namespace midilib
                 {
                     MidiSong song = new MidiSong(currentPlayerMidifile);
                     MidiSong pianoSong = song.ConvertToPianoSong();
-                    currentPlayerMidifile = pianoSong.GetMidiFile();
+                    currentPlayerMidifile = pianoSong.GetMidiFile();                   
                 }
                 OnSongLoaded?.Invoke(this, new PlaybackStartArgs() { file = mfi, midiFile = currentPlayerMidifile });
                 synthEngine.Play(currentPlayerMidifile, false, 0);
@@ -156,11 +160,40 @@ namespace midilib
             }
             return true;
         }
+
         public async void PlaySong(MidiDb.Fi mfi, bool pianoMode, bool startPaused)
         {
             await LoadSong(mfi, pianoMode);
             PauseOrUnPause(startPaused);
             //synthEngine.Play(currentPlayerMidifile, false);
+        }
+
+        public async void PlayExternalSong(MidiDb.Fi mfi)
+        {
+            string cacheFile = await db.GetLocalFile(mfi);
+            userSettings.PlayHistory.Add(mfi.Name);
+            userSettings.Persist();
+            currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile);
+            MidiSong song = new MidiSong(currentPlayerMidifile);
+            MidiSong pianoSong = song.ConvertToPianoSong();
+            MemoryStream ms = new MemoryStream();
+            pianoSong.SaveToStream(ms);
+            ms.Close();
+            byte[] data = ms.ToArray();
+            string url = "http://192.168.1.6:18080";
+            HttpClient client = new HttpClient();
+            await client.GetAsync(url + "/stop");
+            ByteArrayContent byteContent = new ByteArrayContent(data);
+            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            HttpResponseMessage response = await client.PostAsync(url+ "/midi_file", byteContent);
+            currentPlayingSong = mfi;
+        }
+
+        public async void StopExternal()
+        {
+            string url = "http://192.168.1.6:18080";
+            HttpClient client = new HttpClient();
+            await client.GetAsync(url + "/stop");
         }
 
         public void PauseOrUnPause(bool pause)

@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using midilib;
+using NAudio.Midi;
 using System;
 using System.Globalization;
 using System.Linq;
+using static midilib.MidiDb;
 
 namespace midilonia.Views
 {
@@ -26,13 +28,21 @@ namespace midilonia.Views
                     case "PlayBtn":
                         {
                             MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == App.ViewModel.CurrentSong);
-                            player.PlaySong(fi, App.ViewModel.PianoMode, false);
-                            player.PauseOrUnPause(false);
+                            if (App.ViewModel.ExternalMidiMode)
+                                player.PlayExternalSong(fi);
+                            else
+                            {
+                                player.PlaySong(fi, App.ViewModel.PianoMode, false);
+                                player.PauseOrUnPause(false);
+                            }
                         }
                         break;
                     case "StopBtn":
                         {
-                            player.PauseOrUnPause(true);
+                            if (App.ViewModel.ExternalMidiMode)
+                                player.StopExternal();
+                            else
+                                player.PauseOrUnPause(true);
                         }
                         break;
                     case "RewindBtn":

@@ -221,6 +221,83 @@ namespace MeltySynth
             }
         }
 
+        private void Save(Stream stream)
+        {
+            using (var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+            {
+                // Write the MIDI header chunk
+                writer.WriteFourCC("MThd"); // Chunk type: "MThd"
+                writer.WriteInt32BigEndian(6); // Chunk size: 6 bytes
+                writer.WriteInt16BigEndian(0); // Format type: 0 (single track)
+                writer.WriteInt16BigEndian(1); // Number of tracks: 1
+                writer.WriteInt16BigEndian((short)Resolution); // Resolution (ticks per quarter note)
+
+                // Prepare to write the track chunk
+                writer.WriteFourCC("MTrk"); // Chunk type: "MTrk"
+
+                // Use a MemoryStream to calculate the track chunk size
+                using (var trackStream = new MemoryStream())
+                {
+                    using (var trackWriter = new BinaryWriter(trackStream, Encoding.ASCII, true))
+                    {
+                        int previousTick = 0;
+
+                        // Ensure messages are sorted by their tick values
+                        var sortedMessages = messages.OrderBy(m => m.Ticks);
+
+                        foreach (var message in sortedMessages)
+                        {
+                            int deltaTime = message.Ticks - previousTick;
+                            previousTick = message.Ticks;
+
+                            // Write the delta time as a variable-length quantity
+                            WriteVariableLengthQuantity(trackWriter, deltaTime);
+
+                            // Write the MIDI event
+                            trackWriter.Write(message.Data1);
+
+                            // Write the event data (assuming 'Data' is a byte array)
+                            trackWriter.Write(message.Data2);
+                        }
+
+                        // Write the End of Track meta event
+                        trackWriter.Write((byte)0x00); // Delta time
+                        trackWriter.Write((byte)0xFF); // Meta event type
+                        trackWriter.Write((byte)0x2F); // Meta event subtype: End of Track
+                        trackWriter.Write((byte)0x00); // Length: 0
+
+                        // Get the track data and its length
+                        var trackData = trackStream.ToArray();
+                        writer.WriteInt32BigEndian(trackData.Length); // Track chunk size
+
+                        // Write the track data to the main stream
+                        writer.Write(trackData);
+                    }
+                }
+            }
+        }
+
+        // Helper method to write variable-length quantities
+        private void WriteVariableLengthQuantity(BinaryWriter writer, int value)
+        {
+            uint buffer = (uint)value;
+            byte[] bytes = new byte[4];
+            int index = 0;
+
+            bytes[index++] = (byte)(buffer & 0x7F);
+            while ((buffer >>= 7) > 0)
+            {
+                bytes[index++] = (byte)((buffer & 0x7F) | 0x80);
+            }
+
+            // Write bytes in reverse order
+            for (int i = index - 1; i >= 0; i--)
+            {
+                writer.Write(bytes[i]);
+            }
+        }
+
+
         class Note
         {
             public int noteOn = -1;

@@ -1,8 +1,12 @@
-﻿using MeltySynth;
+﻿using Amazon.Runtime.SharedInterfaces;
+using MeltySynth;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using static MeltySynth.MidiFile;
+using NM = NAudio.Midi;
 
 namespace midilib
 {
@@ -299,6 +303,104 @@ namespace midilib
             return new MidiFile(msgarray, Resolution);
         }
 
+        public void SaveToStream(Stream s)
+        {
+            const int MidiFileType = 0;
+
+            const int TrackNumber = 0;
+
+            var collection = new NM.MidiEventCollection(MidiFileType, Resolution);
+            collection.AddEvent(new NM.TextEvent("Note Stream", NM.MetaEventType.TextEvent, 0), TrackNumber);
+            collection.AddEvent(new NM.TempoEvent(CalculateMicrosecondsPerQuaterNote((int)Tempo), 0), TrackNumber);
+
+
+            var messages = Tracks.SelectMany(t => t.Messages).ToList();
+            messages.Add(Message.TempoChange(Tempo));
+            messages.Sort((a, b) => a.Ticks - b.Ticks);
+            var msgarray = messages.ToArray();
+            SetMessageTimes(msgarray);
+
+            foreach (var message in msgarray)
+            {
+                switch (message.Type)
+                {
+                    case MessageType.Normal:
+                        {
+                            if (message.Command == 0xC0)
+                                collection.AddEvent(new NM.PatchChangeEvent(message.Ticks, message.Channel + 1, message.Data1), TrackNumber);
+                            else
+                                collection.AddEvent(new NM.NoteEvent(message.Ticks, message.Channel + 1, (NM.MidiCommandCode)message.Command, message.Data1, message.Data2),
+                                    TrackNumber);
+                        }
+                        break;
+                    case MessageType.TempoChange:
+                        collection.AddEvent(new NM.TempoEvent(CalculateMicrosecondsPerQuaterNote((int)message.Tempo), message.Ticks), TrackNumber);
+                        break;
+                }
+            }
+
+            collection.PrepareForExport();
+            Export(s, collection);
+        }
+        private static int CalculateMicrosecondsPerQuaterNote(int bpm)
+        {
+            return 60 * 1000 * 1000 / bpm;
+        }
+
+        private static uint SwapUInt32(uint i)
+        {
+            return ((i & 0xFF000000u) >> 24) | ((i & 0xFF0000) >> 8) | ((i & 0xFF00) << 8) | ((i & 0xFF) << 24);
+        }
+
+        private static ushort SwapUInt16(ushort i)
+        {
+            return (ushort)(((i & 0xFF00) >> 8) | ((i & 0xFF) << 8));
+        }
+        //
+        // Summary:
+        //     Exports a MIDI file
+        //
+        // Parameters:
+        //   filename:
+        //     Filename to export to
+        //
+        //   events:
+        //     Events to export
+        public static void Export(Stream s, NM.MidiEventCollection events)
+        {
+            if (events.MidiFileType == 0 && events.Tracks > 1)
+            {
+                throw new ArgumentException("Can't export more than one track to a type 0 file");
+            }
+
+            using BinaryWriter binaryWriter = new BinaryWriter(s);
+            binaryWriter.Write(Encoding.UTF8.GetBytes("MThd"));
+            binaryWriter.Write(SwapUInt32(6u));
+            binaryWriter.Write(SwapUInt16((ushort)events.MidiFileType));
+            binaryWriter.Write(SwapUInt16((ushort)events.Tracks));
+            binaryWriter.Write(SwapUInt16((ushort)events.DeltaTicksPerQuarterNote));
+            for (int i = 0; i < events.Tracks; i++)
+            {
+                IList<NM.MidiEvent> list = events[i];
+                binaryWriter.Write(Encoding.UTF8.GetBytes("MTrk"));
+                long position = binaryWriter.BaseStream.Position;
+                binaryWriter.Write(SwapUInt32(0u));
+                long absoluteTime = events.StartAbsoluteTime;
+                MergeSort.Sort(list, new NM.MidiEventComparer());
+                _ = list.Count;
+                _ = 0;
+                foreach (NM.MidiEvent item in list)
+                {
+                    item.Export(ref absoluteTime, binaryWriter);
+                }
+
+                uint num = (uint)((int)(binaryWriter.BaseStream.Position - position) - 4);
+                binaryWriter.BaseStream.Position = position;
+                binaryWriter.Write(SwapUInt32(num));
+                binaryWriter.BaseStream.Position += num;
+            }
+
+        }
         public double Tempo = 120;
         public TrackInfo[] Tracks; 
 
@@ -483,5 +585,60 @@ namespace midilib
         }
 
 
+    }
+}
+
+internal class MergeSort
+{
+    //
+    // Summary:
+    //     In-place and stable implementation of MergeSort
+    private static void Sort<T>(IList<T> list, int lowIndex, int highIndex, IComparer<T> comparer)
+    {
+        if (lowIndex >= highIndex)
+        {
+            return;
+        }
+
+        int num = (lowIndex + highIndex) / 2;
+        Sort(list, lowIndex, num, comparer);
+        Sort(list, num + 1, highIndex, comparer);
+        int num2 = num;
+        int num3 = num + 1;
+        while (lowIndex <= num2 && num3 <= highIndex)
+        {
+            if (comparer.Compare(list[lowIndex], list[num3]) <= 0)
+            {
+                lowIndex++;
+                continue;
+            }
+
+            T value = list[num3];
+            for (int num4 = num3 - 1; num4 >= lowIndex; num4--)
+            {
+                list[num4 + 1] = list[num4];
+            }
+
+            list[lowIndex] = value;
+            lowIndex++;
+            num2++;
+            num3++;
+        }
+    }
+
+    //
+    // Summary:
+    //     MergeSort a list of comparable items
+    public static void Sort<T>(IList<T> list) where T : IComparable<T>
+    {
+        Sort(list, 0, list.Count - 1, Comparer<T>.Default);
+    }
+
+    //
+    // Summary:
+    //     MergeSort a list
+    public static void Sort<T>(IList<T> list, IComparer<T> comparer)
+    {
+        Sort(list, 0, list.Count - 1, comparer);
     }
 }

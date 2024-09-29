@@ -51,12 +51,18 @@ namespace midilonia
         public string SelectedSong { get; set; }
         
         public bool PianoMode { get; set; } = true;
+        public bool ExternalMidiMode { get; set; } = false;
         public string CurrentSong
         {
             get => player.CurrentPlayingSong?.Name;
             set { 
                 MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == value);
-                player.PlaySong(fi, PianoMode, false);
+                if (ExternalMidiMode)
+                    player.PlayExternalSong(fi);
+                else
+                {
+                    player.PlaySong(fi, PianoMode, false);
+                }
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
         }
 
