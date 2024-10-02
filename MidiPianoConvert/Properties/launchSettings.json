@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MidiPianoConvert": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\shane\\Downloads\\Alexander Hamilton.mid\"\r\nc:\\hamilton.mid"
+    }
+  }
+}
