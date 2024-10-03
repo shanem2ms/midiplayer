@@ -337,6 +337,12 @@ namespace PlayerWPF
             midiSong = midiSong.ConvertToPianoSong();
             Relayout();
         }
+
+        private void CnvPitchBends_Click(object sender, RoutedEventArgs e)
+        {
+            midiSong = midiSong.ConvertPitchBendsSong();
+            Relayout();
+        }
     }
 
 }
