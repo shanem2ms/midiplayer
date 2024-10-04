@@ -502,13 +502,72 @@ namespace midilib
             return new MidiSong(tracks.ToArray(), Resolution, Tempo);
         }
 
+
+        int PitchBendToNoteOffset(int pitchBend)
+        {
+            int totalRange = 1 << 14;
+            int noteRange = totalRange / 4; // 2 notes in either direction
+            int halfRange = noteRange / 2;
+            int roundedPitchOffset = (pitchBend + halfRange) / noteRange;
+            return roundedPitchOffset;
+        }
+        List<Note> ConvertPitchBends(Note n)
+        {
+            List<Note> outNotes = new List<Note>();
+            Note currentNote = new Note(n.startTicks, 0, n.note, n.velocity);
+            int curOffset = 0;
+            foreach (var pitch in n.pitchBends)
+            {
+                int noteOffset = PitchBendToNoteOffset(pitch.pitchOffset);
+                if (noteOffset != curOffset)
+                {
+                    currentNote.lengthTicks = (n.startTicks + pitch.offsetTicks) - currentNote.startTicks;
+                    outNotes.Add(currentNote);
+                    curOffset = noteOffset;
+                    currentNote = new Note((n.startTicks + pitch.offsetTicks), 0, (byte)(n.note + noteOffset), n.velocity);
+                }
+            }
+
+            currentNote.lengthTicks = (n.startTicks + n.lengthTicks) - currentNote.startTicks;
+            outNotes.Add(currentNote);
+            return outNotes;
+        }
+
+        public MidiSong ConvertPitchBendsSong()
+        {
+            List<TrackInfo> tracks = new List<TrackInfo>();
+            foreach (TrackInfo ti in Tracks)
+            {
+                List<Note> outNotes = new List<Note>();
+                foreach (var note in ti.Notes)
+                {
+                    if (note.pitchBends?.Count() > 0 )
+                        outNotes.AddRange(ConvertPitchBends(note));
+                    else
+                        outNotes.Add(note);
+                }
+                TrackInfo melodyTrack = new TrackInfo(ti.ChannelNum, ti.Instrument, outNotes.ToArray());
+                melodyTrack.TrackType = ti.TrackType;
+                melodyTrack.ProgramNum = ti.ProgramNum;
+                tracks.Add(melodyTrack);
+            }
+
+            return new MidiSong(tracks.ToArray(), Resolution, Tempo);
+        }
+
         public MidiSong ConvertToPianoSong()
+        {
+            MidiSong pitchBendsCnv = ConvertPitchBendsSong();
+            return pitchBendsCnv.ConvertToPianoSongRaw();
+        }
+
+        MidiSong ConvertToPianoSongRaw()
         {
             List<Note> newNotes = new List<Note>();
             IEnumerable<TrackInfo> tiList = Tracks.Where(t => t.TrackType == TrackTypeDef.MainMelody);
             foreach (var ti in tiList)
             {
-                AddNotes(newNotes, ti.Notes, 1000, null);
+                AddNotesAsChannel0(newNotes, ti.Notes, 1000, null);
             }
 
             int measureTicks = Resolution * 4;
@@ -525,7 +584,7 @@ namespace midilib
             foreach (var ti in tiList)
             {
                 int velocityMul = ti.TrackType == TrackTypeDef.Bass ? 1000 : 750;
-                AddNotes(newNotes, ti.Notes, velocityMul, measuresWithMelody);
+                AddNotesAsChannel0(newNotes, ti.Notes, velocityMul, measuresWithMelody);
             }
 
             newNotes.Sort((n, b) => n.startTicks.CompareTo(b.startTicks));
@@ -542,7 +601,7 @@ namespace midilib
             public bool isNew;
             public Note n;
         }
-        void AddNotes(List<Note> songNotes, IEnumerable<Note> inNotes, int velocityMul, bool[]measuresWithMelody)
+        void AddNotesAsChannel0(List<Note> songNotes, IEnumerable<Note> inNotes, int velocityMul, bool[]measuresWithMelody)
         {
             int measureTicks = Resolution * 4;
             Note[] currentNote = new Note[127];
