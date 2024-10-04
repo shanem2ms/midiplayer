@@ -12,7 +12,6 @@ namespace midilib
 {
     public class MidiSong
     {
-
         public enum TrackTypeDef
         {
             Drums,
@@ -29,6 +28,7 @@ namespace midilib
             public int offsetTicks;
             public int pitchOffset;
         }
+
         public class Note
         {
             public Note(int start, int length, byte not, byte vel)
@@ -460,7 +460,32 @@ namespace midilib
             }
         }
 
+        int FirstNoteTick()
+        {
+            int firstNoteTick = int.MaxValue;
+            foreach (TrackInfo t in Tracks)
+            {
+                if (t.Notes.Count() < 1) continue;
+                firstNoteTick = Math.Min(firstNoteTick, t.Notes[0].startTicks);
+            }
+            return firstNoteTick;
+        }
 
+        void OffsetTicks(int tickOffset)
+        {
+            foreach (TrackInfo t in Tracks)
+            {
+                for (int i = 0; i < t.Notes.Count(); i++) 
+                {
+                    t.Notes[i].startTicks += tickOffset;
+                }
+            }
+        }
+
+        void TrimStart()
+        {
+            OffsetTicks(-FirstNoteTick());
+        }
         public MidiSong ConvertToMelody()
         {
             TrackInfo ti = Tracks.FirstOrDefault(t => t.TrackType == TrackTypeDef.MainMelody);
@@ -503,10 +528,13 @@ namespace midilib
                 AddNotes(newNotes, ti.Notes, velocityMul, measuresWithMelody);
             }
 
+            newNotes.Sort((n, b) => n.startTicks.CompareTo(b.startTicks));
             List<TrackInfo> tracks = new List<TrackInfo>();
             TrackInfo melodyTrack = new TrackInfo(0, "Piano", newNotes.ToArray());
             tracks.Add(melodyTrack);
-            return new MidiSong(tracks.ToArray(), Resolution, Tempo);
+            var pianoSong = new MidiSong(tracks.ToArray(), Resolution, Tempo);
+            pianoSong.TrimStart();
+            return pianoSong;
         }
 
         class NoteCmb
