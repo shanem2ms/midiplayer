@@ -39,5 +39,16 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>192.168.1.6</key> <!-- Replace with your local network IP address -->
+	<dict>
+		<key>NSIncludesSubdomains</key>
+		<true/>
+		<key>NSExceptionAllowsInsecureHTTPLoads</key>
+		<true/>
+		<key>NSExceptionRequiresForwardSecrecy</key>
+		<false/>
+		<key>NSThirdPartyExceptionAllowsInsecureHTTPLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
