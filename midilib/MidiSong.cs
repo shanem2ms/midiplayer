@@ -420,7 +420,7 @@ namespace midilib
         {
             Resolution = resolution;
             Tempo = tempo;
-            LengthTicks = tracks.Select(t => t.Notes.Last().startTicks + t.Notes.Last().lengthTicks).Max();
+            LengthTicks = tracks.Select(t => (t.Notes.LastOrDefault()?.startTicks + t.Notes.LastOrDefault()?.lengthTicks)??0).Max();
             Tracks = tracks;
             int sixteenthRes = Resolution / 4;
             LengthSixteenths = LengthTicks / sixteenthRes;
@@ -428,7 +428,6 @@ namespace midilib
 
         void Build(MidiFile midiFile)
         {
-
             var channelGroups = midiFile.Messages.Where(m => m.Channel < 16).GroupBy(m => m.Channel).
                 OrderBy(g => g.Key);
             int numChannels = channelGroups.Count();
