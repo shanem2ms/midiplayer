@@ -17,13 +17,13 @@ namespace midilib
 
         public static UserSettings FromFile(string file)
         {
-            UserSettings settings;
+            UserSettings settings = null;
             if (File.Exists(file))
             {
                 string text = File.ReadAllText(file);
                 settings = JsonConvert.DeserializeObject<UserSettings>(text);
             }
-            else
+            if (settings == null)
             {
                 settings = new UserSettings();
                 settings.CurrentSoundFont = "TimGM6mb.sf2";

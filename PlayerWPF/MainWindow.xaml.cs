@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -131,6 +132,8 @@ namespace PlayerWPF
         bool isChanging = false;
         private void Player_OnPlaybackTime(object? sender, PlaybackTimeArgs e)
         {
+            if (currentSongTime.TotalMilliseconds == 0)
+                Debugger.Break();
             Dispatcher.BeginInvoke(() =>
             {
                 double lerp = e.timeSpan.TotalMilliseconds / currentSongTime.TotalMilliseconds;
