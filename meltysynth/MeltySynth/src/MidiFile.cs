@@ -40,6 +40,7 @@ namespace MeltySynth
         {
             Resolution = resolution;
             messages = _msgs;
+            AddTimings(messages, resolution);
         }
         /// <summary>
         /// Loads a MIDI file from the stream.
@@ -431,6 +432,33 @@ namespace MeltySynth
                 }
 
                 lastStatus = first;
+            }
+        }
+
+        private void AddTimings(Message[]messages, int resolution)
+        {
+            var prevTick = 0;
+            var currentTime = TimeSpan.Zero;
+            var tempo = 120.0;
+            for (int idx = 0; idx < messages.Length; idx++)
+            {
+                var message = messages[idx];
+                var currentTick = message.Ticks;
+                var deltaTick = currentTick - prevTick;
+                var deltaTime = GetTimeSpanFromSeconds(60.0 / (resolution * tempo) * deltaTick);
+
+                currentTime += deltaTime;
+                prevTick = currentTick;
+
+                if (message.Type == MessageType.TempoChange)
+                {
+                    tempo = message.Tempo;
+                    message.Time = currentTime;
+                }
+                else
+                {
+                    message.Time = currentTime;
+                }
             }
         }
 

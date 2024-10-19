@@ -175,9 +175,16 @@ namespace midilib
             userSettings.Persist();
             currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile);
             MidiSong song = new MidiSong(currentPlayerMidifile);
-            MidiSong pianoSong = song.ConvertToPianoSong();
             MemoryStream ms = new MemoryStream();
-            pianoSong.SaveToStream(ms);
+            if (song.Tracks.Length > 1)
+            {
+                MidiSong pianoSong = song.ConvertToPianoSong();
+                pianoSong.SaveToStream(ms);
+            }
+            else
+            {
+                song.SaveToStream(ms);
+            }
             ms.Close();
             byte[] data = ms.ToArray();
             string url = "http://192.168.1.6:18080";

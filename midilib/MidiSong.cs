@@ -407,7 +407,7 @@ namespace midilib
         public MidiSong(MidiFile midiFile)
         {           
             Message? tmpo = midiFile.Messages.FirstOrDefault(m => m.Type == MessageType.TempoChange);
-            Tempo = tmpo != null ? (int)tmpo.Value.Tempo : 120;
+            Tempo = tmpo.Value.Type == MessageType.TempoChange ? (int)tmpo.Value.Tempo : 120;
             Resolution = midiFile.Resolution;
             LengthTicks = midiFile.Messages.Last().Ticks;
             int sixteenthRes = Resolution / 4;
