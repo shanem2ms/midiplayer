@@ -16,7 +16,9 @@ namespace midiprocess
             MidiDb db = new MidiDb();
             await db.InitializeMappings();
             await db.InitSongList(false);
-            SongDb sdb = new SongDb(db);
+            
+            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            SongDb sdb = new SongDb(Path.Combine(documents, "midifiles"));
             //await sdb.Md5();
             return await sdb.BuildDb();
         }

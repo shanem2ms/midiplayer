@@ -98,7 +98,7 @@ namespace midilib
 
                 foreach (MidiDb.Fi fi in files)
                 {
-                    if (!mappings.midifiles.Remove(fi.Name))
+                    //f (!mappings.midifiles.Remove(fi.Name))
                         Debugger.Break();
                     removed++;
                 }

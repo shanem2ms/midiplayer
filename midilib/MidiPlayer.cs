@@ -36,7 +36,8 @@ namespace midilib
         public MidiSynthEngine SynthEngine => synthEngine;
 
         int volume = 100;
-        public static string AwsBucketUrl = "https://shanem.ddns.net/midisongs/";
+        public static string RootBucketUrl = "https://shanem.ddns.net/midisongs/";
+        public static string MidiBucketUrl = RootBucketUrl + "midifiles/";
         public MidiDb.SoundFontDesc CurrentSoundFont
         {
             get => db.SFDescFromName(userSettings.CurrentSoundFont);

@@ -16,15 +16,42 @@ namespace midilib
 {
     public class SongDb
     {
-        MidiDb db;
+        string midiFilesRootDir;
+        string ManifestFile => Path.Combine(midiFilesRootDir, "manifest.txt");
         SQLiteConnection con;
-        public SongDb(MidiDb _db)
+        public SongDb(string midiFilesRoot)
         {
-            db = _db;
-            string file = Path.Combine(_db.HomeDir, "song.db");
+            midiFilesRootDir = midiFilesRoot;
+            if (!File.Exists(ManifestFile))
+                BuildManifestFile();
+            string file = Path.Combine(midiFilesRootDir, "song.db");
             if (File.Exists(file))
                 File.Delete(file);
             con = new SQLiteConnection($"Data Source={file}; Version=3;New=True;Compress=True;");
+        }
+
+        void Scan(List<string> allFiles, DirectoryInfo di)
+        {
+            foreach (var d in di.GetDirectories())
+            {
+                Scan(allFiles, d);
+            }
+            foreach (var f in di.GetFiles())
+            {
+                string path = Path.GetRelativePath(midiFilesRootDir, f.FullName);
+                allFiles.Add(path);
+            }
+        }
+        void BuildManifestFile()
+        {
+            List<string> allFiles = new List<string>();
+            DirectoryInfo di = new DirectoryInfo(midiFilesRootDir);
+            foreach (var d in di.GetDirectories())
+            {
+                Scan(allFiles, d);
+            }
+
+            File.WriteAllLines(ManifestFile, allFiles.ToArray());
         }
 
         public async Task<bool> BuildDb()
@@ -71,25 +98,25 @@ namespace midilib
             cmd.ExecuteNonQuery();
 
             int rowcnt = 0;
-            List<MidiDb.Fi> allfiles = db.AllMidiFiles.ToList();
+            List<string> allFiles = File.ReadAllLines(ManifestFile).ToList();
             int failedCnt = 0;
             List<string> badMidiNames = new List<string>();
-            for (int idx = 0; idx < allfiles.Count;)
+            for (int idx = 0; idx < allFiles.Count;)
             {
-                int batchSize = Math.Min(allfiles.Count() - idx, 10000);
-                var batch = allfiles.GetRange(idx, batchSize);
+                int batchSize = Math.Min(allFiles.Count - idx, 10000);
+                var batch = allFiles.GetRange(idx, batchSize);
 
                 sw.Reset();
                 sw.Start();
                 cmd.CommandText = "BEGIN";
                 await cmd.ExecuteNonQueryAsync();
-                MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid");
+                //MidiFile midiFile2 = new MidiFile("C:\\Users\\shane\\Documents\\midi\\bmidi/3388.mid");
 
                 Parallel.ForEach(batch, fi =>
                 {
                     var cmdf = con.CreateCommand();
                     int rowId = Interlocked.Increment(ref rowcnt);
-                    string path = db.GetLocalFileSync(fi, false);
+                    string path = Path.Combine(midiFilesRootDir, fi);
                     if (path == null) return;
                     try
                     {
@@ -99,7 +126,7 @@ namespace midilib
                         var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
                         int ms = midiFile.Length.Milliseconds;
                         int channels = channelMessages.Keys.Count - 1;
-                        string escname = fi.Name.Replace("'", "''");
+                        string escname = fi.Replace("'", "''");
                         cmdf.CommandText = $"INSERT INTO songs (Id, Name, Length, Channels) VALUES ({rowId}, '{escname}', {ms}, {channels})";
                         cmdf.ExecuteNonQuery();
 
@@ -139,7 +166,7 @@ namespace midilib
 
                 sw.Stop();
                 idx += batchSize;
-                Console.WriteLine($"Complete {idx} of {allfiles.Count}. Failed {failedCnt}.  {sw.ElapsedMilliseconds / 1000} seconds");
+                Console.WriteLine($"Complete {idx} of {allFiles.Count}. Failed {failedCnt}.  {sw.ElapsedMilliseconds / 1000} seconds");
             }
 
             File.WriteAllText("badmidis.json", JsonConvert.SerializeObject(badMidiNames));

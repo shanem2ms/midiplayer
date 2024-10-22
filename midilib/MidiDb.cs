@@ -176,7 +176,7 @@ namespace midilib
             if (!File.Exists(cacheFile))
             {
                 HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + "sf/" + sfDesc.Name);
+                var response = await httpClient.GetAsync(MidiPlayer.RootBucketUrl + "sf/" + sfDesc.Name);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
                 inputstream.Seek(0, SeekOrigin.Begin);
                 FileStream fs = File.OpenWrite(cacheFile);
@@ -198,11 +198,11 @@ namespace midilib
         async Task<string> FetchOrCache(string filename)
         {
             string mappingsFile = Path.Combine(homedir, filename);
-            var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.AwsBucketUrl + filename));
+            var resp = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, MidiPlayer.RootBucketUrl + filename));
             long contentLen = (long)resp.Content.Headers.ContentLength;
             if (!File.Exists(mappingsFile) || new System.IO.FileInfo(mappingsFile).Length != contentLen)
             {
-                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + filename);
+                var response = await httpClient.GetAsync(MidiPlayer.RootBucketUrl + filename);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
                 inputstream.Seek(0, SeekOrigin.Begin);
                 FileStream fs = File.Create(mappingsFile);
@@ -228,19 +228,7 @@ namespace midilib
 
             return true;
         }
-
-        public async Task<bool> UploadAWS(string name, string filedata)
-        {
-            var awsCredentials = new BasicAWSCredentials("AKIAXPMVBCNZ2HLG3TT7", "c0VaKXZRbipD2Q9wVRKK/yQIKvvI2F+WbLlHaihy");
-            var s3client = new AmazonS3Client(awsCredentials, Amazon.RegionEndpoint.USEast2);
-            var resp = await s3client.PutObjectAsync(new Amazon.S3.Model.PutObjectRequest()
-            {
-                BucketName = "midisongs",
-                Key = name,
-                ContentBody = filedata
-            });
-            return true;
-        }
+    
         TaskCompletionSource<bool> isSonglistInitialized = new TaskCompletionSource<bool>();
 
         public Task<bool> Initialized => isSonglistInitialized.Task;
@@ -256,11 +244,10 @@ namespace midilib
             else
             {
                 List<Fi> midFileLsit = new List<Fi>();
-                foreach (var kv in Mappings.midifiles)
+                foreach (var path in Mappings.midifiles)
                 {
-                    string name = kv.Key;
-                    string url = kv.Value;
-                    midFileLsit.Add(new Fi(name, kv.Value));
+                    string name = path.Substring(path.IndexOf('/') + 1);
+                    midFileLsit.Add(new Fi(name, path));
                 }
                 this.midiFiles = midFileLsit.ToArray();
             }
@@ -306,7 +293,7 @@ namespace midilib
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
 
-                var response = await httpClient.GetAsync(MidiPlayer.AwsBucketUrl + mfi.Location);
+                var response = await httpClient.GetAsync(MidiPlayer.MidiBucketUrl + mfi.Location);
                 Stream inputstream = await response.Content.ReadAsStreamAsync();
                 inputstream.Seek(0, SeekOrigin.Begin);
                 FileStream fs = File.OpenWrite(cacheFile);
@@ -330,7 +317,7 @@ namespace midilib
 
     public class MappingsFile
     {
-        public Dictionary<string, string> midifiles { get; set; }
+        public string []midifiles { get; set; }
         public Dictionary<string, string> soundfonts { get; set; }        
     }
 }
