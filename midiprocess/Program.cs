@@ -12,11 +12,7 @@ namespace midiprocess
         }
 
         static async Task<bool> Process()
-        {
-            MidiDb db = new MidiDb();
-            await db.InitializeMappings();
-            await db.InitSongList(false);
-            
+        {           
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             SongDb sdb = new SongDb(Path.Combine(documents, "midifiles"));
             //await sdb.Md5();

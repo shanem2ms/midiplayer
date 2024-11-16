@@ -2,6 +2,7 @@
 using MeltySynth;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace midilib
 {
     public class MidiSong
     {
+        public static byte PedalNote = 129;
         public enum TrackTypeDef
         {
             Drums,
@@ -228,8 +230,10 @@ namespace midilib
                 Note[] noteOnTick = new Note[127 + 1];
                 for (int j = 0; j < noteOnTick.Length; j++)
                     noteOnTick[j] = null;
+
                 List<Message> othMessages = new List<Message>();
                 List<Note> notes = new List<Note>();
+                int pedalDownTick = -1;
                 int mostRecentNote = -1;
                 foreach (var msg in messages)
                 {
@@ -278,6 +282,17 @@ namespace midilib
                             Volume = msg.Data2;
                         else if (msg.Data1 == 10)
                             Pan = msg.Data2;
+                        else if (msg.Data1 == 0x40)
+                        {
+                            if (msg.Data2 >= 64 && pedalDownTick < 0)
+                                pedalDownTick = msg.Ticks;
+                            else if (msg.Data2 < 64 && pedalDownTick >= 0)
+                            {
+                                Note n = new Note(pedalDownTick, msg.Ticks - pedalDownTick, PedalNote, 0);
+                                notes.Add(n);
+                                pedalDownTick = -1;
+                            }
+                        }
                         else
                             othMessages.Add(msg);
                     }

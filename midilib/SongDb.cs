@@ -7,10 +7,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using static midilib.MidiDb;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Amazon.S3.Model;
+using System.Text;
 
 namespace midilib
 {
@@ -24,12 +26,34 @@ namespace midilib
             midiFilesRootDir = midiFilesRoot;
             if (!File.Exists(ManifestFile))
                 BuildManifestFile();
+
             string file = Path.Combine(midiFilesRootDir, "song.db");
             if (File.Exists(file))
                 File.Delete(file);
             con = new SQLiteConnection($"Data Source={file}; Version=3;New=True;Compress=True;");
         }
 
+        static string CalculateMD5(string filePath)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    // Compute the hash as a byte array
+                    byte[] hashBytes = md5.ComputeHash(stream);
+
+                    // Convert the byte array to a hexadecimal string
+                    StringBuilder sb = new StringBuilder();
+                    foreach (byte b in hashBytes)
+                    {
+                        sb.Append(b.ToString("x2"));
+                    }
+
+                    return sb.ToString();
+                }
+            }
+        }
+        Dictionary<string, List<FileInfo>> fileBuckets = new Dictionary<string, List<FileInfo>>();
         void Scan(List<string> allFiles, DirectoryInfo di)
         {
             foreach (var d in di.GetDirectories())
@@ -39,6 +63,13 @@ namespace midilib
             foreach (var f in di.GetFiles())
             {
                 string path = Path.GetRelativePath(midiFilesRootDir, f.FullName);
+                string md5 = CalculateMD5(f.FullName);
+                List<FileInfo> files;
+                if (!fileBuckets.TryGetValue(md5, out files))
+                {
+                    fileBuckets.Add(md5, files = new List<FileInfo>());
+                }
+                files.Add(f);
                 allFiles.Add(path);
             }
         }
@@ -52,6 +83,30 @@ namespace midilib
             }
 
             File.WriteAllLines(ManifestFile, allFiles.ToArray());
+
+            List<string> duplicates = new List<string>();
+            foreach (var kv in fileBuckets)
+            {
+                if (kv.Value.Count < 2)
+                    continue;
+
+                int idx = 0;
+                foreach (var kv2 in kv.Value)
+                {
+                    if (idx > 0)
+                    {
+                        try
+                        {
+                            kv2.Delete();
+                        }
+                        catch {
+                            duplicates.Add($"{idx} \"{kv2.FullName}\"");
+                        }
+                    }
+                    idx++;
+                }
+            }
+            File.WriteAllLines("dups.txt", duplicates.ToArray());
         }
 
         public async Task<bool> BuildDb()

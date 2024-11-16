@@ -83,6 +83,19 @@ namespace PlayerWPF
                     l.Stroke = Brushes.Blue;
                     mainCanvas.Children.Add(l);
                 }
+                else if (note.note == MidiSong.PedalNote)
+                {
+                    double Y = 0;
+
+                    Line l = new Line();
+                    l.X1 = startTicks * pixelsPerTick;
+                    l.X2 = endTicks * pixelsPerTick;
+                    l.Y1 = Y;
+                    l.Y2 = Y + 5;
+                    l.StrokeThickness = YnoteSizePixels;
+                    l.Stroke = Brushes.Green;
+                    mainCanvas.Children.Add(l);
+                }
             }
         }
     }

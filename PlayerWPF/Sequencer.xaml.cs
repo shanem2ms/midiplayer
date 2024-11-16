@@ -204,7 +204,7 @@ namespace PlayerWPF
                 Canvas.SetTop(r, 0);
                 r.MouseDown += R_MouseDown;
                 r.MouseUp += R_MouseUp;
-                r.Tag = i + GMInstruments.MidiStartIdx;
+                r.Tag = i + GMInstruments.MidiStartIdx - 9;
                 PianoCanvas.Children.Add(r);
             }
         }
