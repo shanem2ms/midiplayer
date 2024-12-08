@@ -7,6 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.S3;
+using static midilib.MidiDb;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace midilib
 {
@@ -226,6 +229,50 @@ namespace midilib
             artists = JsonConvert.DeserializeObject<List<ArtistDef>>(artiststr);
             artists.Sort((a, b) => b.Votes.CompareTo(a.Votes));
 
+            return true;
+        }
+
+        public async Task<bool> UploadMidiFiles(string[] localFilePaths)
+        {
+            List<string> newMappings = new List<string>();
+            foreach (var filePath in localFilePaths) {
+                try
+                {
+                    string midiname = Path.GetFileName(filePath);
+                    string uploadPath = MidiPlayer.MidiBucketUrl + "2/" + midiname.ToLower();
+                    byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
+                    // Create PUT request
+                    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, uploadPath))
+                    {
+                        request.Content = new ByteArrayContent(fileBytes);
+                        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                        HttpResponseMessage response = await httpClient.SendAsync(request);
+                        if (response.IsSuccessStatusCode)
+                            newMappings.Add("2/" + midiname.ToLower());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+            }
+
+            
+            Mappings.midifiles = Mappings.midifiles.Concat(newMappings).Distinct().ToArray();
+            string jsonString = JsonConvert.SerializeObject(Mappings);
+            try
+            {
+                using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString)))
+                {
+                    var content = new StreamContent(contentStream);
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    HttpResponseMessage response = await httpClient.PutAsync(MidiPlayer.RootBucketUrl + "mappings.json", content);                   
+                }          
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
             return true;
         }
     

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using static MeltySynth.MidiSynthSequencer;
 
@@ -212,7 +213,18 @@ namespace PlayerWPF
         {
 
         }
-
+        private void Upload_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = true;
+            ofd.Filter = "Midi Files (*.mid)|*.mid|All files (*.*)|*.*";
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                db.UploadMidiFiles(ofd.FileNames);
+            }
+            
+        }
+        
         private void Playing_Click(object sender, RoutedEventArgs e)
         {
             ArtistsGrid.Visibility = Visibility.Collapsed;

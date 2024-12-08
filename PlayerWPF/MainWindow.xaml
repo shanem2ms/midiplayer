@@ -27,12 +27,14 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Artists" Click="Artists_Click" />
             <Button Grid.Column="1" Content="Songs" Click="Songs_Click" />
             <Button Grid.Column="2" Content="Playing" Click="Playing_Click" />
             <Button Grid.Column="3" Content="Sequencer" Click="Sequencer_Click" />
-            <Label Grid.Column="4" Content="{Binding Path=CurrentSong}" />
+            <Button Grid.Column="4" Content="Upload" Click="Upload_Click" />
+            <Label Grid.Column="5" Content="{Binding Path=CurrentSong}" />
         </Grid>
 
         <Grid x:Name="ArtistsGrid" Grid.Row="1" Grid.Column="1">
