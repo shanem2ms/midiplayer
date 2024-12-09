@@ -20,7 +20,7 @@
   </UserControl.Styles>
   <Grid RowDefinitions="Auto, Auto">
     <Grid ColumnDefinitions="*, *">
-      <TextBlock Text="{Binding Path=CurrentSong}" Margin="15,5" HorizontalAlignment="Left"
+      <TextBlock Text="{Binding Path=CurrentSongName}" Margin="15,5" HorizontalAlignment="Left"
                  FontFamily="{StaticResource DigitalLCD}"
                  VerticalAlignment="Center" FontSize="20" />
       <TextBlock Grid.Column="1"

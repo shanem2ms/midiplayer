@@ -260,14 +260,15 @@ namespace midilib
             
             Mappings.midifiles = Mappings.midifiles.Concat(newMappings).Distinct().ToArray();
             string jsonString = JsonConvert.SerializeObject(Mappings);
+            File.WriteAllText("c:\\test.json", jsonString);
             try
             {
-                using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString)))
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, MidiPlayer.RootBucketUrl + "mappings.json"))
                 {
-                    var content = new StreamContent(contentStream);
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                    HttpResponseMessage response = await httpClient.PutAsync(MidiPlayer.RootBucketUrl + "mappings.json", content);                   
-                }          
+                    request.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(jsonString));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    HttpResponseMessage response = await httpClient.SendAsync(request);
+                }
             }
             catch (Exception ex)
             {
@@ -356,9 +357,9 @@ namespace midilib
             int idx = random.Next(this.midiFiles.Length);
             return this.midiFiles[idx];
         }
-        public MidiDb.Fi GetSongByName(string name)
+        public MidiDb.Fi GetSongByLocation(string location)
         {
-            return this.midiFiles.First(fi => fi.Name == name);
+            return this.midiFiles.First(fi => fi.Location == location);
         }
     }
 

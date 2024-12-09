@@ -123,7 +123,7 @@ namespace midilib
             if (userSettings.PlayHistory.Count > 0)
             {
                 await db.Initialized;
-                this.LoadSong(db.GetSongByName(userSettings.PlayHistory.Last()), false);
+                this.LoadSong(db.GetSongByLocation(userSettings.PlayHistory.Last()), false);
             }
             return true;
         }
@@ -140,7 +140,7 @@ namespace midilib
         {
             currentPlayingSong = mfi;
             string cacheFile = await db.GetLocalFile(mfi);
-            userSettings.PlayHistory.Add(mfi.Name);
+            userSettings.PlayHistory.Add(mfi.Location);
             userSettings.Persist();
             try
             {
@@ -172,7 +172,7 @@ namespace midilib
         public async void PlayExternalSong(MidiDb.Fi mfi)
         {
             string cacheFile = await db.GetLocalFile(mfi);
-            userSettings.PlayHistory.Add(mfi.Name);
+            userSettings.PlayHistory.Add(mfi.Location);
             userSettings.Persist();
             currentPlayerMidifile = new MeltySynth.MidiFile(cacheFile);
             MidiSong song = new MidiSong(currentPlayerMidifile);

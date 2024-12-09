@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,18 +53,21 @@ namespace midilonia
         
         public bool PianoMode { get; set; } = true;
         public bool ExternalMidiMode { get; set; } = false;
-        public string CurrentSong
+
+        public string CurrentSongName => CurrentSong?.Name ?? string.Empty;
+        public MidiDb.Fi CurrentSong
         {
-            get => player.CurrentPlayingSong?.Name;
+            get => player.CurrentPlayingSong;
             set { 
-                MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == value);
                 if (ExternalMidiMode)
-                    player.PlayExternalSong(fi);
+                    player.PlayExternalSong(value);
                 else
                 {
-                    player.PlaySong(fi, PianoMode, false);
+                    player.PlaySong(value, PianoMode, false);
                 }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong))); }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSongName)));
+            }
         }
 
         public IEnumerable<MidiDb.Fi> FilteredMidiFiles => db.FilteredMidiFiles;
@@ -128,7 +132,8 @@ namespace midilonia
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SoundFonts)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
-            
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSongName)));
+
             return true;
         }
 

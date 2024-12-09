@@ -21,7 +21,7 @@ public partial class ArtistsSongs : UserControl
         if (sender is Button btn)
         {
             string songname = btn.DataContext as string;
-            App.ViewModel.CurrentSong = songname;
+            //App.ViewModel.CurrentSong = songname;
         }
     }
 }

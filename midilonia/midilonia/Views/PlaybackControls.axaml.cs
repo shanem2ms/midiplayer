@@ -27,7 +27,7 @@ namespace midilonia.Views
                 {
                     case "PlayBtn":
                         {
-                            MidiDb.Fi fi = db.AllMidiFiles.First(m => m.NmLwr == App.ViewModel.CurrentSong);
+                            MidiDb.Fi fi = App.ViewModel.CurrentSong;
                             if (App.ViewModel.ExternalMidiMode)
                                 player.PlayExternalSong(fi);
                             else
