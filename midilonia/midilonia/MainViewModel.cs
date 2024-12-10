@@ -50,8 +50,8 @@ namespace midilonia
         public IEnumerable<string> ArtistSongs => CurrentArtist?.Songs;
 
         public string SelectedSong { get; set; }
-        
-        public bool PianoMode { get; set; } = true;
+
+        public bool PianoMode { get; set; } = false;
         public bool ExternalMidiMode { get; set; } = false;
 
         public string CurrentSongName => CurrentSong?.Name ?? string.Empty;

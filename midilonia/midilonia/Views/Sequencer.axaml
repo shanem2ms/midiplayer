@@ -71,8 +71,9 @@
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
-                 <v:SequencerChannel Background="{Binding Background}" 
-                                     Height="{Binding Height}"/>
+                 <v:SequencerChannel 
+                                    Background="{Binding Background}" 
+                                    Height="{Binding Height}"/>
               </DataTemplate>
               </ItemsControl.ItemTemplate>
           </ItemsControl> 

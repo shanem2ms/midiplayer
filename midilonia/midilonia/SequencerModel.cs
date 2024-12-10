@@ -4,6 +4,7 @@ using midilib;
 using midilonia.Views;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static midilib.MidiSong;
 
 namespace midilonia
 {
@@ -45,36 +46,13 @@ namespace midilonia
         void Relayout()
         {
             channelCtrls = new List<ChannelCtrl>();
-
-            /*
-
-    int sixteenthRes = midiSong.Resolution / 4;
-    pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
-    int height = (int)TimeStep.Height;
-
-    for (int i = 0; i < midiSong.LengthSixteenths; i += 4)
-    {
-        Line l = new Line();
-        l.StartPoint = new Avalonia.Point(i * pixelsPerSixteenth - 1, 0);
-        l.EndPoint = new Avalonia.Point(i * pixelsPerSixteenth, (i % 16) == 0 ? height : height / 2);
-        l.Stroke = Brushes.Black;
-        TimeStep.Children.Add(l);
-    }
-    for (int i = 0; i < midiSong.LengthSixteenths; i += 16)
-    {
-        TextBlock textBlock = new TextBlock();
-        textBlock.Text = (i / 16 + 1).ToString();
-        TimeStep.Children.Add(textBlock);
-        Canvas.SetLeft(textBlock, i * pixelsPerSixteenth);
-    }
-    TimeStep.Width = midiSong.LengthSixteenths * pixelsPerSixteenth;
-            */
+    
             for (int i = 0; i < midiSong.Tracks.Length; i++)
             {
                 MidiSong.TrackInfo track = midiSong.Tracks[i];
-
+                
                 channelCtrls.Add(
-                    new ChannelCtrl(track));
+                    new ChannelCtrl(midiSong, track));
                 //Channels.Children.Add(sequencerChannel);
             }
 
@@ -87,6 +65,7 @@ namespace midilonia
     {
         bool expanded = false;
         MidiSong.TrackInfo track;
+        MidiSong song;
         public double Height { get => expanded ? 600 : 150; }
         public int ChannelNum => track.ChannelNum;
         public string Instrument => track.Instrument;
@@ -101,12 +80,16 @@ namespace midilonia
         public string TrackType => track.TrackType.ToString();
         public bool IsSolo { get; set; }
         public bool IsMute { get; set; }
+        public int LengthSixteenths => song.LengthSixteenths;
+        public Note[] Notes => track.Notes;
 
+        public int Resolution => song.Resolution;
         public SolidColorBrush Background { get; }
-        public ChannelCtrl(MidiSong.TrackInfo _track)
+        public ChannelCtrl(MidiSong _song, MidiSong.TrackInfo _track)
+
         {
             track = _track;
-
+            song = _song;
             int typeInt = (int)track.TrackType;
             int rsub = ((typeInt + 1) & 1) != 0 ? 25 : 0;
             int gsub = (((typeInt + 1) >> 1) & 1) != 0 ? 25 : 0;
