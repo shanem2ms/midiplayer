@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using midilib;
 using midilonia.Views;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using static midilib.MidiSong;
@@ -27,6 +28,25 @@ namespace midilonia
         public SequencerModel()
         {
             player.OnSongLoaded += Player_OnSongLoaded;
+            player.OnPlaybackTime += Player_OnPlaybackTime;
+            player.OnPlaybackStart += Player_OnPlaybackStart;
+            player.OnPlaybackComplete += Player_OnPlaybackComplete;
+        }
+
+        private void Player_OnPlaybackComplete(object? sender, bool e)
+        {
+        }
+
+        private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
+        {
+        }
+
+        private void Player_OnPlaybackTime(object? sender, MeltySynth.MidiSynthSequencer.PlaybackTimeArgs e)
+        {
+            foreach (var channel in ChannelCtrls)
+            {
+                channel.PlaybackCursorPos = e.ticks;
+            }
         }
 
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
@@ -37,26 +57,23 @@ namespace midilonia
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             currentTicks = 0;
+
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                Relayout();
+                AddChannels();
             });
         }
 
-        void Relayout()
+        void AddChannels()
         {
             channelCtrls = new List<ChannelCtrl>();
-    
             for (int i = 0; i < midiSong.Tracks.Length; i++)
             {
-                MidiSong.TrackInfo track = midiSong.Tracks[i];
-                
+                TrackInfo track = midiSong.Tracks[i];
+
                 channelCtrls.Add(
                     new ChannelCtrl(midiSong, track));
-                //Channels.Children.Add(sequencerChannel);
             }
-
-
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelCtrls)));
         }
 
@@ -64,7 +81,7 @@ namespace midilonia
     public class ChannelCtrl : INotifyPropertyChanged
     {
         bool expanded = false;
-        MidiSong.TrackInfo track;
+        TrackInfo track;
         MidiSong song;
         public double Height { get => expanded ? 600 : 150; }
         public int ChannelNum => track.ChannelNum;
@@ -82,6 +99,18 @@ namespace midilonia
         public bool IsMute { get; set; }
         public int LengthSixteenths => song.LengthSixteenths;
         public Note[] Notes => track.Notes;
+
+        int playbackCursorPos = 0;
+        public int PlaybackCursorPos
+        {
+            get => playbackCursorPos;
+            set
+            {
+                playbackCursorPos = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlaybackCursorPos)));
+                OnPlaybackCursorChanged?.Invoke(this, value);
+            }
+        }
 
         public int Resolution => song.Resolution;
         public SolidColorBrush Background { get; }
@@ -112,5 +141,7 @@ namespace midilonia
         public SequencerChannel Seq;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler<int> OnPlaybackCursorChanged;
     }
 }
+

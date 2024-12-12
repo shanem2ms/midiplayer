@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
+using Avalonia.Threading;
 using midilib;
 using System;
 using static midilib.MidiSong;
@@ -12,6 +13,8 @@ namespace midilonia.Views
     {
         ChannelCtrl channelCtrl;
         const int pixelsPerSixteenth = 10;
+        Line playbackCursor = null;
+        double pixelsPerTick = 0;
         public SequencerChannel()
         {
             InitializeComponent();
@@ -20,8 +23,32 @@ namespace midilonia.Views
         protected override void OnDataContextChanged(EventArgs e)
         {
             if (DataContext is ChannelCtrl)
+            {
                 channelCtrl = DataContext as ChannelCtrl;
+                channelCtrl.OnPlaybackCursorChanged += ChannelCtrl_OnPlaybackCursorChanged;
+            }
             base.OnDataContextChanged(e);
+        }
+
+        private void ChannelCtrl_OnPlaybackCursorChanged(object? sender, int ticks)
+        {
+            Dispatcher.UIThread.InvokeAsync( () => UpdateCursor(ticks));
+        }
+
+        void UpdateCursor(int ticks)
+        {
+            if (playbackCursor == null)
+            {
+                playbackCursor = new Line
+                {
+                    StrokeThickness = 5,
+                    Stroke = Brushes.Red // Avalonia.Media.Brushes
+                };
+                mainCanvas.Children.Add(playbackCursor);
+            }
+
+            playbackCursor.StartPoint = new Avalonia.Point(ticks * pixelsPerTick, 0);
+            playbackCursor.EndPoint = new Avalonia.Point(ticks * pixelsPerTick, mainCanvas.Bounds.Height);
         }
 
         int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
@@ -40,7 +67,7 @@ namespace midilonia.Views
             int midiFileRes = channelCtrl.Resolution;
 
             int sixteenthRes = midiFileRes / 4;
-            double pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
+            pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
             long lengthSixteenths = channelCtrl.LengthSixteenths;
             int channelHeight = (int)mainCanvas.Bounds.Height;
             if (channelHeight <= 0)
@@ -88,6 +115,7 @@ namespace midilonia.Views
                 }
             }
 
+            playbackCursor = null;
         }
     }
 }

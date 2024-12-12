@@ -83,8 +83,7 @@ namespace midilonia
         }
 
 
-        MeltySynth.MidiFile currentplayingSong = null;
-        public long CurrentSongLength => (long)(currentplayingSong?.Length.TotalMilliseconds ?? 1);
+        public long CurrentSongLength => (long)(player.CurrentPlayingMidi?.Length.TotalMilliseconds ?? 1);
 
         public long currentTime = 0;
         public long CurrentTime
@@ -133,6 +132,7 @@ namespace midilonia
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSoundFont)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSong)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSongName)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSongLength)));
 
             return true;
         }
@@ -154,7 +154,6 @@ namespace midilonia
 
         private void Player_OnPlaybackStart(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
-            currentplayingSong = e.midiFile;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSongLength)));
         }
 

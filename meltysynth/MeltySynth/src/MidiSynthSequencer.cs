@@ -38,13 +38,6 @@ namespace MeltySynth
         public event EventHandler<bool> OnPlaybackComplete;
         public event EventHandler<MidiFile> OnPlaybackStart;
 
-        public struct OnMidiMessagesArgs
-        {
-            public MidiFile.Message[] messages;
-            public int startIdx;
-            public int length;
-        }
-        public event EventHandler<OnMidiMessagesArgs> OnMidiMessages;
 
         public TimeSpan CurrentTime => currentTime;
         public MidiFile? CurrentMidiFile => midiFile;

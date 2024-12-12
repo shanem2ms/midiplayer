@@ -32,7 +32,8 @@ namespace midilonia.Views
                                 player.PlayExternalSong(fi);
                             else
                             {
-                                player.PlaySong(fi, App.ViewModel.PianoMode, false);
+                                if (!player.IsPlaying)
+                                    player.PlaySong(fi, App.ViewModel.PianoMode, false);
                                 player.PauseOrUnPause(false);
                             }
                         }

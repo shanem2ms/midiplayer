@@ -28,8 +28,10 @@ namespace midilib
         MeltySynth.MidiFile currentPlayerMidifile;
         UserSettings userSettings;
         public bool IsPaused { get; set; }
+        public bool IsPlaying { get => CurrentPlayingSong != null; }
 
         public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
+        public MeltySynth.MidiFile CurrentPlayingMidi => currentPlayerMidifile;
 
         public delegate void OnAudioEngineCreateDel(MidiSynthEngine midisynthEngine);
 
