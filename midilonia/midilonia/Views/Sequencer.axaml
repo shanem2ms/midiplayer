@@ -4,9 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:v="clr-namespace:midilonia.Views"
              xmlns:m="clr-namespace:midilonia"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"                          
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="False"
              x:Class="midilonia.Views.Sequencer">
+  <UserControl.Resources>
+    <x:Double x:Key="ButtonSize">40</x:Double>
+  </UserControl.Resources>
   <Grid >
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
@@ -25,25 +29,32 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Button Content="{Binding Path=SongKey}" Height="25" />
+
         <ScrollViewer x:Name="LeftScrollViewer"
             Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
-                <StackPanel Orientation="Vertical" Height="{Binding Height}"
-                            Background="{Binding Background}">
-                  <DockPanel LastChildFill="False">
-                    <Button DockPanel.Dock="Left" Content="{Binding ChannelNum}" Click="Button_Click" Width="20"/>
-                    <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
-                    <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" Content="S" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20"/>
-                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" Content="M" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Width="20" />
-                  </DockPanel>
-                  <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
-                  <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
-                  <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
-                  <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
-                  <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
-                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <StackPanel Orientation="Vertical" Grid.Column="1">
+                    <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="Button_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
+                    <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" i:Attached.Icon="fa-fire" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
+                                  Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
+                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0" 
+                                  Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Vertical" Height="{Binding Height}"
+                              Background="{Binding Background}">
+                    <DockPanel LastChildFill="False">
+                      <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
+                    <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
+                    <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
+                    <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
+                    <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
+                  </StackPanel>
+                </Grid>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
@@ -56,18 +67,22 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden" 
+                      Offset="{Binding ElementName=BottomScrollViewer, Path=Offset, Mode=TwoWay}"
+                      VerticalScrollBarVisibility="Disabled">
           <Grid>
             <Canvas x:Name="TimeStep" PointerPressed="Canvas_PointerPressed"
-                Height="25" Background="AliceBlue" HorizontalAlignment="Left">
+                Height="25" HorizontalAlignment="Left">
             </Canvas>
             <Canvas Height="25">
             </Canvas>
           </Grid>
         </ScrollViewer>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible"
-                      Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
-                       ScrollChanged="ScrollViewer_ScrollChanged">
+        <ScrollViewer 
+                    x:Name="BottomScrollViewer"
+                    Grid.Row="1" HorizontalScrollBarVisibility="Visible"
+                    Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
+                    ScrollChanged="ScrollViewer_ScrollChanged">
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">

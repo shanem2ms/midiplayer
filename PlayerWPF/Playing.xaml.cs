@@ -49,7 +49,6 @@ namespace PlayerWPF
         {
             visList.Clear();
             visList.Add(new NoteVis(e.midiFile));
-            visList.Add(new DrumVis(e.midiFile));
             currentMidiFile = e.midiFile;
             foreach (ChannelOutput c in channelOutputs)
             {

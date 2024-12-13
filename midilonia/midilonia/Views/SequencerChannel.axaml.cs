@@ -12,7 +12,6 @@ namespace midilonia.Views
     public partial class SequencerChannel : UserControl
     {
         ChannelCtrl channelCtrl;
-        const int pixelsPerSixteenth = 10;
         Line playbackCursor = null;
         double pixelsPerTick = 0;
         public SequencerChannel()
@@ -67,7 +66,7 @@ namespace midilonia.Views
             int midiFileRes = channelCtrl.Resolution;
 
             int sixteenthRes = midiFileRes / 4;
-            pixelsPerTick = (double)pixelsPerSixteenth / (double)sixteenthRes;
+            pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
             long lengthSixteenths = channelCtrl.LengthSixteenths;
             int channelHeight = (int)mainCanvas.Bounds.Height;
             if (channelHeight <= 0)
@@ -75,7 +74,7 @@ namespace midilonia.Views
 
             double YnoteSizePixels = (1.0) / (double)gmNoteRange * channelHeight;
 
-            mainCanvas.Width = lengthSixteenths * pixelsPerSixteenth;
+            mainCanvas.Width = lengthSixteenths * SequencerModel.PixelsPerSixteenth;
 
             int[] noteOnTick = new int[127];
             for (int j = 0; j < noteOnTick.Length; j++)

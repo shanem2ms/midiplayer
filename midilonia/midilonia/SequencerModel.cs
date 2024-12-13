@@ -12,7 +12,7 @@ namespace midilonia
     public class SequencerModel : INotifyPropertyChanged
     {
         MidiPlayer player = App.Player;
-        const int pixelsPerSixteenth = 10;
+        static public int PixelsPerSixteenth = 10;        
         double pixelsPerTick;
         DispatcherTimer dispatcherTimer;
         double CursorPosX { get; set; }
@@ -23,6 +23,7 @@ namespace midilonia
         int currentTicks = 0;
 
         List<ChannelCtrl> channelCtrls = null;
+        public MidiSong MidiSong => midiSong;
         public List<ChannelCtrl> ChannelCtrls => channelCtrls;
 
         public SequencerModel()

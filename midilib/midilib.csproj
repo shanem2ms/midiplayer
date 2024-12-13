@@ -17,6 +17,10 @@
     <NoStdLib>false</NoStdLib>
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DrumVis.cs" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\meltysynth\MeltySynth\MeltySynth.csproj" />
   </ItemGroup>
