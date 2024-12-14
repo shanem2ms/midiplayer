@@ -70,6 +70,12 @@ namespace midilonia
             }
         }
 
+        public void LoadSongByName(string name)
+        {
+            MidiDb.Fi fi = db.AllMidiFiles.First(fi => fi.NmLwr == name);
+            CurrentSong = fi;
+        }
+
         public IEnumerable<MidiDb.Fi> FilteredMidiFiles => db.FilteredMidiFiles;
 
         public string SongSearchString
