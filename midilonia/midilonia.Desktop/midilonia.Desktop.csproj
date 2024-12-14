@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\audioout.win\audioout.win.csproj" />
+    <ProjectReference Include="..\..\audioout.win\audioout.win.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
     <ProjectReference Include="..\midilonia\midilonia.csproj">
       <ReferenceSourceTarget></ReferenceSourceTarget>
     </ProjectReference>

@@ -25,6 +25,8 @@ namespace midilonia.Views
             TimeStep.Children.Clear();
 
             var midiSong = App.SequencerMdl.MidiSong;
+            if (midiSong == null)
+                return;
             int sixteenthRes = midiSong.Resolution / 4;
             double pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
             int height = (int)TimeStep.Height;
