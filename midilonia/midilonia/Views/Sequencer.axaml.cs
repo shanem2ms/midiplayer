@@ -64,8 +64,10 @@ namespace midilonia.Views
         {
         }
 
-        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void NoteViewButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            ChannelCtrl cc = (sender as Button).DataContext as ChannelCtrl;
+            App.SequencerMdl.SetNoteViewMode(cc.ChannelNum);
         }
 
         private void ChannelMuteSolo_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

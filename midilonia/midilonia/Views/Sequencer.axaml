@@ -30,14 +30,14 @@
         </Grid.RowDefinitions>
         <Button Content="{Binding Path=SongKey}" Height="25" />
 
-        <ScrollViewer x:Name="LeftScrollViewer"
+        <ScrollViewer x:Name="LeftScrollViewer" IsVisible="{Binding !IsNoteViewMode}"
             Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
                 <Grid ColumnDefinitions="*, Auto">
                   <StackPanel Orientation="Vertical" Grid.Column="1">
-                    <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="Button_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
+                    <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="NoteViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
                     <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" i:Attached.Icon="fa-fire" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
                                   Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
                     <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0" 
@@ -82,7 +82,8 @@
                     x:Name="BottomScrollViewer"
                     Grid.Row="1" HorizontalScrollBarVisibility="Visible"
                     Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
-                    ScrollChanged="ScrollViewer_ScrollChanged">
+                    ScrollChanged="ScrollViewer_ScrollChanged"
+                    IsVisible="{Binding !IsNoteViewMode}">
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
@@ -94,16 +95,6 @@
           </ItemsControl> 
         </ScrollViewer>
       </Grid>
-    </Grid>
-    <Grid Grid.Row="1">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="Auto" />
-      </Grid.ColumnDefinitions>
-      <Button Name="PlayBtn" Margin="5" Content="Play" Click="PlayBtn_Click"/>
-      <Button Name="StopBtn" Margin="5" Grid.Column="1" Content="Stop" Click="StopBtn_Click"/>
-      <Button Name="ToMelody" Margin="5" Grid.Column="2" Content="To Melody" Click="ToMelody_Click"/>
     </Grid>
   </Grid>
 </UserControl>

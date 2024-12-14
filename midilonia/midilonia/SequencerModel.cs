@@ -25,7 +25,8 @@ namespace midilonia
         List<ChannelCtrl> channelCtrls = null;
         public MidiSong MidiSong => midiSong;
         public List<ChannelCtrl> ChannelCtrls => channelCtrls;
-
+        public int NoteViewChannel { get; set; } = -1;
+        public bool IsNoteViewMode => NoteViewChannel >= 0;
         public SequencerModel()
         {
             player.OnSongLoaded += Player_OnSongLoaded;
@@ -78,6 +79,12 @@ namespace midilonia
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelCtrls)));
         }
 
+        public void SetNoteViewMode(int channel)
+        {
+            this.NoteViewChannel = channel;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NoteViewChannel)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsNoteViewMode)));
+        }
     }
     public class ChannelCtrl : INotifyPropertyChanged
     {
