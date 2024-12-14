@@ -36,4 +36,8 @@
       <DependentUpon>SynthList.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\NoteView.axaml" />
+  </ItemGroup>
 </Project>
