@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Amazon.S3.Model;
+using Avalonia.Media;
 using Avalonia.Threading;
 using midilib;
 using midilonia.Views;
@@ -28,6 +29,15 @@ namespace midilonia
         public int NoteViewChannel { get; set; } = -1;
         public bool IsNoteViewMode => NoteViewChannel >= 0;
         int playbackCursorPos = 0;
+
+        bool autoscrollActive;
+        public bool AutoscrollActive { get => autoscrollActive;
+            set
+            {
+                autoscrollActive = value;
+                PropertyChanged?.Invoke(this, 
+                    new PropertyChangedEventArgs(nameof(AutoscrollActive)));
+            } } 
         public int PlaybackCursorPos
         {
             get => playbackCursorPos;

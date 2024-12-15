@@ -10,7 +10,9 @@
              x:Class="midilonia.Views.Sequencer">
   <UserControl.Resources>
     <x:Double x:Key="ButtonSize">40</x:Double>
+    <v:YOffsetBindingConverter x:Key="YOffsetBindingConverter"/>
   </UserControl.Resources>
+
   <Grid >
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
@@ -28,10 +30,22 @@
           <RowDefinition Height="Auto" />
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button Content="{Binding Path=SongKey}" Height="25" />
+        <StackPanel Orientation="Horizontal">
+          <Button Content="{Binding Path=SongKey}" Height="25" />
+          <ToggleButton IsChecked="{Binding Path=AutoscrollActive, Mode=TwoWay}" i:Attached.Icon="fa-star-of-life" Height="25" />
+        </StackPanel>        
 
         <ScrollViewer x:Name="LeftScrollViewer" IsVisible="{Binding !IsNoteViewMode}"
-            Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+            Grid.Row="1" 
+            HorizontalScrollBarVisibility="Disabled" 
+            VerticalScrollBarVisibility="Hidden">
+          <ScrollViewer.Offset>
+            <MultiBinding Converter="{StaticResource YOffsetBindingConverter}" Mode="TwoWay"  >
+              <Binding ElementName="LeftScrollViewer" Path="Offset" />
+              <Binding ElementName="BottomScrollViewer" Path="Offset.Y" />
+            </MultiBinding>
+          </ScrollViewer.Offset>
+
           <ItemsControl ItemsSource="{Binding ChannelCtrls}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="m:ChannelCtrl">
@@ -74,7 +88,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden"
-                      Offset="{Binding ElementName=BottomScrollViewer, Path=Offset, Mode=TwoWay}"
+                      Offset="{Binding ElementName=BottomScrollViewer, Path=Offset}"
                       VerticalScrollBarVisibility="Disabled">
           <Grid>
             <Canvas x:Name="TimeStep" PointerPressed="Canvas_PointerPressed"
@@ -84,11 +98,19 @@
             </Canvas>
           </Grid>
         </ScrollViewer>
+
+
         <ScrollViewer
-                    x:Name="BottomScrollViewer"
-                    Grid.Row="1" HorizontalScrollBarVisibility="Visible"
-                    Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
-                    ScrollChanged="ScrollViewer_ScrollChanged">
+            x:Name="BottomScrollViewer"
+            Grid.Row="1"
+            HorizontalScrollBarVisibility="Visible"            
+            ScrollChanged="ScrollViewer_ScrollChanged">
+          <ScrollViewer.Offset>
+            <MultiBinding Converter="{StaticResource YOffsetBindingConverter}" Mode="TwoWay"  >
+              <Binding ElementName="BottomScrollViewer" Path="Offset" />
+              <Binding ElementName="LeftScrollViewer" Path="Offset.Y" />
+            </MultiBinding>
+          </ScrollViewer.Offset>
           <Grid>
             <ItemsControl ItemsSource="{Binding ChannelCtrls}" IsVisible="{Binding !IsNoteViewMode}">
               <ItemsControl.ItemTemplate>

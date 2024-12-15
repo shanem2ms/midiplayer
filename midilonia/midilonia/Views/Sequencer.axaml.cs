@@ -1,8 +1,11 @@
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using midilib;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Channels;
 
 namespace midilonia.Views
@@ -19,7 +22,8 @@ namespace midilonia.Views
 
         private void SequencerMdl_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(App.SequencerMdl.PlaybackCursorPos)) 
+            if (e.PropertyName == nameof(App.SequencerMdl.PlaybackCursorPos) &&
+                App.SequencerMdl.AutoscrollActive) 
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
                 ScrollIfNeeded());
@@ -111,8 +115,10 @@ namespace midilonia.Views
         {
         }
 
-        private void ScrollViewer_ScrollChanged(object? sender, Avalonia.Controls.ScrollChangedEventArgs e)
+        private void ScrollViewer_ScrollChanged(object? sender, 
+            Avalonia.Controls.ScrollChangedEventArgs e)
         {
+            //App.SequencerMdl.AutoscrollActive = false;
         }
         private void PlayBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
@@ -124,4 +130,26 @@ namespace midilonia.Views
         {
         }        
     }
+
+    public class YOffsetBindingConverter : IMultiValueConverter
+    {
+        public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+        {
+           if (values.Count == 2 &&
+              values[0] is Avalonia.Vector xOffset &&
+              values[1] is double newY)
+            {
+                // Return a new vector with the existing X and updated Y
+                return new Avalonia.Vector(xOffset.X, newY);
+            }
+            return Avalonia.Vector.Zero; // Default if binding is incorrect
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            return new object[] { value, value }; // Only one binding needed in this case.
+        }
+    }
+
 }
+
