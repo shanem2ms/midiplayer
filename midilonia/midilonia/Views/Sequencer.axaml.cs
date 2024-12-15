@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using midilib;
 using System.Collections.Generic;
 using System.Threading.Channels;
@@ -8,10 +9,41 @@ namespace midilonia.Views
 {
     public partial class Sequencer : UserControl
     {
+        double pixelsPerTick = 0;
         public Sequencer()
         {
             this.DataContext = App.SequencerMdl;
             InitializeComponent();
+            App.SequencerMdl.PropertyChanged += SequencerMdl_PropertyChanged;
+        }
+
+        private void SequencerMdl_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(App.SequencerMdl.PlaybackCursorPos)) 
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                ScrollIfNeeded());
+            }
+        }
+
+        void ScrollIfNeeded()
+        {
+            double windowWidth = BottomScrollViewer.Bounds.Width;
+            double totalWidth = BottomScrollViewer.Extent.Width;
+            double curOffset = BottomScrollViewer.Offset.X;
+            double cursorPos = App.SequencerMdl.PlaybackCursorPos * pixelsPerTick;
+            if (cursorPos > curOffset + windowWidth * 0.75)
+            {
+                Avalonia.Vector o = BottomScrollViewer.Offset;
+                BottomScrollViewer.Offset = new Avalonia.Vector(cursorPos - windowWidth * 0.75,
+                    o.Y);
+            }
+            if (cursorPos < curOffset + windowWidth * 0.25)
+            {
+                Avalonia.Vector o = BottomScrollViewer.Offset;
+                BottomScrollViewer.Offset = new Avalonia.Vector(System.Math.Max(cursorPos - windowWidth * 0.25, 0),
+                    o.Y);
+            }
         }
 
         protected override void OnSizeChanged(SizeChangedEventArgs e)
@@ -28,7 +60,7 @@ namespace midilonia.Views
             if (midiSong == null)
                 return;
             int sixteenthRes = midiSong.Resolution / 4;
-            double pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
+            pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
             int height = (int)TimeStep.Height;
 
             for (int i = 0; i < midiSong.LengthSixteenths; i += 4)
@@ -68,8 +100,13 @@ namespace midilonia.Views
         {
             ChannelCtrl cc = (sender as Button).DataContext as ChannelCtrl;
             App.SequencerMdl.SetNoteViewMode(cc.ChannelNum);
+            noteViewCtrl.DataContext = cc;
         }
 
+        private void ChannelViewButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            App.SequencerMdl.SetNoteViewMode(-1);
+        }
         private void ChannelMuteSolo_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
         }

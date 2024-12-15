@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:v="clr-namespace:midilonia.Views"
              xmlns:m="clr-namespace:midilonia"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"                          
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="False"
              x:Class="midilonia.Views.Sequencer">
@@ -40,7 +40,7 @@
                     <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="NoteViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
                     <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" i:Attached.Icon="fa-fire" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
                                   Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
-                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0" 
+                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
                                   Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
                   </StackPanel>
                   <StackPanel Orientation="Vertical" Height="{Binding Height}"
@@ -59,15 +59,21 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
         </ScrollViewer>
+        <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding IsNoteViewMode}" Grid.Row="1">
+          <StackPanel Orientation="Vertical">
+            <Button DockPanel.Dock="Left" i:Attached.Icon="fa-expand"
+                    Click="ChannelViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
+          </StackPanel>
+        </Grid>
       </Grid>
-      <GridSplitter Grid.Column="1" Width="20" VerticalAlignment="Stretch" 
+      <GridSplitter Grid.Column="1" Width="20" VerticalAlignment="Stretch"
                     Background="LightBlue" />
       <Grid Grid.Column="2" >
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden" 
+        <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden"
                       Offset="{Binding ElementName=BottomScrollViewer, Path=Offset, Mode=TwoWay}"
                       VerticalScrollBarVisibility="Disabled">
           <Grid>
@@ -78,21 +84,25 @@
             </Canvas>
           </Grid>
         </ScrollViewer>
-        <ScrollViewer 
+        <ScrollViewer
                     x:Name="BottomScrollViewer"
                     Grid.Row="1" HorizontalScrollBarVisibility="Visible"
                     Offset="{Binding ElementName=LeftScrollViewer, Path=Offset, Mode=TwoWay}"
-                    ScrollChanged="ScrollViewer_ScrollChanged"
-                    IsVisible="{Binding !IsNoteViewMode}">
-          <ItemsControl ItemsSource="{Binding ChannelCtrls}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate DataType="m:ChannelCtrl">
-                 <v:SequencerChannel 
-                                    Background="{Binding Background}" 
-                                    Height="{Binding Height}"/>
-              </DataTemplate>
+                    ScrollChanged="ScrollViewer_ScrollChanged">
+          <Grid>
+            <ItemsControl ItemsSource="{Binding ChannelCtrls}" IsVisible="{Binding !IsNoteViewMode}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="m:ChannelCtrl">
+                  <v:SequencerChannel
+                                     Background="{Binding Background}"
+                                     Height="{Binding Height}"/>
+                </DataTemplate>
               </ItemsControl.ItemTemplate>
-          </ItemsControl> 
+            </ItemsControl>
+            <Grid IsVisible="{Binding IsNoteViewMode}">
+              <v:NoteView x:Name="noteViewCtrl" />
+            </Grid>
+          </Grid>
         </ScrollViewer>
       </Grid>
     </Grid>

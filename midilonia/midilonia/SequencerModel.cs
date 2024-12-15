@@ -27,6 +27,16 @@ namespace midilonia
         public List<ChannelCtrl> ChannelCtrls => channelCtrls;
         public int NoteViewChannel { get; set; } = -1;
         public bool IsNoteViewMode => NoteViewChannel >= 0;
+        int playbackCursorPos = 0;
+        public int PlaybackCursorPos
+        {
+            get => playbackCursorPos;
+            set
+            {
+                playbackCursorPos = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlaybackCursorPos)));
+            }
+        }
         public SequencerModel()
         {
             player.OnSongLoaded += Player_OnSongLoaded;
@@ -49,6 +59,7 @@ namespace midilonia
             {
                 channel.PlaybackCursorPos = e.ticks;
             }
+            this.PlaybackCursorPos = e.ticks;
         }
 
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
@@ -123,7 +134,6 @@ namespace midilonia
         public int Resolution => song.Resolution;
         public SolidColorBrush Background { get; }
         public ChannelCtrl(MidiSong _song, MidiSong.TrackInfo _track)
-
         {
             track = _track;
             song = _song;
