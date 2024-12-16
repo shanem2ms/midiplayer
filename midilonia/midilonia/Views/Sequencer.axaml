@@ -80,7 +80,7 @@
           </StackPanel>
         </Grid>
       </Grid>
-      <GridSplitter Grid.Column="1" Width="20" VerticalAlignment="Stretch"
+      <GridSplitter Grid.Column="1" Width="5" VerticalAlignment="Stretch"
                     Background="LightBlue" />
       <Grid Grid.Column="2" >
         <Grid.RowDefinitions>

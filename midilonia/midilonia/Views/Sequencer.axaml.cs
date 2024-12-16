@@ -6,6 +6,8 @@ using midilib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Numerics;
 using System.Threading.Channels;
 
 namespace midilonia.Views
@@ -112,6 +114,16 @@ namespace midilonia.Views
             App.SequencerMdl.SetNoteViewMode(-1);
         }
         private void ChannelMuteSolo_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            bool isSoloMode = App.SequencerMdl.ChannelCtrls.Any(c => c.IsSolo);
+            foreach (var channel in App.SequencerMdl.ChannelCtrls)
+            {
+                bool channelEnabled = (isSoloMode && channel.IsSolo) ||
+                    (!isSoloMode && !channel.IsMute);
+                App.Player.SynthEngine.SetChannelEnabled(channel.ChannelNum, channelEnabled);
+            }
+        }
+        private void ChannelMute_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
         }
 

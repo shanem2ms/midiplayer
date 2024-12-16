@@ -22,11 +22,16 @@ public partial class NoteView : UserControl
 
     protected override void OnDataContextChanged(EventArgs e)
     {
+        if (channelCtrl != null)
+            channelCtrl.OnPlaybackCursorChanged -= ChannelCtrl_OnPlaybackCursorChanged;
         if (DataContext is ChannelCtrl)
         {
             channelCtrl = DataContext as ChannelCtrl;
             channelCtrl.OnPlaybackCursorChanged += ChannelCtrl_OnPlaybackCursorChanged;
+            Relayout();
         }
+        else
+            channelCtrl = null;
         base.OnDataContextChanged(e);
     }
 
