@@ -10,6 +10,7 @@
              x:Class="midilonia.Views.Sequencer">
   <UserControl.Resources>
     <x:Double x:Key="ButtonSize">40</x:Double>
+    <x:Double x:Key="NotePixels">20</x:Double>
     <v:YOffsetBindingConverter x:Key="YOffsetBindingConverter"/>
   </UserControl.Resources>
 
@@ -33,11 +34,13 @@
         <StackPanel Orientation="Horizontal">
           <Button Content="{Binding Path=SongKey}" Height="25" />
           <ToggleButton IsChecked="{Binding Path=AutoscrollActive, Mode=TwoWay}" i:Attached.Icon="fa-star-of-life" Height="25" />
-        </StackPanel>        
+          <Button i:Attached.Icon="fa-expand" IsVisible="{Binding IsNoteViewMode}"
+                  Click="ChannelViewButton_Click" Padding="0" Width="25" Height="25" />
+        </StackPanel>
 
-        <ScrollViewer x:Name="LeftScrollViewer" IsVisible="{Binding !IsNoteViewMode}"
-            Grid.Row="1" 
-            HorizontalScrollBarVisibility="Disabled" 
+        <ScrollViewer x:Name="LeftScrollViewer"
+            Grid.Row="1"
+            HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Hidden">
           <ScrollViewer.Offset>
             <MultiBinding Converter="{StaticResource YOffsetBindingConverter}" Mode="TwoWay"  >
@@ -46,37 +49,41 @@
             </MultiBinding>
           </ScrollViewer.Offset>
 
-          <ItemsControl ItemsSource="{Binding ChannelCtrls}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate DataType="m:ChannelCtrl">
-                <Grid ColumnDefinitions="*, Auto">
-                  <StackPanel Orientation="Vertical" Grid.Column="1">
-                    <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="NoteViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
-                    <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" i:Attached.Icon="fa-fire" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
-                                  Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
-                    <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
-                                  Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
-                  </StackPanel>
-                  <StackPanel Orientation="Vertical" Height="{Binding Height}"
-                              Background="{Binding Background}">
-                    <DockPanel LastChildFill="False">
-                      <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
-                    </DockPanel>
-                    <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
-                    <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
-                    <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
-                    <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
-                    <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
-                  </StackPanel>
-                </Grid>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+          <Grid>
+            <ItemsControl ItemsSource="{Binding ChannelCtrls}" IsVisible="{Binding !IsNoteViewMode}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="m:ChannelCtrl">
+                  <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel Orientation="Vertical" Grid.Column="1">
+                      <Button DockPanel.Dock="Left"  i:Attached.Icon="fa-expand" Click="NoteViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
+                      <ToggleButton DockPanel.Dock="Right" Name="ChannelSolo" i:Attached.Icon="fa-fire" IsChecked="{Binding Path=IsSolo, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
+                                    Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
+                      <ToggleButton DockPanel.Dock="Right" Name="ChannelMute" i:Attached.Icon="fa-volume-xmark" IsChecked="{Binding Path=IsMute, Mode=TwoWay}" Click="ChannelMuteSolo_Click" Padding="0"
+                                    Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Height="{Binding Height}"
+                                Background="{Binding Background}">
+                      <DockPanel LastChildFill="False">
+                        <Label DockPanel.Dock="Left" Content="{Binding Instrument}" />
+                      </DockPanel>
+                      <TextBlock Text="{Binding TrackType, StringFormat='Type: {0:F3}'}" />
+                      <TextBlock Text="{Binding FilledMeasures, StringFormat='Measures: {0:F3}'}" />
+                      <TextBlock Text="{Binding AverageNoteOverlap, StringFormat='Overlap: {0:F3}'}" />
+                      <TextBlock Text="{Binding AverageNoteLength, StringFormat='AvgLength: {0:F2}'}" />
+                      <TextBlock Text="{Binding Unique, StringFormat='Unique: {0:F2}'}" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid IsVisible="{Binding IsNoteViewMode}">
+              <v:NoteViewLeft x:Name="noteViewLeftCtrl" Width="100" 
+                              NotePixels="{StaticResource NotePixels}" />
+            </Grid>
+          </Grid>
         </ScrollViewer>
         <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding IsNoteViewMode}" Grid.Row="1">
           <StackPanel Orientation="Vertical">
-            <Button DockPanel.Dock="Left" i:Attached.Icon="fa-expand"
-                    Click="ChannelViewButton_Click" Padding="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" />
           </StackPanel>
         </Grid>
       </Grid>
@@ -103,7 +110,7 @@
         <ScrollViewer
             x:Name="BottomScrollViewer"
             Grid.Row="1"
-            HorizontalScrollBarVisibility="Visible"            
+            HorizontalScrollBarVisibility="Visible"
             ScrollChanged="ScrollViewer_ScrollChanged">
           <ScrollViewer.Offset>
             <MultiBinding Converter="{StaticResource YOffsetBindingConverter}" Mode="TwoWay"  >
@@ -122,7 +129,7 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
             <Grid IsVisible="{Binding IsNoteViewMode}">
-              <v:NoteView x:Name="noteViewCtrl" />
+              <v:NoteView x:Name="noteViewCtrl" NotePixels="{StaticResource NotePixels}" />
             </Grid>
           </Grid>
         </ScrollViewer>

@@ -107,6 +107,7 @@ namespace midilonia.Views
             ChannelCtrl cc = (sender as Button).DataContext as ChannelCtrl;
             App.SequencerMdl.SetNoteViewMode(cc.ChannelNum);
             noteViewCtrl.DataContext = cc;
+            noteViewLeftCtrl.DataContext = cc;
         }
 
         private void ChannelViewButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

@@ -30,7 +30,7 @@ namespace midilonia
         public bool IsNoteViewMode => NoteViewChannel >= 0;
         int playbackCursorPos = 0;
 
-        bool autoscrollActive;
+        bool autoscrollActive = true;
         public bool AutoscrollActive { get => autoscrollActive;
             set
             {

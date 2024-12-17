@@ -7,30 +7,34 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using midilib;
 using System;
+using System.Collections.Generic;
 
 namespace midilonia.Views;
 
-public partial class NoteView : UserControl
+public partial class NoteViewLeft : UserControl
 {
-    public NoteView()
-    {
-        InitializeComponent();        
-    }
-
-    ChannelCtrl channelCtrl;
-    Line playbackCursor = null;
-    double pixelsPerTick = 0;
-
     public static readonly StyledProperty<double> NotePixelsProp =
     AvaloniaProperty.Register<NoteView, double>(nameof(NotePixels));
 
     double notePixels = 20;
-    public double NotePixels { get => notePixels;
-        set {
+    public double NotePixels
+    {
+        get => notePixels;
+        set
+        {
             int noteCount = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
             notePixels = value;
             this.Height = noteCount * NotePixels;
-        } }
+        }
+    }
+
+    public NoteViewLeft()
+    {
+        InitializeComponent();
+    }
+
+    ChannelCtrl channelCtrl;
+    Line playbackCursor = null;
 
     protected override void OnDataContextChanged(EventArgs e)
     {
@@ -49,23 +53,6 @@ public partial class NoteView : UserControl
 
     private void ChannelCtrl_OnPlaybackCursorChanged(object? sender, int ticks)
     {
-        Dispatcher.UIThread.InvokeAsync(() => UpdateCursor(ticks));
-    }
-
-    void UpdateCursor(int ticks)
-    {
-        if (playbackCursor == null)
-        {
-            playbackCursor = new Line
-            {
-                StrokeThickness = 5,
-                Stroke = Brushes.Red // Avalonia.Media.Brushes
-            };
-            mainCanvas.Children.Add(playbackCursor);
-        }
-
-        playbackCursor.StartPoint = new Avalonia.Point(ticks * pixelsPerTick, 0);
-        playbackCursor.EndPoint = new Avalonia.Point(ticks * pixelsPerTick, mainCanvas.Bounds.Height);
     }
 
     int gmNoteRange = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
@@ -75,11 +62,12 @@ public partial class NoteView : UserControl
         base.OnSizeChanged(e);
         if (channelCtrl != null)
         {
-            Relayout();
+            RelayoutPiano();
         }
     }
     void Relayout()
     {
+
         int noteCount = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
 
         var themeVariant = Application.Current.ActualThemeVariant;
@@ -97,22 +85,17 @@ public partial class NoteView : UserControl
         int midiFileRes = channelCtrl.Resolution;
 
         int sixteenthRes = midiFileRes / 4;
-        pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
-        long lengthSixteenths = channelCtrl.LengthSixteenths;
         int channelHeight = (int)mainCanvas.Bounds.Height;
         if (channelHeight <= 0)
             return;
+        double width = mainCanvas.Bounds.Width;
 
         double YnoteSizePixels = (1.0) / (double)gmNoteRange * channelHeight;
         double YborderLineSize = (0.1) / (double)gmNoteRange * channelHeight;
 
-        mainCanvas.Width = lengthSixteenths * SequencerModel.PixelsPerSixteenth;
-
         int[] noteOnTick = new int[127];
         for (int j = 0; j < noteOnTick.Length; j++)
             noteOnTick[j] = -1;
-
-        
 
         for (int y = 0; y < noteCount; ++y)
         {
@@ -120,46 +103,44 @@ public partial class NoteView : UserControl
             var line = new Line
             {
                 StartPoint = new Avalonia.Point(0, Y),
-                EndPoint = new Avalonia.Point(lengthSixteenths * SequencerModel.PixelsPerSixteenth, Y),
+                EndPoint = new Avalonia.Point(width, Y),
                 StrokeThickness = YborderLineSize,
                 Stroke = noteLinesBrush// Avalonia.Media.Brushes
             };
             mainCanvas.Children.Add(line);
-        }
-        foreach (var note in channelCtrl.Notes)
-        {
-            int startTicks = note.startTicks;
-            int endTicks = note.startTicks + note.lengthTicks;
+        }        
 
-            if (note.note >= GMInstruments.MidiStartIdx &&
-                note.note < GMInstruments.MidiEndIdx)
-            {
-                double Y = (GMInstruments.MidiEndIdx - note.note - 1) / (double)gmNoteRange * channelHeight;
-
-                var line = new Line
-                {
-                    StartPoint = new Avalonia.Point(startTicks * pixelsPerTick, Y),
-                    EndPoint = new Avalonia.Point(endTicks * pixelsPerTick, Y),
-                    StrokeThickness = YnoteSizePixels,
-                    Stroke = Brushes.Blue // Avalonia.Media.Brushes
-                };
-                mainCanvas.Children.Add(line);
-            }
-            else if (note.note == MidiSong.PedalNote)
-            {
-                double Y = 0;
-
-                var line = new Line
-                {
-                    StartPoint = new Avalonia.Point(startTicks * pixelsPerTick, Y),
-                    EndPoint = new Avalonia.Point(endTicks * pixelsPerTick, Y + 5),
-                    StrokeThickness = YnoteSizePixels,
-                    Stroke = Brushes.Green
-                };
-                mainCanvas.Children.Add(line);
-            }
-        }
 
         playbackCursor = null;
+    }
+
+    void RelayoutPiano()
+    {
+        mainCanvas.Children.Clear();
+        double h = mainCanvas.Bounds.Width;
+        Piano piano = new Piano();
+        int startKey = 36;
+        int numKeys = 48;
+        startKey = System.Math.Min(System.Math.Max(0, startKey), 128 - numKeys);
+        float leftX = piano.PianoKeys[startKey].x;
+        float rightX = piano.PianoKeys[startKey + numKeys - 1].x + piano.PianoWhiteXs;
+        float xScale = 1.0f / (rightX - leftX);
+
+        for (int i = 0; i < numKeys; i++)
+        {
+            int keynum = i + startKey;
+            bool isBlack = piano.PianoKeys[keynum].isBlack;
+            Rectangle r = new Rectangle();
+            r.Height = notePixels;
+            r.Width = isBlack ? h / 2 : h;
+            r.Stroke = Brushes.DarkBlue;
+            r.StrokeThickness = 2;
+            isBlack = isBlack;
+            r.Fill = isBlack ? Brushes.Black : Brushes.White;
+            Canvas.SetTop(r, (piano.PianoKeys[keynum].x - leftX) * notePixels);
+            Canvas.SetLeft(r, 0);
+            r.Tag = i + GMInstruments.MidiStartIdx;
+            mainCanvas.Children.Add(r);
+        }
     }
 }
