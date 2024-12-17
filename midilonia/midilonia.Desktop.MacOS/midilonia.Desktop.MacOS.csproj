@@ -22,6 +22,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <BundleResource Include="Resources/midilonia.icns" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\midilonia\midilonia.csproj">
       <ReferenceSourceTarget></ReferenceSourceTarget>
     </ProjectReference>

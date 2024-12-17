@@ -15,5 +15,7 @@
 		<integer>1</integer>
 		<integer>2</integer>
 	</array>
+	<key>CFBundleIconFile</key>
+	<string>midilonia</string>
 </dict>
 </plist>

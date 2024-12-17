@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <BundleResource Include="Resources/midilonia.icns" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\midilonia\midilonia.csproj" />
     <ProjectReference Include="..\..\audioout.IOS\audioout.IOS.csproj" />
     <ProjectReference Include="..\..\midilib\midilib.csproj" />
