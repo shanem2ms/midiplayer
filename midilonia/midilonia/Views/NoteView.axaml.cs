@@ -116,7 +116,7 @@ public partial class NoteView : UserControl
 
         for (int y = 0; y < noteCount; ++y)
         {
-            double Y = (y + 0.5) / (double)gmNoteRange * channelHeight;
+            double Y = y * notePixels;
             var line = new Line
             {
                 StartPoint = new Avalonia.Point(0, Y),
@@ -134,7 +134,8 @@ public partial class NoteView : UserControl
             if (note.note >= GMInstruments.MidiStartIdx &&
                 note.note < GMInstruments.MidiEndIdx)
             {
-                double Y = (GMInstruments.MidiEndIdx - note.note - 1) / (double)gmNoteRange * channelHeight;
+                double Y = (GMInstruments.MidiEndIdx - note.note - 1) * notePixels +
+                    notePixels * 0.5;
 
                 var line = new Line
                 {

@@ -65,9 +65,12 @@ namespace midilonia
 
         private void Player_OnPlaybackTime(object? sender, MeltySynth.MidiSynthSequencer.PlaybackTimeArgs e)
         {
-            foreach (var channel in ChannelCtrls)
+            if (ChannelCtrls != null)
             {
-                channel.PlaybackCursorPos = e.ticks;
+                foreach (var channel in ChannelCtrls)
+                {
+                    channel.PlaybackCursorPos = e.ticks;
+                }
             }
             this.PlaybackCursorPos = e.ticks;
         }

@@ -4,7 +4,8 @@
              x:Class="midilonia.App"
              RequestedThemeVariant="Default">
   <Application.Resources>
-    <FontFamily x:Key="DigitalLCD">avares://midilonia/Assets/DigitaldreamFat.ttf#Digital dream Fat</FontFamily>    
+    <FontFamily x:Key="DigitalLCD">avares://midilonia/Assets/DigitaldreamFat.ttf#Digital dream Fat</FontFamily>
+    <FontFamily x:Key="MusicNotes">avares://midilonia/Assets/Metdemo.ttf#MetDemo</FontFamily>
   </Application.Resources>
   <Application.Styles>
     <FluentTheme />
