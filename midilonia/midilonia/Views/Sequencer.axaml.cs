@@ -106,6 +106,7 @@ namespace midilonia.Views
         {
             ChannelCtrl cc = (sender as Button).DataContext as ChannelCtrl;
             App.SequencerMdl.SetNoteViewMode(cc.ChannelNum);
+            sequencerPiano.DataContext = cc;
             noteViewCtrl.DataContext = cc;
             noteViewLeftCtrl.DataContext = cc;
         }

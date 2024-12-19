@@ -29,6 +29,9 @@
     <Compile Update="Views\ArtistsSongs.axaml.cs">
       <DependentUpon>ArtistsSongs.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\SequencerPiano.axaml.cs">
+      <DependentUpon>SequencerPiano.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\InteractivePiano.axaml.cs">
       <DependentUpon>InteractivePiano.axaml</DependentUpon>
     </Compile>

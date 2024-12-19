@@ -1,11 +1,13 @@
 ﻿using Amazon.S3.Model;
 using Avalonia.Media;
 using Avalonia.Threading;
+using DynamicData;
 using midilib;
 using midilonia.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using static midilib.MidiSong;
 
 namespace midilonia
@@ -125,12 +127,20 @@ namespace midilonia
         public double AverageNotePitch => track.AverageNotePitch;
 
         public double AverageNoteOverlap => track.AverageNoteOverlap;
+        public int QuarterNoteTicks => song.Resolution;
 
         public string TrackType => track.TrackType.ToString();
         public bool IsSolo { get; set; }
         public bool IsMute { get; set; }
         public int LengthSixteenths => song.LengthSixteenths;
         public Note[] Notes => track.Notes;
+
+        class NoteBucket
+        {
+            public List<Note> activeNotes = new List<Note>();
+        }
+
+        NoteBucket[] quarterNoteBuckets = null; 
 
         int playbackCursorPos = 0;
         public int PlaybackCursorPos
@@ -162,6 +172,44 @@ namespace midilonia
                 Color.FromRgb((byte)(rsub), (byte)(gsub), (byte)(bsub)));
         }
 
+        public void GetActiveNotes(int ticks, bool[] noteIsActive)
+        {
+        
+            for (int i = 0; i < noteIsActive.Length; i++) {
+                noteIsActive[i] = false;
+                }
+            if (quarterNoteBuckets == null)
+                BuildNoteBuckets();
+
+            int bucket = ticks / QuarterNoteTicks;
+            NoteBucket n = quarterNoteBuckets[bucket];
+            foreach (Note note in n.activeNotes)
+            {
+                if (note.startTicks <= ticks &&
+                    note.startTicks + note.lengthTicks > ticks)
+                {
+                    noteIsActive[note.note] = true;
+                }
+            }
+        }
+
+        void BuildNoteBuckets()
+        {
+            quarterNoteBuckets = new NoteBucket[(LengthSixteenths / 4) + 1];
+            foreach (var note in Notes)
+            {
+                int startMeasure = (note.startTicks / QuarterNoteTicks);
+                int endMeasure = (note.startTicks + note.lengthTicks - 1) / QuarterNoteTicks;
+                for (int m = startMeasure; m <= endMeasure; m++)
+                {
+                    if (quarterNoteBuckets[m] == null)
+                    {
+                        quarterNoteBuckets[m] = new NoteBucket();                        
+                    }
+                    quarterNoteBuckets[m].activeNotes.Add(note);
+                }
+            }
+        }
         public void ExpandCollapse()
         {
             expanded = !expanded;

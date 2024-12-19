@@ -235,7 +235,7 @@ namespace midilib
 
     public static class GMInstruments
     {
-        public static string[] Names =
+        public static string[] Names { get; } = new string[]
         {
             "Acoustic Grand Piano",
             "Bright Acoustic Piano",
