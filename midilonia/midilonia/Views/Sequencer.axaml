@@ -17,8 +17,7 @@
   <Grid >
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
+      <RowDefinition Height="100" />
     </Grid.RowDefinitions>
     <Grid>
       <Grid.ColumnDefinitions>
@@ -32,7 +31,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-          <Button Content="{Binding Path=SongKey}" Height="25" />
+          <Button Content="{Binding Path=SongKey}" Padding="0" Height="25" />
           <ToggleButton IsChecked="{Binding Path=AutoscrollActive, Mode=TwoWay}" i:Attached.Icon="fa-star-of-life" Height="25" />
           <Button i:Attached.Icon="fa-expand" IsVisible="{Binding IsNoteViewMode}"
                   Click="ChannelViewButton_Click" Padding="0" Width="25" Height="25" />
@@ -96,7 +95,7 @@
         </Grid.RowDefinitions>
         <ScrollViewer x:Name="TopScrollViewer" HorizontalScrollBarVisibility="Hidden"
                       Offset="{Binding ElementName=BottomScrollViewer, Path=Offset}"
-                      VerticalScrollBarVisibility="Disabled">
+                      VerticalScrollBarVisibility="Disabled">          
           <Grid>
             <Canvas x:Name="TimeStep" PointerPressed="Canvas_PointerPressed"
                 Height="25" HorizontalAlignment="Left">
@@ -134,6 +133,9 @@
           </Grid>
         </ScrollViewer>
       </Grid>
+    </Grid>
+    <Grid Grid.Row="1" IsVisible="{Binding IsNoteViewMode}">
+      <v:SequencerPiano x:Name="sequencerPiano"/>
     </Grid>
   </Grid>
 </UserControl>
