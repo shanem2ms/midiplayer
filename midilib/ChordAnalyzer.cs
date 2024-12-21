@@ -3,6 +3,7 @@ using NAudio.Midi;
 using System.Drawing;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace midilib
 {
@@ -33,7 +34,7 @@ namespace midilib
 
         int songKey = 0;
         public int SongKey => songKey;
-        public static string[] KeyNames = new string[12]
+        public static string[] KeyNames { get; } = new string[12]
         {
             "C-maj",
             "C#-maj",
@@ -47,6 +48,24 @@ namespace midilib
             "A-maj",
             "Bb-maj",
             "B-maj"
+        };
+
+        public static List<int>[] ChordTypes = new List<int>[]
+        {
+            new List<int> { 0, 4, 7 },  // major
+            new List<int> { 0, 3, 7 },  // minor
+            new List<int> { 0, 4, 7, 11 },  // major 7
+            new List<int> { 0, 3, 7, 10 },  // minor 7
+            new List<int> { 0, 4, 7, 10 },  // dominant 7
+            new List<int> { 0, 3, 6, 10 },  // minor 7 b5
+            new List<int> { 0, 3, 6, 11 },  // diminished 7
+            new List<int> { 0, 3, 7, 11 },  // minor-major 7
+            new List<int> { 0, 4, 7, 9 },  // major 6
+            new List<int> { 0, 3, 7, 8 },  // minor 6
+            new List<int> { 0, 4, 7, 8 },  // dominant 6
+            new List<int> { 0, 3, 6, 8 },  // minor 6 b5
+            new List<int> { 0, 3, 6, 9 },  // diminished 6
+            new List<int> { 0, 3, 7, 9 },  // minor-major 6
         };
 
         public void Analyze()
