@@ -20,6 +20,8 @@ namespace midilonia
         DispatcherTimer dispatcherTimer;
         double CursorPosX { get; set; }
         public string SongKey { get; set; }
+
+        public int SongeKeyIdx => ChordAnalyzer.KeyNames.IndexOf(SongKey);
         ChordAnalyzer chordAnalyzer;
         MidiSong midiSong;
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -100,7 +102,7 @@ namespace midilonia
                 TrackInfo track = midiSong.Tracks[i];
 
                 channelCtrls.Add(
-                    new ChannelCtrl(midiSong, track));
+                    new ChannelCtrl(midiSong, track, this));
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChannelCtrls)));
         }
@@ -110,6 +112,11 @@ namespace midilonia
             this.NoteViewChannel = channel;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NoteViewChannel)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsNoteViewMode)));
+        }
+
+        public ChordAnalyzer.Chord ChordFor(List<int> notes)
+        {
+            return chordAnalyzer.GetChord(SongeKeyIdx, notes);
         }
     }
     public class ChannelCtrl : INotifyPropertyChanged
@@ -135,6 +142,8 @@ namespace midilonia
         public int LengthSixteenths => song.LengthSixteenths;
         public Note[] Notes => track.Notes;
 
+        public string CurrentChord { get; set; } = "";
+
         class NoteBucket
         {
             public List<Note> activeNotes = new List<Note>();
@@ -156,10 +165,13 @@ namespace midilonia
 
         public int Resolution => song.Resolution;
         public SolidColorBrush Background { get; }
-        public ChannelCtrl(MidiSong _song, MidiSong.TrackInfo _track)
+
+        SequencerModel parent;
+        public ChannelCtrl(MidiSong _song, MidiSong.TrackInfo _track, SequencerModel _parent)
         {
             track = _track;
             song = _song;
+            parent = _parent;
             int typeInt = (int)track.TrackType;
             int rsub = ((typeInt + 1) & 1) != 0 ? 25 : 0;
             int gsub = (((typeInt + 1) >> 1) & 1) != 0 ? 25 : 0;
@@ -171,26 +183,44 @@ namespace midilonia
             Background = new SolidColorBrush(
                 Color.FromRgb((byte)(rsub), (byte)(gsub), (byte)(bsub)));
         }
-
-        public void GetActiveNotes(int ticks, bool[] noteIsActive)
+       
+        public List<int> GetActiveNotes(int ticks)
         {
-        
-            for (int i = 0; i < noteIsActive.Length; i++) {
-                noteIsActive[i] = false;
-                }
+            List<int> activeNotes = new List<int>();
             if (quarterNoteBuckets == null)
                 BuildNoteBuckets();
 
             int bucket = ticks / QuarterNoteTicks;
             NoteBucket n = quarterNoteBuckets[bucket];
-            foreach (Note note in n.activeNotes)
+            if (n != null)
             {
-                if (note.startTicks <= ticks &&
-                    note.startTicks + note.lengthTicks > ticks)
+                foreach (Note note in n.activeNotes)
                 {
-                    noteIsActive[note.note] = true;
+                    if (note.startTicks <= ticks &&
+                        note.startTicks + note.lengthTicks > ticks)
+                    {
+                        activeNotes.Add(note.note);
+                    }
                 }
             }
+            return activeNotes;
+        }
+        public void GetActiveNotes(int ticks, bool[] noteIsActive)
+        {
+            for (int i = 0; i < noteIsActive.Length; i++)
+            {
+                noteIsActive[i] = false;
+            }
+
+            List<int> notes = GetActiveNotes(ticks);
+           
+            foreach (int n in notes)
+            {
+                noteIsActive[n] = true;
+            }
+
+            CurrentChord = parent.ChordFor(notes)?.ToString() ?? string.Empty;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentChord)));
         }
 
         void BuildNoteBuckets()

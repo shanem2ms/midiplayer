@@ -75,6 +75,7 @@ public partial class NoteViewLeft : UserControl
         float leftX = piano.PianoKeys[startKey].x;
         float rightX = piano.PianoKeys[startKey + numKeys - 1].x + piano.PianoWhiteXs;
 
+        char[] sharpFlat = { 'b', ' ', '#' };
         for (int i = 0; i < numKeys; i++)
         {
             int keynum = i + startKey;
@@ -83,11 +84,12 @@ public partial class NoteViewLeft : UserControl
             tb.Width = h;
             //tb.Height = notePixels;
             int midiNoteIdx = GMInstruments.MidiStartIdx + i;
-            tb.Text = $"{midiNoteIdx} {piano.PianoKeys[keynum].KeyLetter}";
+            
+            tb.Text = $"{midiNoteIdx} {piano.PianoKeys[keynum].KeyLetter}{sharpFlat[piano.PianoKeys[keynum].KeyLetterSharpFlat + 1]}";
             tb.Foreground = isBlack ? Brushes.LightBlue : Brushes.DarkBlue;
             tb.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center;
             double top = (numKeys - 1) * notePixels - (piano.PianoKeys[keynum].x - leftX);
-            Canvas.SetLeft(tb, 0);            
+            Canvas.SetLeft(tb, 0);
             Canvas.SetTop(tb, top);
 
             Rectangle r = new Rectangle();
@@ -96,7 +98,7 @@ public partial class NoteViewLeft : UserControl
             r.Stroke = Brushes.DarkBlue;
             r.StrokeThickness = 2;
             isBlack = isBlack;
-            r.Fill = isBlack ? Brushes.Black : Brushes.White;            
+            r.Fill = isBlack ? Brushes.Black : Brushes.White;
             Canvas.SetTop(r, top);
             Canvas.SetLeft(r, 0);
             r.Tag = midiNoteIdx;

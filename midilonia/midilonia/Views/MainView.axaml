@@ -58,6 +58,7 @@
         <RadioButton Name="SynthListRb" Classes="Nav" i:Attached.Icon="fa-cash-register" />
         <RadioButton Name="PianoRb" Classes="Nav" i:Attached.Icon="fa-vials" />
         <RadioButton Name="SequencerRb" Classes="Nav" IsChecked="true" i:Attached.Icon="fa-sliders" />
+        <RadioButton Name="ImportExportRb" Classes="Nav" IsChecked="false" i:Attached.Icon="fa-file" />
       </StackPanel>
       <v:SongSearch Grid.Column="1"
                    IsVisible="{Binding ElementName=SearchRb, Path=IsChecked}"/>
@@ -69,6 +70,8 @@
                    IsVisible="{Binding ElementName=PianoRb, Path=IsChecked}"/>
       <v:Sequencer Grid.Column="1"
                    IsVisible="{Binding ElementName=SequencerRb, Path=IsChecked}"/>
+      <v:ImportExport Grid.Column="1"
+                   IsVisible="{Binding ElementName=ImportExportRb, Path=IsChecked}"/>
     </Grid>
   </Grid>
 </UserControl>

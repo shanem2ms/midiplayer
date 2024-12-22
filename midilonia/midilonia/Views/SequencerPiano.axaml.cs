@@ -64,7 +64,6 @@ namespace midilonia.Views
         UIKey[] uikeys;
         public SequencerPiano()
         {
-            this.DataContext = this;
             InitializeComponent();
             PianoCanvas.SizeChanged += PianoCanvas_SizeChanged;
             PianoCanvas.PointerPressed += PianoCanvas_PointerPressed;
@@ -255,6 +254,11 @@ namespace midilonia.Views
                     player.SynthEngine.NoteOff(note);
                 }
             }, null, 1000, Timeout.Infinite);
+        }
+
+        private void CurrentCord_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            channelCtrl.GetActiveNotes(channelCtrl.PlaybackCursorPos, activeNotes);
         }
     }
 }

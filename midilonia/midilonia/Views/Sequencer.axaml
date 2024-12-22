@@ -32,7 +32,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-          <ComboBox ItemsSource="{x:Static midilib:ChordAnalyzer.KeyNames}" SelectedItem="{Binding Path=SongKey}" Padding="0" Height="25" />
+          <ComboBox ItemsSource="{x:Static midilib:ChordAnalyzer.KeyNames}" SelectedItem="{Binding Path=SongKey, Mode=TwoWay}" Padding="0" Height="25" />
           <ToggleButton IsChecked="{Binding Path=AutoscrollActive, Mode=TwoWay}" i:Attached.Icon="fa-star-of-life" Height="25" />
           <Button i:Attached.Icon="fa-expand" IsVisible="{Binding IsNoteViewMode}"
                   Click="ChannelViewButton_Click" Padding="0" Width="25" Height="25" />

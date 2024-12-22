@@ -14,6 +14,7 @@ namespace midilib
             public bool isBlack;
             public uint channelsOn = 0;
             public char KeyLetter;
+            public int KeyLetterSharpFlat;
         }
 
         public PianoKey[] PianoKeys = new PianoKey[128];
@@ -46,13 +47,15 @@ namespace midilib
                 float xval = xleft + (i + 0.5f) * xscale;
 
                 int note = i % 7;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1, KeyLetter = keyletters[note] };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1, 
+                    KeyLetter = keyletters[note], KeyLetterSharpFlat = 0 };
 
                 if (!hasBlackKey[note] || keyIdx >= PianoKeys.Length)
                     continue;
 
                 xval = xleft + (i + 1) * xscale;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f, KeyLetter = keyletters[note] };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f, 
+                    KeyLetter = keyletters[note + 1], KeyLetterSharpFlat = -1 };
             }           
         }
 
@@ -70,13 +73,15 @@ namespace midilib
             for (int i = 0; keyIdx < PianoKeys.Length; i++)
             {
                 int note = i % 7;
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1, KeyLetter = keyletters[note] };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = false, x = xval, y = 0.5f, ys = 1, 
+                    KeyLetter = keyletters[note], KeyLetterSharpFlat = 0 };
 
                 xval += width;
                 if (!hasBlackKey[note] || keyIdx >= PianoKeys.Length)
                     continue;
 
-                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f, KeyLetter = keyletters[note] };
+                PianoKeys[keyIdx++] = new PianoKey { isBlack = true, x = xval, y = 0.3f, ys = 0.6f, 
+                    KeyLetter = keyletters[note + 1], KeyLetterSharpFlat = -1 };
                 xval += width;
             }
         }

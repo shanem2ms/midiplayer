@@ -9,14 +9,16 @@
              x:Class="midilonia.Views.SequencerPiano">
   <Grid ColumnDefinitions="Auto, *">
     <StackPanel Orientation="Vertical">
-      <StackPanel Orientation="Horizontal">
+      <StackPanel Name="Buttons" Orientation="Horizontal">
         <Button i:Attached.Icon="fa-square-minus" FontSize="28" Click="OctaveDn_Click" />
         <TextBlock Text="{Binding Path=CurrentOctave}" VerticalAlignment="Center"  />
         <Button i:Attached.Icon="fa-square-plus" FontSize="28" Click="OctaveUp_Click" />
         <Button i:Attached.Icon="fa-chart-simple" FontSize="28"  Click="PlayActive_Click" />
       </StackPanel>
       <ComboBox Margin="10,0,0,0" Width="200" ItemsSource="{x:Static midilib:GMInstruments.Names}"
-                SelectedIndex="{Binding CurrentPatch, Mode=TwoWay}"/>
+                SelectedIndex="{Binding CurrentPatch, Mode=TwoWay}"
+                MaxWidth="100" />
+      <Button Content="{Binding Path=CurrentChord}" Click="CurrentCord_Click"/>
     </StackPanel>
     <Canvas Grid.Column="1" x:Name="PianoCanvas" MaxHeight="200" />
   </Grid>
