@@ -5,6 +5,8 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using Amazon.Runtime.Internal.Transform;
+using System.Diagnostics;
+using System.Net.WebSockets;
 
 namespace midilib
 {
@@ -37,11 +39,9 @@ namespace midilib
             11
         };
 
-        MeltySynth.MidiFile midiFile;
         int resolution;
-        public ChordAnalyzer(MeltySynth.MidiFile _midiFile)
+        public ChordAnalyzer()
         {
-            midiFile = _midiFile;
         }
 
         int songKey = 0;
@@ -149,7 +149,6 @@ namespace midilib
             }
         }
 
-
         List<int> Transpose(int chord, List<int> list)
         {
             return list.Select(n => (n + 12 + chord) % 12).ToList();
@@ -177,7 +176,8 @@ namespace midilib
             }
             return bestChord;
         }
-        public void Analyze()
+
+        public void Analyze(MeltySynth.MidiFile midiFile)
         {
             int pixelsPerSixteenth = 10;
             int sixteenthRes = midiFile.Resolution / 4;
@@ -252,6 +252,48 @@ namespace midilib
             songKey = CalculateKey(noteCounts);
         }
 
+        public Dictionary<int, Chord> BuildChordsForTrack(int songKey, MidiSong.TrackInfo track,
+            int lengthSixteenths)
+        {
+            Dictionary<int, Chord> songChords = new Dictionary<int, Chord>();
+            int expireTicks = lengthSixteenths * 2;
+            List<MidiSong.Note> activeNotes = new List<MidiSong.Note>();
+            List<MidiSong.Note> nextActiveNotes = new List<MidiSong.Note>();
+            var tickGroups = track.Notes.GroupBy(t => t.startTicks);
+            foreach (var noteGrp in tickGroups)
+            {
+                int curTickTime = noteGrp.First().startTicks;
+                int expireTickTime = curTickTime - expireTicks;
+                nextActiveNotes.Clear();
+                foreach (var an in activeNotes)
+                {
+                    if (an.startTicks > expireTickTime &&
+                        (an.startTicks + an.lengthTicks > curTickTime))
+                    {
+                        nextActiveNotes.Add(an);
+                    }
+                }
+                foreach (var note in noteGrp)
+                {
+                    nextActiveNotes.Add(note);
+                }
+
+                if (nextActiveNotes.Count >= 3)
+                {
+                    Chord c = GetChord(songKey,
+                        nextActiveNotes.Select(n => (int)n.note).ToList());
+                    if (c != null)
+                    {
+                        songChords.Add(curTickTime, c);
+                    }
+                }
+                var tmp = nextActiveNotes;
+                nextActiveNotes = activeNotes;
+                activeNotes = tmp;
+            }
+
+            return songChords;
+        }
         int CalculateKey(int[] noteOccurences)
         {
             int[] keyWeights = new int[12];

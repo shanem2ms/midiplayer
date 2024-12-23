@@ -177,7 +177,7 @@ namespace midilib
                     {
                         MidiFile midiFile = new MidiFile(path);
                         MidiFile.Message[] messages = midiFile.Messages;
-                        ChordAnalyzer chordAnalyzer = new ChordAnalyzer(midiFile);
+                        ChordAnalyzer chordAnalyzer = new ChordAnalyzer();
                         var channelMessages = messages.GroupBy(m => m.Channel).ToDictionary(g => g.Key, g => g.ToList());
                         int ms = midiFile.Length.Milliseconds;
                         int channels = channelMessages.Keys.Count - 1;

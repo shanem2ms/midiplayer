@@ -82,8 +82,10 @@ namespace midilonia
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             midiSong = new MidiSong(e.midiFile);
-            chordAnalyzer = new ChordAnalyzer(e.midiFile);
-            chordAnalyzer.Analyze();
+            chordAnalyzer = new ChordAnalyzer();
+            chordAnalyzer.Analyze(e.midiFile);
+            Dictionary<int, ChordAnalyzer.Chord> chords = chordAnalyzer.BuildChordsForTrack(
+                chordAnalyzer.SongKey, midiSong.Tracks.First(), midiSong.LengthSixteenths);
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             currentTicks = 0;
