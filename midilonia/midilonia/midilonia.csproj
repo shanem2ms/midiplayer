@@ -38,6 +38,9 @@
     <Compile Update="Views\SynthList.axaml.cs">
       <DependentUpon>SynthList.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\ImportExport.axaml.cs">
+      <DependentUpon>ImportExport.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
