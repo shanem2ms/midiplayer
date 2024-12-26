@@ -102,6 +102,7 @@
             <Canvas x:Name="TimeStep" PointerPressed="Canvas_PointerPressed"
                 HorizontalAlignment="Left">
             </Canvas>
+            <Canvas x:Name="ChordNames" Grid.Row="1" />
           </Grid>
         </ScrollViewer>
 

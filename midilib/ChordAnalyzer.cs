@@ -253,13 +253,13 @@ namespace midilib
         }
 
         public Dictionary<int, Chord> BuildChordsForTrack(int songKey, MidiSong.TrackInfo track,
-            int lengthSixteenths)
+            int reesolution)
         {
             Dictionary<int, Chord> songChords = new Dictionary<int, Chord>();
-            int expireTicks = lengthSixteenths * 2;
+            int expireTicks = reesolution / 4;
             List<MidiSong.Note> activeNotes = new List<MidiSong.Note>();
             List<MidiSong.Note> nextActiveNotes = new List<MidiSong.Note>();
-            var tickGroups = track.Notes.GroupBy(t => t.startTicks);
+            var tickGroups = track.Notes.GroupBy(t => t.startTicks).OrderBy(g => g.Key);
             foreach (var noteGrp in tickGroups)
             {
                 int curTickTime = noteGrp.First().startTicks;

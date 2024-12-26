@@ -3,12 +3,12 @@ using Avalonia.Data.Converters;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using midilib;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
-using System.Threading.Channels;
 
 namespace midilonia.Views
 {
@@ -56,6 +56,34 @@ namespace midilonia.Views
         {
             Relayout();
             base.OnSizeChanged(e);
+        }
+
+        void BuildChords(ChannelCtrl cc)
+        {
+            ChordNames.Children.Clear();
+            App.SequencerMdl.BuildChords(cc);
+            int sixteenthRes = App.SequencerMdl.MidiSong.Resolution / 4;
+            pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
+            foreach (var kv in cc.Chords)
+            {
+                //kv.Value.
+                var btn = new Button();
+                Canvas.SetLeft(btn, kv.Key * pixelsPerTick);
+                Canvas.SetTop(btn, 0);
+                //btn.Width = SequencerModel.PixelsPerSixteenth;
+                btn.Padding = new Avalonia.Thickness(0, 0);
+                btn.Height = ChordNames.Height;
+                btn.Click += ChordBtn_Click;
+                btn.Content = kv.Value.ToString();
+                btn.Tag = kv.Key;
+                ChordNames.Children.Add(btn);
+            }
+        }
+
+        private void ChordBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            int ticks = (int)((sender as Button).Tag);
+            Debug.WriteLine($"{ticks}");
         }
 
         void Relayout()
@@ -109,8 +137,10 @@ namespace midilonia.Views
             sequencerPiano.DataContext = cc;
             noteViewCtrl.DataContext = cc;
             noteViewLeftCtrl.DataContext = cc;
+            BuildChords(cc);
         }
 
+      
         private void ChannelViewButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             App.SequencerMdl.SetNoteViewMode(-1);

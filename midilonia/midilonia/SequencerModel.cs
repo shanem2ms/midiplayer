@@ -19,7 +19,9 @@ namespace midilonia
         double pixelsPerTick;
         DispatcherTimer dispatcherTimer;
         double CursorPosX { get; set; }
-        public string SongKey { get; set; }
+
+        string songKey;
+        public string SongKey { get => songKey; set { songKey = value; OnSongKeyChanged(); } }
 
         public int SongeKeyIdx => ChordAnalyzer.KeyNames.IndexOf(SongKey);
         ChordAnalyzer chordAnalyzer;
@@ -79,13 +81,16 @@ namespace midilonia
             this.PlaybackCursorPos = e.ticks;
         }
 
+        void OnSongKeyChanged()
+        {
+            BuildChords();
+        }
+
         private void Player_OnSongLoaded(object? sender, MidiPlayer.PlaybackStartArgs e)
         {
             midiSong = new MidiSong(e.midiFile);
             chordAnalyzer = new ChordAnalyzer();
             chordAnalyzer.Analyze(e.midiFile);
-            Dictionary<int, ChordAnalyzer.Chord> chords = chordAnalyzer.BuildChordsForTrack(
-                chordAnalyzer.SongKey, midiSong.Tracks.First(), midiSong.LengthSixteenths);
             SongKey = ChordAnalyzer.KeyNames[chordAnalyzer.SongKey];
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SongKey)));
             currentTicks = 0;
@@ -119,6 +124,11 @@ namespace midilonia
         public ChordAnalyzer.Chord ChordFor(List<int> notes)
         {
             return chordAnalyzer.GetChord(SongeKeyIdx, notes);
+        }
+
+        public void BuildChords(ChannelCtrl ctrl)
+        {
+            ctrl.BuildChords(chordAnalyzer, MidiSong);
         }
     }
     public class ChannelCtrl : INotifyPropertyChanged
@@ -249,8 +259,15 @@ namespace midilonia
             Seq.Height = Height;
         }
 
-        public SequencerChannel Seq;
+        public void BuildChords(ChordAnalyzer chordAnalyzer, MidiSong midiSong)
+        {
+            chords = chordAnalyzer.BuildChordsForTrack(
+                chordAnalyzer.SongKey, midiSong.Tracks.First(), midiSong.Resolution);
+        }
 
+        public SequencerChannel Seq;
+        Dictionary<int, ChordAnalyzer.Chord> chords = null;
+        public Dictionary<int, ChordAnalyzer.Chord> Chords => chords;
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<int> OnPlaybackCursorChanged;
     }
