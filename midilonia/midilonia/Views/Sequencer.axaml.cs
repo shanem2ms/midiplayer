@@ -20,6 +20,7 @@ namespace midilonia.Views
             this.DataContext = App.SequencerMdl;
             InitializeComponent();
             App.SequencerMdl.PropertyChanged += SequencerMdl_PropertyChanged;
+            App.SequencerMdl.ChordsRebuild += SequencerMdl_ChordsRebuild; ;
         }
 
         private void SequencerMdl_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -58,32 +59,32 @@ namespace midilonia.Views
             base.OnSizeChanged(e);
         }
 
-        void BuildChords(ChannelCtrl cc)
+        private void SequencerMdl_ChordsRebuild(object? sender, List<ChordAnalyzer.TimedChord> chords)
         {
             ChordNames.Children.Clear();
-            App.SequencerMdl.BuildChords(cc);
             int sixteenthRes = App.SequencerMdl.MidiSong.Resolution / 4;
             pixelsPerTick = (double)SequencerModel.PixelsPerSixteenth / (double)sixteenthRes;
-            foreach (var kv in cc.Chords)
+            foreach (var tc in chords)
             {
                 //kv.Value.
                 var btn = new Button();
-                Canvas.SetLeft(btn, kv.Key * pixelsPerTick);
+                Canvas.SetLeft(btn, tc.startTicks * pixelsPerTick);
                 Canvas.SetTop(btn, 0);
                 //btn.Width = SequencerModel.PixelsPerSixteenth;
                 btn.Padding = new Avalonia.Thickness(0, 0);
                 btn.Height = ChordNames.Height;
+                btn.Width = tc.lengthTicks * pixelsPerTick;
                 btn.Click += ChordBtn_Click;
-                btn.Content = kv.Value.ToString();
-                btn.Tag = kv.Key;
+                btn.Content = tc.chord.ToString();
+                btn.Tag = tc;                
                 ChordNames.Children.Add(btn);
             }
         }
 
         private void ChordBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            int ticks = (int)((sender as Button).Tag);
-            Debug.WriteLine($"{ticks}");
+            ChordAnalyzer.TimedChord tc = (ChordAnalyzer.TimedChord)((sender as Button).Tag);
+            Debug.WriteLine($"{tc.chord.ToString()}");
         }
 
         void Relayout()
@@ -137,7 +138,7 @@ namespace midilonia.Views
             sequencerPiano.DataContext = cc;
             noteViewCtrl.DataContext = cc;
             noteViewLeftCtrl.DataContext = cc;
-            BuildChords(cc);
+            App.SequencerMdl.BuildChords(cc);
         }
 
       

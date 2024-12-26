@@ -147,8 +147,24 @@ namespace midilib
                 if (BaseNote < 0) return "";
                 return KeyNames[BaseNote] + " " + ChordType.ToString();
             }
+
+            public static bool Compare(Chord a, Chord b)
+            {
+                if (a == null) return b == null ? true : false;
+                if (b == null) return a == null ? true : false;
+
+                if (a.ChordType != b.ChordType) return false;
+
+                return a.BaseNote == b.BaseNote;
+            }
         }
 
+        public class TimedChord
+        {
+            public int startTicks;
+            public int lengthTicks;
+            public Chord chord;
+        }
         List<int> Transpose(int chord, List<int> list)
         {
             return list.Select(n => (n + 12 + chord) % 12).ToList();
@@ -252,7 +268,7 @@ namespace midilib
             songKey = CalculateKey(noteCounts);
         }
 
-        public Dictionary<int, Chord> BuildChordsForTrack(int songKey, MidiSong.TrackInfo track,
+        public Dictionary<int, Chord> BuildChordsForTrack2(int songKey, MidiSong.TrackInfo track,
             int reesolution)
         {
             Dictionary<int, Chord> songChords = new Dictionary<int, Chord>();
@@ -294,6 +310,74 @@ namespace midilib
 
             return songChords;
         }
+
+        class NoteStartEnd
+        {
+            public int ticks;
+            public MidiSong.Note note;
+            public bool isstart;
+        }
+
+        public List<TimedChord> BuildChordsForTrack(int songKey, MidiSong.TrackInfo track,
+            int reesolution)
+        {            
+            List<NoteStartEnd> notes = new List<NoteStartEnd>();
+            foreach (var note in track.Notes)
+            {
+                notes.Add(new NoteStartEnd() { ticks = note.startTicks, note = note, isstart = true });
+                notes.Add(new NoteStartEnd() { ticks = note.startTicks + note.lengthTicks, note = note, isstart = false });
+            }
+
+            notes.Sort((a, b) => a.ticks.CompareTo(b.ticks));
+
+            List<TimedChord> songChords = new List<TimedChord>();
+            int expireTicks = reesolution / 4;
+            List<MidiSong.Note> activeNotes = new List<MidiSong.Note>();
+            var tickGroups = notes.GroupBy(t => t.ticks).OrderBy(g => g.Key);
+            
+            Chord chord = null;
+            int startTicks = -1;
+            foreach (var noteGrp in tickGroups)
+            {
+                int curTicks = noteGrp.Key;
+                foreach (var note in noteGrp)
+                {
+                    if (note.isstart)
+                        activeNotes.Add(note.note);
+                    else
+                        activeNotes.Remove(note.note);
+                }
+
+                if (activeNotes.Count >= 3)
+                {
+                    Chord c = GetChord(songKey,
+                        activeNotes.Select(n => (int)n.note).ToList());
+                    if (!Chord.Compare(chord, c))
+                    {
+                        if (chord != null)
+                        {
+                            songChords.Add(new TimedChord()
+                                { chord = chord, startTicks = startTicks, lengthTicks = curTicks - startTicks });
+                        }
+                        chord = c;
+                        startTicks = curTicks;
+                    }
+                }
+                else
+                {
+                    if (chord != null)
+                    {
+                        songChords.Add(new TimedChord()
+                            { chord = chord, startTicks = startTicks, lengthTicks = curTicks - startTicks });
+                    }
+                    chord = null;
+                    startTicks = -1;
+                }
+            }
+
+            return songChords;
+        }
+        
         int CalculateKey(int[] noteOccurences)
         {
             int[] keyWeights = new int[12];
