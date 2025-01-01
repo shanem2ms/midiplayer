@@ -85,6 +85,7 @@ namespace midilib
             List<int> notes;
             int[] noteOn = new int[12];
 
+            public List<int> Notes => notes;
             public int NoteCount => notes.Count;
             public ChordMapping(List<int> _notes)
             {
@@ -109,7 +110,7 @@ namespace midilib
             {
                 if (_notes.Count == 0)
                     return 0;
-                int value = 0;
+                int value = -NoteCount;
                 foreach (var n in _notes)
                 {
                     value += noteOn[n];
@@ -156,6 +157,13 @@ namespace midilib
                 if (a.ChordType != b.ChordType) return false;
 
                 return a.BaseNote == b.BaseNote;
+            }
+
+            public List<int> GetNotes(int octave)
+            {
+                ChordMapping mapping = ChordTypes[ChordType];
+                return 
+                    mapping.Notes.Select(n => n + BaseNote + 12 * octave).ToList();
             }
         }
 

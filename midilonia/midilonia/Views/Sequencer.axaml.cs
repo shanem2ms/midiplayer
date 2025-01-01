@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using DynamicData;
 using midilib;
 using Newtonsoft.Json.Linq;
 using System;
@@ -9,6 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
+using System.Threading;
 
 namespace midilonia.Views
 {
@@ -83,8 +86,21 @@ namespace midilonia.Views
 
         private void ChordBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            MidiPlayer player = App.Player;
             ChordAnalyzer.TimedChord tc = (ChordAnalyzer.TimedChord)((sender as Button).Tag);
-            Debug.WriteLine($"{tc.chord.ToString()}");
+            var notes = tc.chord.GetNotes(4);
+            foreach (var note in notes)
+            {
+                player.SynthEngine.NoteOn(note, 100);
+            }
+
+            Timer t = new Timer((object state) =>
+            {
+                foreach (int note in notes)
+                {
+                    player.SynthEngine.NoteOff(note);
+                }
+            }, null, 1000, Timeout.Infinite);
         }
 
         void Relayout()
@@ -173,7 +189,25 @@ namespace midilonia.Views
         }
         private void ToMelody_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-        }        
+        }
+
+        private void NoteZoomIn_Horiz_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            SequencerModel.PixelsPerSixteenth *= 2;
+            Relayout();
+            noteViewCtrl.Relayout();
+            if (App.SequencerMdl.NoteViewChannel != null)
+                App.SequencerMdl.BuildChords(App.SequencerMdl.NoteViewChannel);
+        }
+
+        private void NoteZoomOut_Horiz_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            SequencerModel.PixelsPerSixteenth = Math.Max(SequencerModel.PixelsPerSixteenth / 2, 1);
+            Relayout();
+            noteViewCtrl.Relayout();
+            if (App.SequencerMdl.NoteViewChannel != null)
+                App.SequencerMdl.BuildChords(App.SequencerMdl.NoteViewChannel);
+        }
     }
 
     public class YOffsetBindingConverter : IMultiValueConverter

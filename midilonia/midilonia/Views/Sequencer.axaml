@@ -105,6 +105,10 @@
             <Canvas x:Name="ChordNames" Grid.Row="1" />
           </Grid>
         </ScrollViewer>
+        <Grid ColumnDefinitions="*,Auto,Auto" VerticalAlignment="Bottom">
+           <Button Grid.Column="1" i:Attached.Icon="fa-plus" Background="Gray" Click="NoteZoomIn_Horiz_Click"/>
+          <Button Grid.Column="2" i:Attached.Icon="fa-minus" Background="Gray" Click="NoteZoomOut_Horiz_Click" />
+        </Grid>
 
         <ScrollViewer
             x:Name="BottomScrollViewer"

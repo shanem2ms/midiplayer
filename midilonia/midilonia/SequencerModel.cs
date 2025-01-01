@@ -34,8 +34,10 @@ namespace midilonia
         List<ChannelCtrl> channelCtrls = null;
         public MidiSong MidiSong => midiSong;
         public List<ChannelCtrl> ChannelCtrls => channelCtrls;
-        public int NoteViewChannel { get; set; } = -1;
-        public bool IsNoteViewMode => NoteViewChannel >= 0;
+        public int NoteViewChannelId { get; set; } = -1;
+        public bool IsNoteViewMode => NoteViewChannelId >= 0;
+
+        public ChannelCtrl NoteViewChannel => NoteViewChannelId >= 0 ? channelCtrls[NoteViewChannelId] : null;
         int playbackCursorPos = 0;
 
         bool autoscrollActive = true;
@@ -85,9 +87,9 @@ namespace midilonia
 
         void OnSongKeyChanged()
         {
-            if (this.NoteViewChannel >= 0)
+            if (this.NoteViewChannelId >= 0)
             {                
-                BuildChords(this.channelCtrls[this.NoteViewChannel]);
+                BuildChords(this.channelCtrls[this.NoteViewChannelId]);
             }
         }
 
@@ -121,8 +123,8 @@ namespace midilonia
 
         public void SetNoteViewMode(int channel)
         {
-            this.NoteViewChannel = channel;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NoteViewChannel)));
+            this.NoteViewChannelId = channel;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NoteViewChannelId)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsNoteViewMode)));
         }
 
@@ -223,7 +225,7 @@ namespace midilonia
             }
             return activeNotes;
         }
-        public void GetActiveNotes(int ticks, bool[] noteIsActive)
+        public List<int> GetActiveNotes(int ticks, bool[] noteIsActive)
         {
             for (int i = 0; i < noteIsActive.Length; i++)
             {
@@ -239,6 +241,7 @@ namespace midilonia
 
             CurrentChord = parent.ChordFor(notes)?.ToString() ?? string.Empty;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentChord)));
+            return notes;
         }
 
         void BuildNoteBuckets()

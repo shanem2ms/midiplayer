@@ -237,7 +237,7 @@ namespace midilonia.Views
 
         private void PlayActive_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            List<int> midiNotes = new List<int>();
+            List<int> midiNotes = channelCtrl.GetActiveNotes(channelCtrl.PlaybackCursorPos, activeNotes);
             foreach (var uikey in uikeys)
             {
                 if (uikey.IsActive)
@@ -258,7 +258,7 @@ namespace midilonia.Views
 
         private void CurrentCord_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            channelCtrl.GetActiveNotes(channelCtrl.PlaybackCursorPos, activeNotes);
+       
         }
     }
 }

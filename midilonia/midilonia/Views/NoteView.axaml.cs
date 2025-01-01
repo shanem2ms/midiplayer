@@ -73,12 +73,9 @@ public partial class NoteView : UserControl
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         base.OnSizeChanged(e);
-        if (channelCtrl != null)
-        {
-            Relayout();
-        }
+        Relayout();
     }
-    void Relayout()
+    public void Relayout()
     {
         int noteCount = GMInstruments.MidiEndIdx - GMInstruments.MidiStartIdx;
 
@@ -94,6 +91,9 @@ public partial class NoteView : UserControl
         }
 
         mainCanvas.Children.Clear();
+        if (channelCtrl == null)
+            return;
+
         int midiFileRes = channelCtrl.Resolution;
 
         int sixteenthRes = midiFileRes / 4;
