@@ -48,6 +48,16 @@ namespace midilonia.Views
                         break;
                     case "RewindBtn":
                         break;
+                    case "NextBtn":
+                        {
+                            if (App.ViewModel.ShuffleEnabled)
+                                App.ViewModel.CurrentSong = db.GetRandomSong();
+                            MidiDb.Fi fi = App.ViewModel.CurrentSong;
+                            if (!player.IsPlaying)
+                                player.PlaySong(fi, App.ViewModel.PianoMode, false);
+                            player.PauseOrUnPause(false);
+                        }
+                        break;
                 }
             }
         }

@@ -25,10 +25,13 @@ namespace midilib
         MidiDb db;
         public MidiDb Db => db;
         MidiDb.Fi currentPlayingSong;
+        bool currentIsPianoMode = false;
         MeltySynth.MidiFile currentPlayerMidifile;
         UserSettings userSettings;
         public bool IsPaused { get; set; }
         public bool IsPlaying { get => CurrentPlayingSong != null; }
+        public bool ShuffleEnable { get; set; } = true;
+        public bool AutoPlayNext { get; set; } = true;
 
         public MidiDb.Fi CurrentPlayingSong => currentPlayingSong;
         public MeltySynth.MidiFile CurrentPlayingMidi => currentPlayerMidifile;
@@ -110,6 +113,10 @@ namespace midilib
         private void Sequencer_OnPlaybackComplete(object sender, bool e)
         {
             OnPlaybackComplete?.Invoke(sender, e);
+            if (AutoPlayNext)
+            {
+                PlaySong(GetNextSong(), currentIsPianoMode, false);
+            }
         }
 
         private void Sequencer_OnPlaybackTime(object sender, PlaybackTimeArgs e)
@@ -141,6 +148,7 @@ namespace midilib
         public async Task<bool> LoadSong(MidiDb.Fi mfi, bool pianoMode)
         {
             currentPlayingSong = mfi;
+            currentIsPianoMode = pianoMode;
             string cacheFile = await db.GetLocalFile(mfi);
             userSettings.PlayHistory.Add(mfi.Location);
             userSettings.Persist();
