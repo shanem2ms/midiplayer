@@ -29,20 +29,26 @@
                  FontFamily="{StaticResource DigitalLCD}"
                  VerticalAlignment="Center" FontSize="20" />
     </Grid>
-    <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, Auto, *, Auto">
+    <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto,*, Auto">
       <Button Name="PlayBtn" i:Attached.Icon="fa-play" Classes="PlayControls" Grid.Column="1" Click="PlayButton_Click"
               IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}" />
-      <Button Name="StopBtn" i:Attached.Icon="fa-stop" Classes="PlayControls" Grid.Column="2" Click="PlayButton_Click"
-              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
-               />
-      <Button Name="RewindBtn" Classes="PlayControls" Grid.Column="3" Click="PlayButton_Click"
+      <Button Name="RewindBtn" Classes="PlayControls" Grid.Column="2" Click="PlayButton_Click"
               IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
               i:Attached.Icon="fa-backward" />
-      <ToggleButton Name="PianoModeBtn" Classes="PlayControls" Grid.Column="4" IsChecked="{Binding Path=PianoMode, Mode=TwoWay}"
+      <Button Name="StopBtn" i:Attached.Icon="fa-stop" Classes="PlayControls" Grid.Column="3" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
+               />
+      <Button Name="NextBtn" Classes="PlayControls" Grid.Column="4" Click="PlayButton_Click"
+              IsEnabled="{Binding Path=CurrentSong, Converter={x:Static ObjectConverters.IsNotNull}}"
+              i:Attached.Icon="fa-forward" />
+      <ToggleButton Name="PianoModeBtn" Classes="PlayControls" Grid.Column="5" IsChecked="{Binding Path=PianoMode, Mode=TwoWay}"
               i:Attached.Icon="fa-p" />
-      <Slider Grid.Column="5" Margin="10,0,10,0" Minimum="0" Maximum="{Binding Path=CurrentSongLength}"
+      <ToggleButton Name="ShuffleBtn" Classes="PlayControls" Grid.Column="6" IsChecked="{Binding Path=ShuffleEnabled, Mode=TwoWay}"
+              i:Attached.Icon="fa-shuffle" />
+
+      <Slider Grid.Column="7" Margin="10,0,10,0" Minimum="0" Maximum="{Binding Path=CurrentSongLength}"
               Value="{Binding Path=CurrentTime}"/>
-      <ToggleButton Name="PianoPlayBtn" Classes="PlayControls" Grid.Column="6" i:Attached.Icon="fa-m" 
+      <ToggleButton Name="PianoPlayBtn" Classes="PlayControls" Grid.Column="8" i:Attached.Icon="fa-m" 
                     IsChecked="{Binding Path=ExternalMidiMode, Mode=TwoWay}" />
     </Grid>
   </Grid>

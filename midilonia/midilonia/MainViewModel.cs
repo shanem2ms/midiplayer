@@ -52,6 +52,8 @@ namespace midilonia
         public string SelectedSong { get; set; }
 
         public bool PianoMode { get; set; } = false;
+        public bool ShuffleEnabled { get => player.ShuffleEnable; set => player.ShuffleEnable = value; } 
+        
         public bool ExternalMidiMode { get; set; } = false;
 
         public string CurrentSongName => CurrentSong?.Name ?? string.Empty;
