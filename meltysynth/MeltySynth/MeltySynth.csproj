@@ -17,16 +17,4 @@
     <DocumentationFile>bin\Release\MeltySynth.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
-    <IntermediateOutputPath>obj\ARM64\Debug</IntermediateOutputPath>
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType></DebugType>
-    <OutputPath>bin\ARM64\Debug</OutputPath>
-    <DefineConstants></DefineConstants>
-    <WarningLevel>4</WarningLevel>
-    <NoWarn></NoWarn>
-    <NoStdLib>false</NoStdLib>
-    <PlatformTarget>anycpu</PlatformTarget>
-    <Nullable></Nullable>
-  </PropertyGroup>
 </Project>
