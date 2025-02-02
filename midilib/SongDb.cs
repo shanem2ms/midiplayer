@@ -1,7 +1,7 @@
 ﻿using System;
 using MeltySynth;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
@@ -20,7 +20,7 @@ namespace midilib
     {
         string midiFilesRootDir;
         string ManifestFile => Path.Combine(midiFilesRootDir, "manifest.txt");
-        SQLiteConnection con;
+        SqliteConnection con;
         public SongDb(string midiFilesRoot)
         {
             midiFilesRootDir = midiFilesRoot;
@@ -30,7 +30,7 @@ namespace midilib
             string file = Path.Combine(midiFilesRootDir, "song.db");
             if (File.Exists(file))
                 File.Delete(file);
-            con = new SQLiteConnection($"Data Source={file}; Version=3;New=True;Compress=True;");
+            con = new SqliteConnection($"Data Source={file}");
         }
 
         static string CalculateMD5(string filePath)
@@ -172,7 +172,6 @@ namespace midilib
                     var cmdf = con.CreateCommand();
                     int rowId = Interlocked.Increment(ref rowcnt);
                     string path = Path.Combine(midiFilesRootDir, fi);
-                    if (path == null) return;
                     try
                     {
                         MidiFile midiFile = new MidiFile(path);
